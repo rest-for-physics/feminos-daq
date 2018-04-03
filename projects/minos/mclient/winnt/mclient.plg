@@ -1,0 +1,59 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: mclient - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\calvet\LOCALS~1\Temp\RSP1F5.tmp" with contents
+[
+/nologo /MT /W3 /GX /O2 /I "../../platforms/winnt" /I "../../util/winnt" /I "../../util" /I "../../feminos" /I "../../platforms" /I "../../bufmgr" /I "../../spiflash" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "JUMBO_POOL" /Fp"c:\compil\minos/mclient.pch" /YX /Fo"c:\compil\minos/" /Fd"c:\compil\minos/" /FD /c 
+"D:\users\calvet\projects\minos\bufmgr\bufpool.c"
+"D:\users\calvet\projects\minos\mclient\cmdfetcher.c"
+"D:\users\calvet\projects\minos\mclient\evbuilder.c"
+"D:\users\calvet\projects\minos\mclient\femarray.c"
+"D:\users\calvet\projects\minos\mclient\femproxy.c"
+"D:\users\calvet\projects\minos\feminos\frame.c"
+"D:\users\calvet\projects\minos\spiflash\hexreader.c"
+"D:\users\calvet\projects\minos\mclient\mclientUDP.c"
+"D:\users\calvet\projects\minos\platforms\winnt\os_al.c"
+"D:\users\calvet\projects\minos\mclient\programflash.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\calvet\LOCALS~1\Temp\RSP1F5.tmp" 
+Creating temporary file "C:\DOCUME~1\calvet\LOCALS~1\Temp\RSP1F6.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib ..\..\..\lib\minos\util\winnt\util.lib /nologo /subsystem:console /incremental:no /pdb:"..\..\..\bin\minos\winnt/mclient.pdb" /machine:I386 /nodefaultlib:"libc.lib" /out:"..\..\..\bin\minos\winnt/mclient.exe" 
+c:\compil\minos\bufpool.obj
+c:\compil\minos\cmdfetcher.obj
+c:\compil\minos\evbuilder.obj
+c:\compil\minos\femarray.obj
+c:\compil\minos\femproxy.obj
+c:\compil\minos\frame.obj
+c:\compil\minos\hexreader.obj
+c:\compil\minos\mclientUDP.obj
+c:\compil\minos\os_al.obj
+c:\compil\minos\programflash.obj
+]
+Creating command line "link.exe @C:\DOCUME~1\calvet\LOCALS~1\Temp\RSP1F6.tmp"
+<h3>Output Window</h3>
+Compiling...
+bufpool.c
+cmdfetcher.c
+evbuilder.c
+femarray.c
+femproxy.c
+frame.c
+hexreader.c
+mclientUDP.c
+os_al.c
+programflash.c
+Linking...
+
+
+
+<h3>Results</h3>
+mclient.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

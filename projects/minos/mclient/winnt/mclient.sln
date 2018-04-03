@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mclient", "mclient.vcxproj", "{1DE4F000-445E-660A-7C4C-73FB52E36A5E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mreader", "mreader.vcxproj", "{2154B3A0-9162-9E90-BFC1-179E8750AB9B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		Template|Win32 = Template|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1DE4F000-445E-660A-7C4C-73FB52E36A5E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1DE4F000-445E-660A-7C4C-73FB52E36A5E}.Debug|Win32.Build.0 = Debug|Win32
+		{1DE4F000-445E-660A-7C4C-73FB52E36A5E}.Release|Win32.ActiveCfg = Release|Win32
+		{1DE4F000-445E-660A-7C4C-73FB52E36A5E}.Release|Win32.Build.0 = Release|Win32
+		{1DE4F000-445E-660A-7C4C-73FB52E36A5E}.Template|Win32.ActiveCfg = Template|Win32
+		{1DE4F000-445E-660A-7C4C-73FB52E36A5E}.Template|Win32.Build.0 = Template|Win32
+		{2154B3A0-9162-9E90-BFC1-179E8750AB9B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2154B3A0-9162-9E90-BFC1-179E8750AB9B}.Debug|Win32.Build.0 = Debug|Win32
+		{2154B3A0-9162-9E90-BFC1-179E8750AB9B}.Release|Win32.ActiveCfg = Release|Win32
+		{2154B3A0-9162-9E90-BFC1-179E8750AB9B}.Release|Win32.Build.0 = Release|Win32
+		{2154B3A0-9162-9E90-BFC1-179E8750AB9B}.Template|Win32.ActiveCfg = Template|Win32
+		{2154B3A0-9162-9E90-BFC1-179E8750AB9B}.Template|Win32.Build.0 = Template|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,125 @@
+##################################
+# CAST detector setup
+# 1 Feminos + 1 FEC AGET
+# Data taking run
+##################################
+#
+##################################
+# Result file path
+##################################
+path ../data
+##################################
+# Event Builder settings
+##################################
+eof_on_eoe 0
+event_builder 0
+##################################
+# Ring Buffer and DAQ cleanup
+##################################
+DAQ 0
+credits restore 8 1 F
+daq 0xFFFFFF F
+sca enable 0
+sleep 1
+serve_target 0
+sleep 4
+##################################
+# Feminos Settings 
+##################################
+sca cnt 0x200
+sca autostart 1
+rst_len 0
+##################################
+# Readout settings
+##################################
+modify_hit_reg 0
+# Allow erase of hit register 
+erase_hit_ena 0
+# Allowable hit limit threshold
+erase_hit_thr * 2
+emit_hit_cnt 1
+emit_empty_ch 0
+emit_lst_cell_rd 0
+keep_rst 0
+skip_rst 1
+##################################
+# AGET settings
+##################################
+# Mode: 0x0: hit/selected channels 0x1:all channels
+aget * mode 0x0
+aget * tst_digout 0
+# Common coarse part of discriminator threshold
+aget * dac 0x1
+# Individual channel fine part of discriminator threshold
+aget * threshold * 0x1
+##################################
+# Channel ena/disable (AGET only)
+##################################
+forceon_all 0
+forceon * * 0
+forceoff * * 0
+##################################
+# Pedestal equalization and Zero-suppression
+##################################
+subtract_ped 1
+zero_suppress 1
+zs_pre_post 8 4
+##################################
+# Multiplicity Trigger settings
+##################################
+mult_thr * 31
+mult_limit * 50
+mult_trig_ena 1
+##################################
+# Event generator
+##################################
+# Event limit: 0x0:infinite; 0x1:1; 0x2:10; 0x3:100; 0x4: 1000; 0x5:10000; 0x6:100000; 0x7:1000000
+event_limit 0x0
+# Range: 0:0.1Hz-10Hz 1:10Hz-1kHz 2:100Hz-10kHz 3:1kHz-100kHz
+trig_rate 1 50
+# Trigger enable bits (OR several if desired): 0x1:generator 0x2:trigger pin 0x4:pulser 0x8: TCM 
+trig_enable 0x0
+##################################
+# Set Data server target:
+#  0: drop data
+#  1: send to DAQ
+#  2: feed to pedestal histos
+#  3: feed to hit channel histos 
+##################################
+serve_target 1
+##################################
+# Clear dead-time histogram
+##################################
+hbusy clr
+hhit clr *
+##################################
+# Create result file
+##################################
+fopen asc
+##################################
+# Enable data taking
+##################################
+sca enable 1
+##################################
+# Data acquisition
+##################################
+DAQ 10000000
+##################################
+# Wait DAQ completion
+##################################
+LOOP 100
+DAQ
+sleep 1
+NEXT
+##################################
+# Show dead-time histogram
+##################################
+hbusy get
+hhit get 0
+hhit get 1
+hhit get 2
+hhit get 3
+##################################
+# Close result file
+##################################
+fclose
