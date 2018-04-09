@@ -50,9 +50,11 @@ char runNumberStr[64];
 int runNumber;
 char runTagStr[65];
 char tmpStr[256];
+char runComments[512];
 
 char clockStr[16];
 char shapingStr[16];
+char detectorStr[64];
 char gainStr[16];
 
 char dacCoarseStr[16];
@@ -313,13 +315,14 @@ int CmdFetcher_Main(CmdFetcher *cf)
 						fscanf( fRunInfo, "%s\n", driftFieldStr );
 						fscanf( fRunInfo, "%s\n", meshVoltageStr );
 						fscanf( fRunInfo, "%s\n", detectorPressureStr );
+						fscanf( fRunInfo, "%s\n", detectorStr );
 						fclose(fRunInfo);
 
 						if( dataTakingMode == 1 || dataTakingMode == 0 )
 						{
 							printf("Enter the run conditions :\n" );
 							printf("--------------------------\n");
-							printf("Run number : %d\n", runNumber );
+							printf("Run number : %d\n", runNumber+1 );
 
 							printf("\nDrift field (%s V/cm/bar) : ", driftFieldStr );
 							fgets( tmpStr, 100, stdin );
@@ -349,6 +352,18 @@ int CmdFetcher_Main(CmdFetcher *cf)
 								sprintf( runTagStr, "%s", tmpStr );
 							printf("\n");
 							printf("Run tag set to : %s\n", runTagStr );
+
+							printf("\nDetector (%s) : ", detectorStr );
+							fgets( tmpStr, 100, stdin );
+							strtok( tmpStr, "\n");
+							if( strcmp (tmpStr, "\n" ) != 0 )
+								sprintf( detectorStr, "%s", tmpStr );
+							printf("\nDetector set to : %s\n", detectorStr );
+
+							printf("\nComments : " );
+							fgets( tmpStr, 512, stdin );
+								sprintf( runComments, "%s", tmpStr );
+							printf("\n");
 						}
 						else
 						{
@@ -366,6 +381,7 @@ int CmdFetcher_Main(CmdFetcher *cf)
 						fprintf( fRunInfo, "%s\n", driftFieldStr );
 						fprintf( fRunInfo, "%s\n", meshVoltageStr );
 						fprintf( fRunInfo, "%s\n", detectorPressureStr );
+						fprintf( fRunInfo, "%s\n", detectorStr );
 						fclose(fRunInfo);
 
 						if( savePed )

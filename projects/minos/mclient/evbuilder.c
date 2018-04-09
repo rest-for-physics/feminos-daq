@@ -41,6 +41,10 @@ extern char runTagStr[65];
 extern char clockStr[16];
 extern char shapingStr[16];
 extern char gainStr[16];
+extern char detectorStr[64];
+extern char runComments[512];
+
+char elogCommand[512];
 
 char filenameToCopy[256];
 char command[256];
@@ -856,6 +860,24 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 				runNumber, runTagStr, meshVoltageStr, driftFieldStr, detectorPressureStr,
 				gainStr, shapingStr, clockStr );
 
+		FILE *felog = fopen( "/tmp/elog.file", "wt" );
+
+		fprintf( felog, "%s\n", runComments ); 
+		fprintf( felog, "Vmesh : %s V\n", meshVoltageStr ); 
+		fprintf( felog, "Vdrift : %s V/cm/bar\n", driftFieldStr ); 
+		fprintf( felog, "AGET gain : %s\n", gainStr ); 
+		fprintf( felog, "AGET shaping : %s\n", shapingStr ); 
+		fprintf( felog, "AGET clock : %s\n", clockStr ); 
+
+		fclose( felog );
+
+		if( strstr( runTagStr, "Test" ) == NULL && strstr( runTagStr, "test" ) == NULL )
+		{
+			sprintf( elogCommand, "cat /tmp/elog.file | elog -h 132.166.30.28 -p 8080 -l PANDAXIII -a Type=DataTaking -a Detector=%s -a Author=DAQ -a Subject=\"Run#%05d - %s\"", detectorStr, runNumber, runTagStr );
+			printf( "%s\n", elogCommand );
+		}
+
+		system( elogCommand );
 		// Clear sub-run index
 		eb->subrun_ix = 0;
 	}

@@ -62,9 +62,9 @@ aget * write 4 0x0 0x0000 0x0000
 aget * wrchk 10 0x0000 0x0000 0x0000 0x0000
 aget * wrchk 11 0x0000 0x0000 0x0000 0x0000
 # Common part of discriminator threshold
-aget * dac 0x0
+aget * dac 0x1
 # AGET discriminator thresholds
-aget * threshold * 0x5
+aget * threshold * 0x1
 # Threshold
 hped setthr * * 250 3.0
 ##################################
@@ -96,14 +96,14 @@ mult_trig_ena 1
 ##################################
 # Event generator
 ##################################
-trig_delay 100
+trig_delay 1200
 # trig_delay 0xfa0
 # Event limit: 0x0:infinite; 0x1:1; 0x2:10; 0x3:100; 0x4: 1000; 0x5:10000; 0x6:100000; 0x7:1000000
 event_limit 0x0
 # Range: 0:0.1Hz-10Hz 1:10Hz-1kHz 2:100Hz-10kHz 3:1kHz-100kHz
 trig_rate 1 50
 # Trigger enable bits (OR several if desired): 0x1:generator 0x2:trigger pin 0x4:pulser 0x8: TCM 
-trig_enable 0x1
+trig_enable 0x0
 ##################################
 # Set Data server target:
 #  0: drop data
@@ -132,7 +132,7 @@ DAQ 20000000000
 ##################################
 # Wait DAQ completion
 ##################################
-LOOP 10
+LOOP 600
 DAQ
 sleep 1
 NEXT
