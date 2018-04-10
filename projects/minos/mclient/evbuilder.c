@@ -871,9 +871,11 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 
 		fclose( felog );
 
+		char elogName[64];
+		sprintf( elogName, "%s", getenv( "ELOG_NAME" ) );
 		if( strstr( runTagStr, "Test" ) == NULL && strstr( runTagStr, "test" ) == NULL )
 		{
-			sprintf( elogCommand, "cat /tmp/elog.file | elog -h 132.166.30.28 -p 8080 -l PANDAXIII -a Type=DataTaking -a Detector=%s -a Author=DAQ -a Subject=\"Run#%05d - %s\"", detectorStr, runNumber, runTagStr );
+			sprintf( elogCommand, "cat /tmp/elog.file | elog -h 132.166.30.28 -p 8080 -l %s -a Type=DataTaking -a Detector=%s -a Author=DAQ -a Subject=\"Run#%05d - %s\"", elogName, detectorStr, runNumber, runTagStr );
 			printf( "%s\n", elogCommand );
 		}
 
