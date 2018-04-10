@@ -33,6 +33,7 @@
 #include <time.h>
 
 extern int runNumber;
+extern int eLogActive;
 extern int dataTakingMode;
 extern char driftFieldStr[64];
 extern char meshVoltageStr[64];
@@ -871,15 +872,22 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 
 		fclose( felog );
 
-		char elogName[64];
-		sprintf( elogName, "%s", getenv( "ELOG_NAME" ) );
-		if( strstr( runTagStr, "Test" ) == NULL && strstr( runTagStr, "test" ) == NULL )
+		char elogActive[64];
+		sprintf( elogActive, "%s", getenv( "ELOG_ACTIVE" ) );
+		if( strstr( elogActive, "YES" ) != NULL )
 		{
-			sprintf( elogCommand, "cat /tmp/elog.file | elog -h 132.166.30.28 -p 8080 -l %s -a Type=DataTaking -a Detector=%s -a Author=DAQ -a Subject=\"Run#%05d - %s\"", elogName, detectorStr, runNumber, runTagStr );
-			printf( "%s\n", elogCommand );
+			char elogName[64];
+			sprintf( elogName, "%s", getenv( "ELOG_NAME" ) );
+			if( strstr( runTagStr, "Test" ) == NULL && strstr( runTagStr, "test" ) == NULL )
+			{
+				sprintf( elogCommand, "cat /tmp/elog.file | elog -h 132.166.30.28 -p 8080 -l %s -a Type=DataTaking -a Detector=%s -a Author=DAQ -a Subject=\"Run#%05d - %s\"", elogName, detectorStr, runNumber, runTagStr );
+				printf( "Launching eLog command : \n", elogCommand );
+				printf( "%s\n", elogCommand );
+
+				system( elogCommand );
+			}
 		}
 
-		system( elogCommand );
 		// Clear sub-run index
 		eb->subrun_ix = 0;
 	}
@@ -888,11 +896,7 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 		eb->subrun_ix++;
 	}
 	
-	// Make file name
-	if( dataTakingMode == 0 )
-		sprintf(&(eb->file_path[0]), getenv( "TEST_DATA_PATH") );
-	if( dataTakingMode == 1 )
-		sprintf(&(eb->file_path[0]), getenv( "GOOD_DATA_PATH" ) );
+	sprintf(&(eb->file_path[0]), getenv( "RAWDATA_PATH" ) );
 
 	sprintf(name, "%s%s-%03d.%s", &(eb->file_path[0]), &(eb->run_str[0]), eb->subrun_ix, str_ext);
 	sprintf(fileNameNow, "%s-%03d.%s", &(eb->run_str[0]), eb->subrun_ix, str_ext);
@@ -954,10 +958,6 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 		fwrite(name, len, 1, eb->fout);
 		eb->byte_wr+=len;
 */
-
-		printf("****************\n");
-		printf( "len : %d\n", len );
-		printf("****************\n");
 	}
 
 	eb->savedata = format;
