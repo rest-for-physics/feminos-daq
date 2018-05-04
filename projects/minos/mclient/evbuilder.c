@@ -867,13 +867,19 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 
 		char elogActive[64];
 		sprintf( elogActive, "%s", getenv( "ELOG_ACTIVE" ) );
+
 		if( strstr( elogActive, "YES" ) != NULL )
 		{
 			char elogName[64];
 			sprintf( elogName, "%s", getenv( "ELOG_NAME" ) );
+			char elogIP[64];
+			sprintf( elogIP, "%s", getenv( "ELOG_IP" ) );
+			char elogPORT[64];
+			sprintf( elogPORT, "%s", getenv( "ELOG_PORT" ) );
+
 			if( strstr( runTagStr, "Test" ) == NULL && strstr( runTagStr, "test" ) == NULL )
 			{
-				sprintf( elogCommand, "cat /tmp/elog.file | elog -h 132.166.30.28 -p 8080 -l %s -a Type=DataTaking -a Detector=%s -a Author=DAQ -a Subject=\"Run#%05d - %s\"", elogName, detectorStr, runNumber, runTagStr );
+				sprintf( elogCommand, "cat /tmp/elog.file | elog -h %s -p %s -l %s -a Type=DataTaking -a Detector=%s -a Author=DAQ -a Subject=\"Run#%05d - %s\"", elogIP, elogPORT, elogName, detectorStr, runNumber, runTagStr );
 				printf( "Launching eLog command : \n", elogCommand );
 				printf( "%s\n", elogCommand );
 
