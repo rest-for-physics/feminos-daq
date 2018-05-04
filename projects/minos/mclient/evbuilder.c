@@ -34,7 +34,6 @@
 
 extern int runNumber;
 extern int eLogActive;
-extern int dataTakingMode;
 extern char driftFieldStr[64];
 extern char meshVoltageStr[64];
 extern char detectorPressureStr[64];
@@ -776,13 +775,10 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 			fclose(eb->fout);
 			
 			// Adding file to the analysis queue
-			if( dataTakingMode == 1 )
-			{
-				sprintf( fileAnalysis, "%s/%s", getenv( "FILES_TO_ANALYSE_PATH" ), fileNameNow );
+			sprintf( fileAnalysis, "%s/%s", getenv( "FILES_TO_ANALYSE_PATH" ), fileNameNow );
 
-				anFiles = fopen( fileAnalysis, "wt" );
-				fclose( anFiles );
-			}
+			anFiles = fopen( fileAnalysis, "wt" );
+			fclose( anFiles );
 
 			eb->fout = (FILE*) 0;
 
@@ -811,12 +807,9 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 			fflush(eb->fout);
 			fclose(eb->fout);
 
-			if( dataTakingMode == 1 )
-			{
-				sprintf( fileAnalysis, "%s/%s", getenv( "FILES_TO_ANALYSE_PATH" ), fileNameNow );
-				anFiles = fopen( fileAnalysis, "wt" );
-				fclose( anFiles );
-			}
+			sprintf( fileAnalysis, "%s/%s", getenv( "FILES_TO_ANALYSE_PATH" ), fileNameNow );
+			anFiles = fopen( fileAnalysis, "wt" );
+			fclose( anFiles );
 
 			eb->fout = (FILE*) 0;
 		}

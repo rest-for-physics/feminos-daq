@@ -42,7 +42,6 @@ char client_time[] = __TIME__;
 ////////////////////////////////////////////////
 
 int savePed = 0;
-extern int dataTakingMode;
 char driftFieldStr[64];
 char meshVoltageStr[64];
 char detectorPressureStr[64];
@@ -318,60 +317,50 @@ int CmdFetcher_Main(CmdFetcher *cf)
 						fscanf( fRunInfo, "%s\n", detectorStr );
 						fclose(fRunInfo);
 
-						if( dataTakingMode == 1 || dataTakingMode == 0 )
-						{
-							printf("Enter the run conditions :\n" );
-							printf("--------------------------\n");
-							printf("Run number : %d\n", runNumber+1 );
+						printf("Enter the run conditions :\n" );
+						printf("--------------------------\n");
+						printf("Run number : %d\n", runNumber+1 );
 
-							printf("\nDrift field (%s V/cm/bar) : ", driftFieldStr );
-							fgets( tmpStr, 100, stdin );
-							strtok( tmpStr, "\n");
-							if( strcmp (tmpStr, "\n" ) != 0 )
-								sprintf( driftFieldStr, "%s", tmpStr );
-							printf("\nDrift field set to : %s V/cm/bar\n", driftFieldStr );
+						printf("\nDrift field (%s V/cm/bar) : ", driftFieldStr );
+						fgets( tmpStr, 100, stdin );
+						strtok( tmpStr, "\n");
+						if( strcmp (tmpStr, "\n" ) != 0 )
+							sprintf( driftFieldStr, "%s", tmpStr );
+						printf("\nDrift field set to : %s V/cm/bar\n", driftFieldStr );
 
-							printf("\nMesh voltage (%s V) : ", meshVoltageStr );
-							fgets( tmpStr, 100, stdin );
-							strtok( tmpStr, "\n");
-							if( strcmp (tmpStr, "\n" ) != 0 )
-								sprintf( meshVoltageStr, "%s", tmpStr );
-							printf("\nMesh voltage set to : %s V\n", meshVoltageStr );
+						printf("\nMesh voltage (%s V) : ", meshVoltageStr );
+						fgets( tmpStr, 100, stdin );
+						strtok( tmpStr, "\n");
+						if( strcmp (tmpStr, "\n" ) != 0 )
+							sprintf( meshVoltageStr, "%s", tmpStr );
+						printf("\nMesh voltage set to : %s V\n", meshVoltageStr );
 
-							printf("\nDetector pressure (%s bar) : ", detectorPressureStr );
-							fgets( tmpStr, 100, stdin );
-							strtok( tmpStr, "\n");
-							if( strcmp (tmpStr, "\n" ) != 0 )
-								sprintf( detectorPressureStr, "%s", tmpStr );
-							printf("\nPressure set to : %s bar\n", detectorPressureStr );
+						printf("\nDetector pressure (%s bar) : ", detectorPressureStr );
+						fgets( tmpStr, 100, stdin );
+						strtok( tmpStr, "\n");
+						if( strcmp (tmpStr, "\n" ) != 0 )
+							sprintf( detectorPressureStr, "%s", tmpStr );
+						printf("\nPressure set to : %s bar\n", detectorPressureStr );
 
-							printf("\nRun tag (%s) : ", runTagStr );
-							fgets( tmpStr, 100, stdin );
-							strtok( tmpStr, "\n");
-							if( strcmp (tmpStr, "\n" ) != 0 )
-								sprintf( runTagStr, "%s", tmpStr );
-							printf("\n");
-							printf("Run tag set to : %s\n", runTagStr );
+						printf("\nRun tag (%s) : ", runTagStr );
+						fgets( tmpStr, 100, stdin );
+						strtok( tmpStr, "\n");
+						if( strcmp (tmpStr, "\n" ) != 0 )
+							sprintf( runTagStr, "%s", tmpStr );
+						printf("\n");
+						printf("Run tag set to : %s\n", runTagStr );
 
-							printf("\nDetector (%s) : ", detectorStr );
-							fgets( tmpStr, 100, stdin );
-							strtok( tmpStr, "\n");
-							if( strcmp (tmpStr, "\n" ) != 0 )
-								sprintf( detectorStr, "%s", tmpStr );
-							printf("\nDetector set to : %s\n", detectorStr );
+						printf("\nDetector (%s) : ", detectorStr );
+						fgets( tmpStr, 100, stdin );
+						strtok( tmpStr, "\n");
+						if( strcmp (tmpStr, "\n" ) != 0 )
+							sprintf( detectorStr, "%s", tmpStr );
+						printf("\nDetector set to : %s\n", detectorStr );
 
-							printf("\nComments : " );
-							fgets( tmpStr, 512, stdin );
-								sprintf( runComments, "%s", tmpStr );
-							printf("\n");
-						}
-						else
-						{
-							sprintf( runTagStr, "Test" );
-							sprintf( driftFieldStr, "0" );
-							sprintf( meshVoltageStr, "0" );
-							sprintf( detectorPressureStr, "0" );
-						}
+						printf("\nComments : " );
+						fgets( tmpStr, 512, stdin );
+						sprintf( runComments, "%s", tmpStr );
+						printf("\n");
 
 						sprintf( tmpStr, "%s/%s", getenv( "DAQ_CONFIG" ), "run.info" );
 						fRunInfo = fopen( tmpStr, "wt" );
@@ -386,41 +375,18 @@ int CmdFetcher_Main(CmdFetcher *cf)
 
 						if( savePed )
 						{
-							if( dataTakingMode == 1 )
 							sprintf(tmpStr, "cp ped %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.ped",
-									getenv( "GOOD_DATA_PATH" ), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
-									detectorPressureStr, gainStr, shapingStr, clockStr );
-							if( dataTakingMode == 0 )
-							sprintf(tmpStr, "cp ped %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.ped",
-									getenv( "TEST_DATA_PATH" ), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
+									getenv( "RAWDATA_PATH" ), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
 									detectorPressureStr, gainStr, shapingStr, clockStr );
 							system( tmpStr );
 							savePed = 0;
 						}
-						if( savePed && dataTakingMode == 0 )
-						{
-							sprintf(tmpStr, "cp ped %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.ped",
-									getenv( "TEST_DATA_PATH"), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
-									detectorPressureStr, gainStr, shapingStr, clockStr );
-							system( tmpStr );
-							savePed = 0;
-						}
-						if( dataTakingMode == 1 )
-						{
-							sprintf(tmpStr, "cp %s %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.run", cf->cmd_file, 
-									getenv( "GOOD_DATA_PATH" ), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
-									detectorPressureStr, gainStr, shapingStr, clockStr );
-							system( tmpStr );
-							savePed = 0;
-						}
-						if( dataTakingMode == 0 )
-						{
-							sprintf(tmpStr, "cp %s %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.run", cf->cmd_file, 
-									getenv( "TEST_DATA_PATH" ), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
-									detectorPressureStr, gainStr, shapingStr, clockStr );
-							system( tmpStr );
-							savePed = 0;
-						}
+
+						sprintf(tmpStr, "cp %s %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.run", cf->cmd_file, 
+								getenv( "RAWDATA_PATH" ), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
+								detectorPressureStr, gainStr, shapingStr, clockStr );
+						system( tmpStr );
+						savePed = 0;
 					}
 					else if( strcmp( cf->cmd_file, "ped" ) == 0 )
 					{

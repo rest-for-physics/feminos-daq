@@ -41,8 +41,6 @@ int echo_cmd      = 1;
 
 int cur_fem;
 
-int dataTakingMode = 1;
-
 CmdFetcher   cmdfetcher;
 FemArray     femarray;
 BufPool      bufpool;
@@ -241,15 +239,6 @@ int parse_cmd_args(int argc, char **argv)
 			}
 			femarray.verbose = cmdfetcher.verbose;
 			
-		}
-		// help
-		else if (strncmp(argv[i], "datataking", 10) == 0)
-		{
-			dataTakingMode = 1;
-		}
-		else if (strncmp(argv[i], "test", 10) == 0)
-		{
-			dataTakingMode = 0;
 		}
 		else if (strncmp(argv[i], "-h", 2) == 0)
 		{
