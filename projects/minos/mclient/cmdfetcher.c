@@ -303,7 +303,7 @@ int CmdFetcher_Main(CmdFetcher *cf)
 				if (strncmp(cmd_stdin, "exec ", 5) == 0)
 				{
 					sscanf(&cmd_stdin[5], "%s", cf->cmd_file);
-					if( strcmp( cf->cmd_file, "ped" ) != 0 &&  strcmp( cf->cmd_file, "start" ) != 0 )
+					if( strcmp( cf->cmd_file, "ped" ) != 0 &&  strcmp( cf->cmd_file, "start" ) != 0 &&  strcmp( cf->cmd_file, "runTCM" ) != 0 )
 					{
 
 						sprintf( tmpStr, "%s/%s", getenv( "DAQ_CONFIG" ), "run.info" );
