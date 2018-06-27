@@ -1,6 +1,6 @@
 Relevant changes to the original version
 
-* When using "exec" command with a command file with name different from "ped,start,runTCM", which are the values to be used for pedestal, initialization and TCM files, we will be prompted for some run conditions.
+* When using "exec" command with a command file with name different from "ped,start,runTCM", which are the values to be used for pedestal, initialization and TCM, we will be prompted for some run conditions.
 
 * If properly configured, an automatic elog entry will be generated.
   * If the runTag contains the word "Test" or "test", this feature will be skipped.
