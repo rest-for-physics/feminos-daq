@@ -65,6 +65,7 @@ char filenameToCopy[256];
 char command[256];
 
 char fileNameNow[256];
+char fileNameEndRun[256];
 
 #if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
 // The union is already defined in sys/sem.h
@@ -842,6 +843,12 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 			anFiles = fopen( fileAnalysis, "wt" );
 			fclose( anFiles );
 
+			// Adding file to signal the end of the run
+			sprintf( fileAnalysis, "%s/%s", getenv( "FILES_TO_ANALYSE_PATH" ), fileNameEndRun );
+
+			anFiles = fopen( fileAnalysis, "wt" );
+			fclose( anFiles );
+
 			eb->fout = (FILE*) 0;
 
 			if (eb->savedata == 1)
@@ -961,6 +968,7 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 
 	sprintf(name, "%s%s-%03d.%s", &(eb->file_path[0]), &(eb->run_str[0]), eb->subrun_ix, str_ext);
 	sprintf(fileNameNow, "%s-%03d.%s", &(eb->run_str[0]), eb->subrun_ix, str_ext);
+	sprintf(fileNameEndRun, "%s-%03d.%s", &(eb->run_str[0]), eb->subrun_ix, "endRun" );
 
 	if (action == EBFA_OpenFirst)
 	{
