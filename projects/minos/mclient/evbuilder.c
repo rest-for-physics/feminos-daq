@@ -32,6 +32,19 @@
 #include <unistd.h>
 #include <time.h>
 
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/sem.h>
+
+extern int *ShMem_dataReady;
+extern int *ShMem_nSignals;
+extern short int *ShMem_Buffer;
+extern unsigned int *ShMem_evId;
+extern double *ShMem_timeStamp;
+
+extern int SemaphoreId;
+extern int shareBuffer;
+
 extern int runNumber;
 extern int eLogActive;
 extern char driftFieldStr[64];
@@ -44,12 +57,51 @@ extern char gainStr[16];
 extern char detectorStr[64];
 extern char runComments[512];
 
+int timeStart = 0;
+
 char elogCommand[512];
 
 char filenameToCopy[256];
 char command[256];
 
 char fileNameNow[256];
+
+#if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
+// The union is already defined in sys/sem.h
+#else
+// We must define the union
+union semun
+{
+    int val;
+    struct semid_ds *buf;
+    unsigned short int *array;
+    struct seminfo *__buf;
+};
+#endif
+
+struct sembuf op;
+
+void SemaphoreRed( int id )
+{
+    int sem_id = 0;
+
+    op.sem_num = sem_id;  // sem_id
+    op.sem_op = -1;
+    op.sem_flg = 0;
+
+   semop(id, &op, 1);
+}
+
+void SemaphoreGreen( int id )
+{
+    int sem_id = 0;
+
+    op.sem_num = sem_id;  // sem_id
+    op.sem_op = 1;
+    op.sem_flg = 0;
+
+    semop(id, &op, 1);
+}
 
 /*******************************************************************************
  EventBuilder_Clear
@@ -334,6 +386,16 @@ int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu)
 	if (eb->vflags)
 	{
 		Frame_Print((void *) stdout, (void *) bu_s, (int) sz, eb->vflags);
+	}
+
+	if( shareBuffer )
+	{
+		SemaphoreRed( SemaphoreId );
+
+		Frame_ToSharedMemory((void *) stdout, (void *) bu_s, (int) sz, 0x0 , ShMem_dataReady, ShMem_nSignals, ShMem_evId, ShMem_timeStamp, ShMem_Buffer );
+
+		*ShMem_timeStamp = timeStart + *ShMem_timeStamp;
+		SemaphoreGreen( SemaphoreId );
 	}
 
 	// Save data to file
@@ -948,6 +1010,7 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 		eb->byte_wr+=2;
 
 		int tt = (int) time(NULL);
+		timeStart = tt;
 		printf( "Starting timestamp : %d\n", tt );
 		fwrite( &tt, sizeof(int), 1, eb->fout );
 		eb->byte_wr+= sizeof(int);

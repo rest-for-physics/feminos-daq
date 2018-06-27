@@ -28,6 +28,12 @@
 #include <stdio.h>
 #include <time.h>
 
+// For shared memory
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/sem.h>
+
+
 /*******************************************************************************
  Constants types and global variables
 *******************************************************************************/
@@ -45,6 +51,22 @@ CmdFetcher   cmdfetcher;
 FemArray     femarray;
 BufPool      bufpool;
 EventBuilder eventbuilder;
+
+/*******************************************************************************
+ * Variables associated to shared memory buffer
+*******************************************************************************/
+int shareBuffer = 0;
+
+int *ShMem_dataReady;
+int *ShMem_nSignals;
+unsigned short int *ShMem_Buffer;
+unsigned int *ShMem_evId;
+double *ShMem_timeStamp;
+
+int SemaphoreId;
+
+const int MAX_SIGNALS = 1152; // To cover up to 4 Feminos boards 72 * 4 * 4
+const int MAX_POINTS = 512;
 
 /*******************************************************************************
  help() to display usage
@@ -246,6 +268,11 @@ int parse_cmd_args(int argc, char **argv)
 			help();
 			return (-1); // force an error to exit
 		}
+		else if (strncmp(argv[i], "shareBuffer", 11 ) == 0)
+		{
+			match = 1;
+			shareBuffer = 1;
+		}
 		// unmatched options
 		if (match == 0)
 		{
@@ -286,6 +313,59 @@ int main(int argc, char **argv)
 		printf("parse_cmd_args failed: %d\n", err);
 		return (-1);	
 	}
+    
+    ////////////////////////////////////////////////
+
+    /* {{{ Creating shared memory to dump event data */
+    if( shareBuffer )
+    {
+	    key_t MemKey = ftok ("/bin/ls", 3);
+	    int memId  = shmget (MemKey, sizeof(int), 0777 | IPC_CREAT);
+	    ShMem_dataReady = (int *) shmat ( memId, (char *)0, 0);
+
+	    *ShMem_dataReady = 0;
+	    /////////////////////////////////
+
+	    MemKey = ftok ("/bin/ls", 7);
+	    memId  = shmget (MemKey, sizeof(int), 0777 | IPC_CREAT);
+	    ShMem_nSignals = (int *) shmat ( memId, (char *)0, 0);
+
+	    *ShMem_nSignals = 0;
+	    /////////////////////////////////
+
+	    MemKey = ftok ("/bin/ls", 8);
+	    memId  = shmget (MemKey, sizeof( unsigned int), 0777 | IPC_CREAT);
+	    ShMem_evId = (unsigned int *) shmat ( memId, (char *)0, 0);
+
+	    *ShMem_evId = 0;
+	    /////////////////////////////////
+
+	    MemKey = ftok ("/bin/ls", 9);
+	    memId  = shmget (MemKey, sizeof(double), 0777 | IPC_CREAT);
+	    ShMem_timeStamp = (double *) shmat ( memId, (char *)0, 0);
+
+	    *ShMem_timeStamp = 0;
+	    /////////////////////////////////
+
+	    int N_DATA = MAX_SIGNALS * ( MAX_POINTS + 1); // We add 1-point to store the daqChannel Id
+
+	    MemKey = ftok ("/bin/ls", 13);
+	    memId  = shmget (MemKey, N_DATA * sizeof(unsigned short int), 0777 | IPC_CREAT);
+	    ShMem_Buffer = (unsigned short int *) shmat ( memId, (char *) 0, 0);
+	    /////////////////////////////////
+
+	    for( int n = 0; n < N_DATA; n++ )
+		    ShMem_Buffer[n] = 0;
+
+	    // Creating semaphores to handle access to shared memory
+
+	    key_t SemaphoreKey = ftok ("/bin/ls", 14);
+	    SemaphoreId = semget ( SemaphoreKey, 1, 0777 | IPC_CREAT);
+	    semctl ( SemaphoreId, 0, SETVAL, 1);
+    }
+
+    /* }}} */
+
 
 	// Initialize Buffer Pool
 	BufPool_Init(&bufpool);
@@ -370,5 +450,6 @@ cleanup:
 	socket_cleanup();
 	return (err);
 }
+
 
 

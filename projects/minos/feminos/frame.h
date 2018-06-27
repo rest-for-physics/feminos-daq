@@ -192,7 +192,7 @@
 #define FRAME_PRINT_LAST_CELL_READ_3 0x00008000
 #define FRAME_PRINT_EBBND            0x00010000
 
-
+void Frame_ToSharedMemory( void *fp, void *fr, int fr_sz, unsigned int vflg, int *dataReady, int *nSignals, unsigned int *eventId, double *timeStamp, unsigned short int *Buffer );
 void Frame_Print(void *fp, void *fr, int fr_sz, unsigned int vflg);
 int  Frame_IsCFrame(void *fr, short *err_code);
 int  Frame_IsDFrame(void *fr);
