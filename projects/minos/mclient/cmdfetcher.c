@@ -59,6 +59,8 @@ char gainStr[16];
 char dacCoarseStr[16];
 char dacFineStr[16];
 
+extern int readOnly;
+
 /* Event Builder mode interpretation  */
 static char EventBuilder_Mode2str[16][40] = {
 	"transparent",                            // 0
@@ -306,87 +308,90 @@ int CmdFetcher_Main(CmdFetcher *cf)
 					if( strcmp( cf->cmd_file, "ped" ) != 0 &&  strcmp( cf->cmd_file, "start" ) != 0 &&  strcmp( cf->cmd_file, "runTCM" ) != 0 )
 					{
 
-						sprintf( tmpStr, "%s/%s", getenv( "DAQ_CONFIG" ), "run.info" );
-						fRunInfo = fopen( tmpStr, "rt" );
-						fscanf( fRunInfo, "%s\n", runNumberStr );
-						runNumber = atoi( runNumberStr );
-						fscanf( fRunInfo, "%s\n", runTagStr );
-						fscanf( fRunInfo, "%s\n", driftFieldStr );
-						fscanf( fRunInfo, "%s\n", meshVoltageStr );
-						fscanf( fRunInfo, "%s\n", detectorPressureStr );
-						fscanf( fRunInfo, "%s\n", detectorStr );
-						fclose(fRunInfo);
-
-						printf("Enter the run conditions :\n" );
-						printf("--------------------------\n");
-						printf("Run number : %d\n", runNumber+1 );
-
-						printf("\nDrift field (%s V/cm/bar) : ", driftFieldStr );
-						fgets( tmpStr, 100, stdin );
-						strtok( tmpStr, "\n");
-						if( strcmp (tmpStr, "\n" ) != 0 )
-							sprintf( driftFieldStr, "%s", tmpStr );
-						printf("\nDrift field set to : %s V/cm/bar\n", driftFieldStr );
-
-						printf("\nMesh voltage (%s V) : ", meshVoltageStr );
-						fgets( tmpStr, 100, stdin );
-						strtok( tmpStr, "\n");
-						if( strcmp (tmpStr, "\n" ) != 0 )
-							sprintf( meshVoltageStr, "%s", tmpStr );
-						printf("\nMesh voltage set to : %s V\n", meshVoltageStr );
-
-						printf("\nDetector pressure (%s bar) : ", detectorPressureStr );
-						fgets( tmpStr, 100, stdin );
-						strtok( tmpStr, "\n");
-						if( strcmp (tmpStr, "\n" ) != 0 )
-							sprintf( detectorPressureStr, "%s", tmpStr );
-						printf("\nPressure set to : %s bar\n", detectorPressureStr );
-
-						printf("\nRun tag (%s) : ", runTagStr );
-						fgets( tmpStr, 100, stdin );
-						strtok( tmpStr, "\n");
-						if( strcmp (tmpStr, "\n" ) != 0 )
-							sprintf( runTagStr, "%s", tmpStr );
-						printf("\n");
-						printf("Run tag set to : %s\n", runTagStr );
-
-						printf("\nDetector (%s) : ", detectorStr );
-						fgets( tmpStr, 100, stdin );
-						strtok( tmpStr, "\n");
-						if( strcmp (tmpStr, "\n" ) != 0 )
-							sprintf( detectorStr, "%s", tmpStr );
-						printf("\nDetector set to : %s\n", detectorStr );
-
-						printf("\nComments : " );
-						fgets( tmpStr, 512, stdin );
-						sprintf( runComments, "%s", tmpStr );
-						printf("\n");
-
-						sprintf( tmpStr, "%s/%s", getenv( "DAQ_CONFIG" ), "run.info" );
-						fRunInfo = fopen( tmpStr, "wt" );
-						runNumber++;
-						fprintf( fRunInfo, "%d\n", runNumber );
-						fprintf( fRunInfo, "%s\n", runTagStr );
-						fprintf( fRunInfo, "%s\n", driftFieldStr );
-						fprintf( fRunInfo, "%s\n", meshVoltageStr );
-						fprintf( fRunInfo, "%s\n", detectorPressureStr );
-						fprintf( fRunInfo, "%s\n", detectorStr );
-						fclose(fRunInfo);
-
-						if( savePed )
+						if( !readOnly )
 						{
-							sprintf(tmpStr, "cp ped %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.ped",
+							sprintf( tmpStr, "%s/%s", getenv( "DAQ_CONFIG" ), "run.info" );
+							fRunInfo = fopen( tmpStr, "rt" );
+							fscanf( fRunInfo, "%s\n", runNumberStr );
+							runNumber = atoi( runNumberStr );
+							fscanf( fRunInfo, "%s\n", runTagStr );
+							fscanf( fRunInfo, "%s\n", driftFieldStr );
+							fscanf( fRunInfo, "%s\n", meshVoltageStr );
+							fscanf( fRunInfo, "%s\n", detectorPressureStr );
+							fscanf( fRunInfo, "%s\n", detectorStr );
+							fclose(fRunInfo);
+
+							printf("Enter the run conditions :\n" );
+							printf("--------------------------\n");
+							printf("Run number : %d\n", runNumber+1 );
+
+							printf("\nDrift field (%s V/cm/bar) : ", driftFieldStr );
+							fgets( tmpStr, 100, stdin );
+							strtok( tmpStr, "\n");
+							if( strcmp (tmpStr, "\n" ) != 0 )
+								sprintf( driftFieldStr, "%s", tmpStr );
+							printf("\nDrift field set to : %s V/cm/bar\n", driftFieldStr );
+
+							printf("\nMesh voltage (%s V) : ", meshVoltageStr );
+							fgets( tmpStr, 100, stdin );
+							strtok( tmpStr, "\n");
+							if( strcmp (tmpStr, "\n" ) != 0 )
+								sprintf( meshVoltageStr, "%s", tmpStr );
+							printf("\nMesh voltage set to : %s V\n", meshVoltageStr );
+
+							printf("\nDetector pressure (%s bar) : ", detectorPressureStr );
+							fgets( tmpStr, 100, stdin );
+							strtok( tmpStr, "\n");
+							if( strcmp (tmpStr, "\n" ) != 0 )
+								sprintf( detectorPressureStr, "%s", tmpStr );
+							printf("\nPressure set to : %s bar\n", detectorPressureStr );
+
+							printf("\nRun tag (%s) : ", runTagStr );
+							fgets( tmpStr, 100, stdin );
+							strtok( tmpStr, "\n");
+							if( strcmp (tmpStr, "\n" ) != 0 )
+								sprintf( runTagStr, "%s", tmpStr );
+							printf("\n");
+							printf("Run tag set to : %s\n", runTagStr );
+
+							printf("\nDetector (%s) : ", detectorStr );
+							fgets( tmpStr, 100, stdin );
+							strtok( tmpStr, "\n");
+							if( strcmp (tmpStr, "\n" ) != 0 )
+								sprintf( detectorStr, "%s", tmpStr );
+							printf("\nDetector set to : %s\n", detectorStr );
+
+							printf("\nComments : " );
+							fgets( tmpStr, 512, stdin );
+							sprintf( runComments, "%s", tmpStr );
+							printf("\n");
+
+							sprintf( tmpStr, "%s/%s", getenv( "DAQ_CONFIG" ), "run.info" );
+							fRunInfo = fopen( tmpStr, "wt" );
+							runNumber++;
+							fprintf( fRunInfo, "%d\n", runNumber );
+							fprintf( fRunInfo, "%s\n", runTagStr );
+							fprintf( fRunInfo, "%s\n", driftFieldStr );
+							fprintf( fRunInfo, "%s\n", meshVoltageStr );
+							fprintf( fRunInfo, "%s\n", detectorPressureStr );
+							fprintf( fRunInfo, "%s\n", detectorStr );
+							fclose(fRunInfo);
+
+							if( savePed )
+							{
+								sprintf(tmpStr, "cp ped %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.ped",
+										getenv( "RAWDATA_PATH" ), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
+										detectorPressureStr, gainStr, shapingStr, clockStr );
+								system( tmpStr );
+								savePed = 0;
+							}
+
+							sprintf(tmpStr, "cp %s %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.run", cf->cmd_file, 
 									getenv( "RAWDATA_PATH" ), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
 									detectorPressureStr, gainStr, shapingStr, clockStr );
 							system( tmpStr );
 							savePed = 0;
 						}
-
-						sprintf(tmpStr, "cp %s %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.run", cf->cmd_file, 
-								getenv( "RAWDATA_PATH" ), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
-								detectorPressureStr, gainStr, shapingStr, clockStr );
-						system( tmpStr );
-						savePed = 0;
 					}
 					else if( strcmp( cf->cmd_file, "ped" ) == 0 )
 					{

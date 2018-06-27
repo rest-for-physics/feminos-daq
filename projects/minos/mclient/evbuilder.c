@@ -44,6 +44,7 @@ extern double *ShMem_timeStamp;
 
 extern int SemaphoreId;
 extern int shareBuffer;
+extern int readOnly;
 
 extern int runNumber;
 extern int eLogActive;
@@ -400,7 +401,7 @@ int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu)
 	}
 
 	// Save data to file
-	if (eb->savedata)
+	if (!readOnly && eb->savedata)
 	{
 		
 
@@ -810,6 +811,9 @@ int EventBuilder_GetBufferToRecycle(EventBuilder *eb, void* *bufo, int *src)
 *******************************************************************************/
 int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 {
+	if( readOnly ) 
+		return 0;
+
 	struct tm *now;
 	char   name[120];
 	time_t start_time;

@@ -56,6 +56,7 @@ EventBuilder eventbuilder;
  * Variables associated to shared memory buffer
 *******************************************************************************/
 int shareBuffer = 0;
+int readOnly = 0;
 
 int *ShMem_dataReady;
 int *ShMem_nSignals;
@@ -272,6 +273,11 @@ int parse_cmd_args(int argc, char **argv)
 		{
 			match = 1;
 			shareBuffer = 1;
+		}
+		else if (strncmp(argv[i], "readOnly", 8 ) == 0)
+		{
+			match = 1;
+			readOnly = 1;
 		}
 		// unmatched options
 		if (match == 0)
