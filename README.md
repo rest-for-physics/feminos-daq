@@ -10,6 +10,7 @@ Relevant changes to the original version
    Usage : ./mclient shareBuffer
 
    * This buffer can be accessed by other processes, and in particular by TRestSharedMemoryBufferToRawSignalProcess.
+   * When mclient program is terminated by clean exit or by CTRL-C the shared resources will be removed.
 
 * A read only option. Actually, this option will be mostly used together with shareBuffer or very basic tests.
    Usage : ./mclient readOnly
@@ -20,6 +21,4 @@ Relevant changes to the original version
 * A new empty file will be generated at FILES_TO_ANALYSE_PATH to indicate when a particular RUN has completely finished.
 
    * The generated file under FILES_TO_ANALYSE_PATH will have extension *.endRun*. And it will use the same file name as the last file written.
-
-* A cleanSharedMemory.c code has been added to clean up resources created by mclient in shareBuffer mode.
 
