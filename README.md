@@ -21,3 +21,5 @@ Relevant changes to the original version
 
    * The generated file under FILES_TO_ANALYSE_PATH will have extension *.endRun*. And it will use the same file name as the last file written.
 
+* A cleanSharedMemory.c code has been added to clean up resources created by mclient in shareBuffer mode.
+
