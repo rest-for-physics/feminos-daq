@@ -26,12 +26,15 @@
 #include "evbuilder.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 // For shared memory
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+
+#include <signal.h>
 
 
 /*******************************************************************************
@@ -63,6 +66,12 @@ int *ShMem_nSignals;
 unsigned short int *ShMem_Buffer;
 unsigned int *ShMem_evId;
 double *ShMem_timeStamp;
+
+int ShMem_Buffer_ID;
+int ShMem_dataReady_ID;
+int ShMem_nSignals_ID;
+int ShMem_evId_ID;
+int ShMem_timeStamp_ID;
 
 int SemaphoreId;
 
@@ -289,11 +298,89 @@ int parse_cmd_args(int argc, char **argv)
 
 }
 
+void CleanSharedMemory( int s )
+{
+	printf("Cleaning shared resources\n" );
+
+	
+	int err = shmctl ( ShMem_Buffer_ID, IPC_RMID, NULL );
+	err = shmctl ( ShMem_dataReady_ID, IPC_RMID, NULL );
+	err = shmctl ( ShMem_nSignals_ID, IPC_RMID, NULL );
+	err = shmctl ( ShMem_evId_ID, IPC_RMID, NULL );
+	err = shmctl ( ShMem_timeStamp_ID, IPC_RMID, NULL );
+
+	semctl ( SemaphoreId, 0, IPC_RMID, 0);
+
+	//printf( "shmctl err : %s\n", err );
+/*
+	char address[64];
+	char memid[64];
+	char user[64];
+	char permissons[64];
+	int step = 4;
+	FILE *memOutput = popen ("ipcs", "r");
+
+	char tmp[256];
+	while( fscanf( memOutput, "%s", tmp) != EOF)
+	{
+		if( step == 4 && strncmp( tmp, "0x", 2 ) == 0 )
+		{
+			step = 1;
+			strcpy( address, tmp);
+			continue;
+		}
+
+		if( step == 1)
+		{
+			step = 2;
+			strcpy( memid, tmp);
+			continue;
+		}
+
+		if( step == 2)
+		{
+			step = 3;
+			strcpy( user, tmp);
+			continue;
+		}
+
+		if( step == 3)
+		{
+			step = 4;
+			strcpy( permissons, tmp);
+
+			char command[256];
+
+			char userName[256];
+			sprintf( userName, "%s", getenv("USER") );
+
+			if( strncmp( user, userName, 5 ) == 0 && strncmp( permissons, "777", 3) == 0 )
+			{
+				sprintf ( command , "ipcrm -m %s > /dev/null", memid );
+				//printf( "%s\n", command );
+				system( command );
+
+				sprintf ( command , "ipcrm -s %s > /dev/null", memid );
+				//printf( "%s\n", command );
+				system( command );
+
+			}
+			continue;
+		}
+
+	}
+
+	pclose( memOutput );
+*/
+	exit(1);
+}
+
 /*******************************************************************************
  Main
 *******************************************************************************/
 int main(int argc, char **argv)
 {
+
 	int err;
 
 	// Initialize Command Fetcher
@@ -319,58 +406,60 @@ int main(int argc, char **argv)
 		printf("parse_cmd_args failed: %d\n", err);
 		return (-1);	
 	}
-    
-    ////////////////////////////////////////////////
 
-    /* {{{ Creating shared memory to dump event data */
-    if( shareBuffer )
-    {
-	    key_t MemKey = ftok ("/bin/ls", 3);
-	    int memId  = shmget (MemKey, sizeof(int), 0777 | IPC_CREAT);
-	    ShMem_dataReady = (int *) shmat ( memId, (char *)0, 0);
+	////////////////////////////////////////////////
 
-	    *ShMem_dataReady = 0;
-	    /////////////////////////////////
+	/* {{{ Creating shared memory to dump event data */
+	if( shareBuffer )
+	{
+		key_t MemKey = ftok ("/bin/ls", 3);
+		ShMem_dataReady_ID  = shmget (MemKey, sizeof(int), 0777 | IPC_CREAT);
+		ShMem_dataReady = (int *) shmat ( ShMem_dataReady_ID, (char *)0, 0);
 
-	    MemKey = ftok ("/bin/ls", 7);
-	    memId  = shmget (MemKey, sizeof(int), 0777 | IPC_CREAT);
-	    ShMem_nSignals = (int *) shmat ( memId, (char *)0, 0);
+		*ShMem_dataReady = 0;
+		/////////////////////////////////
 
-	    *ShMem_nSignals = 0;
-	    /////////////////////////////////
+		MemKey = ftok ("/bin/ls", 7);
+		ShMem_nSignals_ID  = shmget (MemKey, sizeof(int), 0777 | IPC_CREAT);
+		ShMem_nSignals = (int *) shmat ( ShMem_nSignals_ID, (char *)0, 0);
 
-	    MemKey = ftok ("/bin/ls", 8);
-	    memId  = shmget (MemKey, sizeof( unsigned int), 0777 | IPC_CREAT);
-	    ShMem_evId = (unsigned int *) shmat ( memId, (char *)0, 0);
+		*ShMem_nSignals = 0;
+		/////////////////////////////////
 
-	    *ShMem_evId = 0;
-	    /////////////////////////////////
+		MemKey = ftok ("/bin/ls", 8);
+		ShMem_evId_ID  = shmget (MemKey, sizeof( unsigned int), 0777 | IPC_CREAT);
+		ShMem_evId = (unsigned int *) shmat ( ShMem_evId_ID, (char *)0, 0);
 
-	    MemKey = ftok ("/bin/ls", 9);
-	    memId  = shmget (MemKey, sizeof(double), 0777 | IPC_CREAT);
-	    ShMem_timeStamp = (double *) shmat ( memId, (char *)0, 0);
+		*ShMem_evId = 0;
+		/////////////////////////////////
 
-	    *ShMem_timeStamp = 0;
-	    /////////////////////////////////
+		MemKey = ftok ("/bin/ls", 9);
+		ShMem_timeStamp_ID  = shmget (MemKey, sizeof(double), 0777 | IPC_CREAT);
+		ShMem_timeStamp = (double *) shmat ( ShMem_timeStamp_ID, (char *)0, 0);
 
-	    int N_DATA = MAX_SIGNALS * ( MAX_POINTS + 1); // We add 1-point to store the daqChannel Id
+		*ShMem_timeStamp = 0;
+		/////////////////////////////////
 
-	    MemKey = ftok ("/bin/ls", 13);
-	    memId  = shmget (MemKey, N_DATA * sizeof(unsigned short int), 0777 | IPC_CREAT);
-	    ShMem_Buffer = (unsigned short int *) shmat ( memId, (char *) 0, 0);
-	    /////////////////////////////////
+		int N_DATA = MAX_SIGNALS * ( MAX_POINTS + 1); // We add 1-point to store the daqChannel Id
 
-	    for( int n = 0; n < N_DATA; n++ )
-		    ShMem_Buffer[n] = 0;
+		MemKey = ftok ("/bin/ls", 13);
+		ShMem_Buffer_ID  = shmget (MemKey, N_DATA * sizeof(unsigned short int), 0777 | IPC_CREAT);
+		ShMem_Buffer = (unsigned short int *) shmat ( ShMem_Buffer_ID, (char *) 0, 0);
+		/////////////////////////////////
 
-	    // Creating semaphores to handle access to shared memory
+		for( int n = 0; n < N_DATA; n++ )
+			ShMem_Buffer[n] = 0;
 
-	    key_t SemaphoreKey = ftok ("/bin/ls", 14);
-	    SemaphoreId = semget ( SemaphoreKey, 1, 0777 | IPC_CREAT);
-	    semctl ( SemaphoreId, 0, SETVAL, 1);
-    }
+		// Creating semaphores to handle access to shared memory
 
-    /* }}} */
+		key_t SemaphoreKey = ftok ("/bin/ls", 14);
+		SemaphoreId = semget ( SemaphoreKey, 1, 0777 | IPC_CREAT);
+		semctl ( SemaphoreId, 0, SETVAL, 1);
+
+		signal( SIGINT, CleanSharedMemory );
+	}
+
+	/* }}} */
 
 
 	// Initialize Buffer Pool
@@ -389,10 +478,10 @@ int main(int argc, char **argv)
 		printf("EventBuilder_Open failed: %d\n", err);
 		goto cleanup;
 	}
-	
+
 	// Pass a pointer to the fem array to the command catcher
 	cmdfetcher.fa = (void *) &femarray;
-	
+
 	// Pass a pointer to buffer pool and event builder to the fem array
 	femarray.bp = (void *) &bufpool;
 	femarray.eb = (void *) &eventbuilder;
@@ -454,6 +543,10 @@ int main(int argc, char **argv)
 cleanup:
 
 	socket_cleanup();
+
+	if( shareBuffer )
+		CleanSharedMemory(0);
+
 	return (err);
 }
 
