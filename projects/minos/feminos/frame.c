@@ -175,13 +175,8 @@ int Frame_GetEventTyNbTs(void *fr,
 /*******************************************************************************
  Frame_ToSharedMemory
 *******************************************************************************/
-void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , int *dataReady, int *nSignals, unsigned int *evId, double *timeStamp, unsigned short int *Buffer )
+void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , daqInfo *dInfo, unsigned short int *Buffer, int tStart )
 {
-	// Redefinition in mclientUDP. If changed here it should be changed there also.
-	const int MAX_SIGNALS = 1152; // To cover up to 4 Feminos boards 72 * 4 * 4
-	const int MAX_POINTS = 512;
-	const int N_DATA = MAX_SIGNALS * ( MAX_POINTS + 1); // We add 1-point to store the daqChannel Id
-
 	unsigned short *p;
 	int i, j;
 	int sz_rd;
@@ -222,10 +217,10 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , int
 			sz_rd+=2;
 			si = 0;
 
-			if( *dataReady == 1 )
+			if( dInfo->dataReady == 1 )
 			{
-				bufferPosition = *nSignals * (MAX_POINTS + 1);
-				*nSignals = *nSignals + 1;
+				bufferPosition = dInfo->nSignals * (dInfo->maxSamples + 1);
+				dInfo->nSignals = dInfo->nSignals + 1;
 				daqChannel = r0 * 72 * 4 + r1 * 72 + r2;
 				
 				Buffer[bufferPosition] = daqChannel;
@@ -263,7 +258,7 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , int
 			r0 = GET_ADC_DATA(*p);
 
 			bufferPosition++;
-			if( bufferPosition > N_DATA )
+			if( bufferPosition > dInfo->bufferSize )
 			{
 				printf( "Writting outside shared memory range!!!\n" );
 				printf( "This problem should be fixed by increasing the shared memory size\n" );
@@ -563,14 +558,16 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , int
 			}
 
 			/////////////////////////////// NEW ADDED 
-			if( *dataReady == 0 )
+			if( dInfo->dataReady == 0 )
 			{
+				/*
 				printf("Start OF EVENT HEADER. Setting number of signals to ZERO\n" ); 
 				printf( "Only if dataReady is ZERO\n" );
-				*nSignals = 0;
-				*dataReady = 1;
-				*timeStamp = tt;
-				*evId = tmp;
+				*/
+				dInfo->nSignals = 0;
+				dInfo->dataReady = 1;
+				dInfo->timeStamp = (double) tStart + tt;
+				dInfo->eventId = tmp;
 			}
 			/////////////////////////////// NEW ADDED 
 
@@ -591,11 +588,13 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , int
 			}
 
 			/////////////////////////////// NEW ADDED 
-			if( *dataReady == 1 )
+			if( dInfo->dataReady == 1 )
 			{
+				/*
 				printf("End OF BUILD. Setting data ready to TWO.\n") ;
 				printf( "Only if dataReady is ZERO\n" );
-				*dataReady = 2;
+				*/
+				dInfo->dataReady = 2;
 			}
 			/////////////////////////////// NEW ADDED 
 		}
@@ -1097,12 +1096,12 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , int
 			}
 
 			/////////////////////////////// NEW ADDED 
-			if( *dataReady == 0 )
+			if( dInfo->dataReady == 0 )
 			{
 				printf("Start OF BUILD. Setting number of signals to ZERO\n") ;
 				printf( "Only if dataReady is ZERO\n" );
-				*nSignals = 0;
-				*dataReady = 1;
+				dInfo->nSignals = 0;
+				dInfo->dataReady = 1;
 			}
 			/////////////////////////////// NEW ADDED 
 
@@ -1119,11 +1118,11 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , int
 
 
 			/////////////////////////////// NEW ADDED 
-			if( *dataReady == 1 )
+			if( dInfo->dataReady == 1 )
 			{
 				printf("End OF BUILD. Setting data ready to ONE\n") ;
 				printf( "Only if dataReady is ZERO\n" );
-				*dataReady = 2;
+				dInfo->dataReady = 2;
 			}
 			/////////////////////////////// NEW ADDED 
 

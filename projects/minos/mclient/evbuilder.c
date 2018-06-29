@@ -36,15 +36,20 @@
 #include <sys/shm.h>
 #include <sys/sem.h>
 
+extern daqInfo *ShMem_DaqInfo;
+extern short int *ShMem_Buffer;
+
+/*
 extern int *ShMem_dataReady;
 extern int *ShMem_nSignals;
-extern short int *ShMem_Buffer;
 extern unsigned int *ShMem_evId;
 extern double *ShMem_timeStamp;
+*/
 
 extern int SemaphoreId;
-extern int shareBuffer;
-extern int readOnly;
+
+extern int shareBuffer; // mclient will set it to 1 if we want to share the resource
+extern int readOnly;	// mclient will set it to 1 if we do not want to write data to disk
 
 extern int runNumber;
 extern int eLogActive;
@@ -394,9 +399,14 @@ int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu)
 	{
 		SemaphoreRed( SemaphoreId );
 
-		Frame_ToSharedMemory((void *) stdout, (void *) bu_s, (int) sz, 0x0 , ShMem_dataReady, ShMem_nSignals, ShMem_evId, ShMem_timeStamp, ShMem_Buffer );
+	//	printf( "Event time BEFORE : %lf\n", ShMem_DaqInfo->timeStamp );
+		Frame_ToSharedMemory((void *) stdout, (void *) bu_s, (int) sz, 0x0 , ShMem_DaqInfo, ShMem_Buffer, timeStart );
 
-		*ShMem_timeStamp = timeStart + *ShMem_timeStamp;
+		//printf( "TIME START : %d\n", timeStart );
+	//	printf( "Event time : %lf\n", ShMem_DaqInfo->timeStamp );
+	//	ShMem_DaqInfo->timeStamp = (double) timeStart + ShMem_DaqInfo->timeStamp;
+		//printf( "Event time added : %lf\n", ShMem_DaqInfo->timeStamp );
+		//printf( "-----\n");
 		SemaphoreGreen( SemaphoreId );
 	}
 
@@ -811,6 +821,10 @@ int EventBuilder_GetBufferToRecycle(EventBuilder *eb, void* *bufo, int *src)
 *******************************************************************************/
 int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 {
+	int tt = (int) time(NULL);
+	timeStart = tt;
+	printf( "Starting timestamp : %d\n", tt );
+
 	if( readOnly ) 
 		return 0;
 
@@ -827,7 +841,7 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 
 	FILE *anFiles;
 	char fileAnalysis[256];
-	
+
 	// Close the last file 
 	if (action == EBFA_CloseLast)
 	{
@@ -837,10 +851,10 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 		}
 		else
 		{
-		
+
 			fflush(eb->fout);
 			fclose(eb->fout);
-			
+
 			// Adding file to the analysis queue
 			sprintf( fileAnalysis, "%s/%s", getenv( "FILES_TO_ANALYSE_PATH" ), fileNameNow );
 
@@ -887,7 +901,7 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 			eb->fout = (FILE*) 0;
 		}
 	}
-	
+
 	// ASCII format
 	if (format == 1)
 	{
@@ -914,15 +928,15 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 		}
 
 		// Prepare the run string
-/* Old format filename
-		sprintf(eb->run_str, "R%4d_%02d_%02d-%02d_%02d_%02d",
-			((now->tm_year)+1900),
-			((now->tm_mon)+1),
-			now->tm_mday,
-			now->tm_hour,
-			now->tm_min,
-			now->tm_sec);
-*/
+		/* Old format filename
+		   sprintf(eb->run_str, "R%4d_%02d_%02d-%02d_%02d_%02d",
+		   ((now->tm_year)+1900),
+		   ((now->tm_mon)+1),
+		   now->tm_mday,
+		   now->tm_hour,
+		   now->tm_min,
+		   now->tm_sec);
+		 */
 		sprintf(eb->run_str, "R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s",
 				runNumber, runTagStr, meshVoltageStr, driftFieldStr, detectorPressureStr,
 				gainStr, shapingStr, clockStr );
@@ -967,7 +981,7 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 	{
 		eb->subrun_ix++;
 	}
-	
+
 	sprintf(&(eb->file_path[0]), getenv( "RAWDATA_PATH" ) );
 
 	sprintf(name, "%s%s-%03d.%s", &(eb->file_path[0]), &(eb->run_str[0]), eb->subrun_ix, str_ext);
@@ -986,14 +1000,14 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 		return(-1);
 	}
 
-			printf( "Opening file : %s\n", name );
-	
+	printf( "Opening file : %s\n", name );
+
 	// in ASCII format add a carriage return
 	if (format == 1)
 	{
 		sprintf(name, "RUN : %s-%03d\n", eb->run_str, eb->subrun_ix);
 		len = strlen(name);
-			
+
 		// Write run string to file
 		fwrite(name, len, 1, eb->fout);
 		eb->byte_wr+=len;
@@ -1003,8 +1017,8 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 	{
 		sprintf(name, "%s-%03d", eb->run_str, eb->subrun_ix);
 		len = strlen(name);
-		
-		
+
+
 		// String should include null termination and size must be even
 		if ((len%2) == 0)
 		{
@@ -1021,17 +1035,14 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 		fwrite(&hdr, 2, 1, eb->fout);
 		eb->byte_wr+=2;
 
-		int tt = (int) time(NULL);
-		timeStart = tt;
-		printf( "Starting timestamp : %d\n", tt );
 		fwrite( &tt, sizeof(int), 1, eb->fout );
 		eb->byte_wr+= sizeof(int);
 		/*
-			
+
 		// Write run string to file
 		fwrite(name, len, 1, eb->fout);
 		eb->byte_wr+=len;
-*/
+		 */
 	}
 
 	eb->savedata = format;

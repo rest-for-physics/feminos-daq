@@ -24,6 +24,7 @@
 #include "femarray.h"
 #include "bufpool.h"
 #include "evbuilder.h"
+#include "frame.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,18 +62,10 @@ EventBuilder eventbuilder;
 int shareBuffer = 0;
 int readOnly = 0;
 
-int *ShMem_dataReady;
-int *ShMem_nSignals;
-unsigned short int *ShMem_Buffer;
-unsigned int *ShMem_evId;
-double *ShMem_timeStamp;
-
 int ShMem_Buffer_ID;
-int ShMem_dataReady_ID;
-int ShMem_nSignals_ID;
-int ShMem_evId_ID;
-int ShMem_timeStamp_ID;
-
+int ShMem_DaqInfo_ID;
+daqInfo *ShMem_DaqInfo;
+unsigned short int *ShMem_Buffer;
 int SemaphoreId;
 
 const int MAX_SIGNALS = 1152; // To cover up to 4 Feminos boards 72 * 4 * 4
@@ -301,77 +294,12 @@ int parse_cmd_args(int argc, char **argv)
 void CleanSharedMemory( int s )
 {
 	printf("Cleaning shared resources\n" );
-
 	
 	int err = shmctl ( ShMem_Buffer_ID, IPC_RMID, NULL );
-	err = shmctl ( ShMem_dataReady_ID, IPC_RMID, NULL );
-	err = shmctl ( ShMem_nSignals_ID, IPC_RMID, NULL );
-	err = shmctl ( ShMem_evId_ID, IPC_RMID, NULL );
-	err = shmctl ( ShMem_timeStamp_ID, IPC_RMID, NULL );
+	err = shmctl ( ShMem_DaqInfo_ID, IPC_RMID, NULL );
 
 	semctl ( SemaphoreId, 0, IPC_RMID, 0);
 
-	//printf( "shmctl err : %s\n", err );
-/*
-	char address[64];
-	char memid[64];
-	char user[64];
-	char permissons[64];
-	int step = 4;
-	FILE *memOutput = popen ("ipcs", "r");
-
-	char tmp[256];
-	while( fscanf( memOutput, "%s", tmp) != EOF)
-	{
-		if( step == 4 && strncmp( tmp, "0x", 2 ) == 0 )
-		{
-			step = 1;
-			strcpy( address, tmp);
-			continue;
-		}
-
-		if( step == 1)
-		{
-			step = 2;
-			strcpy( memid, tmp);
-			continue;
-		}
-
-		if( step == 2)
-		{
-			step = 3;
-			strcpy( user, tmp);
-			continue;
-		}
-
-		if( step == 3)
-		{
-			step = 4;
-			strcpy( permissons, tmp);
-
-			char command[256];
-
-			char userName[256];
-			sprintf( userName, "%s", getenv("USER") );
-
-			if( strncmp( user, userName, 5 ) == 0 && strncmp( permissons, "777", 3) == 0 )
-			{
-				sprintf ( command , "ipcrm -m %s > /dev/null", memid );
-				//printf( "%s\n", command );
-				system( command );
-
-				sprintf ( command , "ipcrm -s %s > /dev/null", memid );
-				//printf( "%s\n", command );
-				system( command );
-
-			}
-			continue;
-		}
-
-	}
-
-	pclose( memOutput );
-*/
 	exit(1);
 }
 
@@ -412,35 +340,20 @@ int main(int argc, char **argv)
 	/* {{{ Creating shared memory to dump event data */
 	if( shareBuffer )
 	{
+
 		key_t MemKey = ftok ("/bin/ls", 3);
-		ShMem_dataReady_ID  = shmget (MemKey, sizeof(int), 0777 | IPC_CREAT);
-		ShMem_dataReady = (int *) shmat ( ShMem_dataReady_ID, (char *)0, 0);
+		ShMem_DaqInfo_ID  = shmget (MemKey, sizeof( daqInfo ), 0777 | IPC_CREAT );
+		ShMem_DaqInfo = (daqInfo *) shmat ( ShMem_DaqInfo_ID, (char *)0, 0);
+		
+		ShMem_DaqInfo->maxSignals = MAX_SIGNALS;
+		ShMem_DaqInfo->maxSamples = MAX_POINTS;
+		ShMem_DaqInfo->timeStamp = 0;
+		ShMem_DaqInfo->dataReady = 0;
+		ShMem_DaqInfo->nSignals = 0;
+		ShMem_DaqInfo->eventId = 0;
 
-		*ShMem_dataReady = 0;
-		/////////////////////////////////
-
-		MemKey = ftok ("/bin/ls", 7);
-		ShMem_nSignals_ID  = shmget (MemKey, sizeof(int), 0777 | IPC_CREAT);
-		ShMem_nSignals = (int *) shmat ( ShMem_nSignals_ID, (char *)0, 0);
-
-		*ShMem_nSignals = 0;
-		/////////////////////////////////
-
-		MemKey = ftok ("/bin/ls", 8);
-		ShMem_evId_ID  = shmget (MemKey, sizeof( unsigned int), 0777 | IPC_CREAT);
-		ShMem_evId = (unsigned int *) shmat ( ShMem_evId_ID, (char *)0, 0);
-
-		*ShMem_evId = 0;
-		/////////////////////////////////
-
-		MemKey = ftok ("/bin/ls", 9);
-		ShMem_timeStamp_ID  = shmget (MemKey, sizeof(double), 0777 | IPC_CREAT);
-		ShMem_timeStamp = (double *) shmat ( ShMem_timeStamp_ID, (char *)0, 0);
-
-		*ShMem_timeStamp = 0;
-		/////////////////////////////////
-
-		int N_DATA = MAX_SIGNALS * ( MAX_POINTS + 1); // We add 1-point to store the daqChannel Id
+		int N_DATA = MAX_SIGNALS * (MAX_POINTS + 1); // We add 1-point to store the daqChannel Id
+		ShMem_DaqInfo->bufferSize = N_DATA; 
 
 		MemKey = ftok ("/bin/ls", 13);
 		ShMem_Buffer_ID  = shmget (MemKey, N_DATA * sizeof(unsigned short int), 0777 | IPC_CREAT);
