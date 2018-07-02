@@ -937,6 +937,15 @@ int CmdFetcher_ParseCmdFile(CmdFetcher *cf)
 	cf->cmd_cnt = 0;
 	ml_comment  = 0;
 	ml_cnext    = 0;
+
+	// Always append as header clear event counter and timestamp
+	sprintf(cf->snd[ix], "clr tstamp\n");
+	cf->cmd_cnt++;
+	ix++;
+	sprintf(cf->snd[ix], "clr evcnt\n");
+	cf->cmd_cnt++;
+	ix++;
+
 	while (fgets(cf->snd[ix], CMD_LINE_SIZE, fptr))
 	{
 		// check for single or multi-line comments
@@ -988,12 +997,6 @@ int CmdFetcher_ParseCmdFile(CmdFetcher *cf)
 		printf("unterminated commented section. Use \"*/\" at beginning of line.\n");
 		err = -1;
 	}
-
-	// Always append a clear event counter and timestamp
-	sprintf(cf->snd[ix], "clr tstamp\n");
-	cf->cmd_cnt++;
-	sprintf(cf->snd[ix], "clr evcnt\n");
-	cf->cmd_cnt++;
 
 	// Always append a end command in case the user forgot it
 	sprintf(cf->snd[ix], "END\n");
