@@ -989,6 +989,12 @@ int CmdFetcher_ParseCmdFile(CmdFetcher *cf)
 		err = -1;
 	}
 
+	// Always append a clear event counter and timestamp
+	sprintf(cf->snd[ix], "clr tstamp\n");
+	cf->cmd_cnt++;
+	sprintf(cf->snd[ix], "clr evcnt\n");
+	cf->cmd_cnt++;
+
 	// Always append a end command in case the user forgot it
 	sprintf(cf->snd[ix], "END\n");
 	cf->cmd_cnt++;
