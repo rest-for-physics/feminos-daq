@@ -938,13 +938,17 @@ int CmdFetcher_ParseCmdFile(CmdFetcher *cf)
 	ml_comment  = 0;
 	ml_cnext    = 0;
 
-	// Always append as header clear event counter and timestamp
-	sprintf(cf->snd[ix], "clr tstamp\n");
-	cf->cmd_cnt++;
-	ix++;
-	sprintf(cf->snd[ix], "clr evcnt\n");
-	cf->cmd_cnt++;
-	ix++;
+
+	// Always append as header clear event counter and timestamp. Only in case we are starting a data taking run
+	if( strcmp( cf->cmd_file, "ped" ) != 0 &&  strcmp( cf->cmd_file, "start" ) != 0 &&  strcmp( cf->cmd_file, "runTCM" ) != 0 )
+	{
+		sprintf(cf->snd[ix], "clr tstamp\n");
+		cf->cmd_cnt++;
+		ix++;
+		sprintf(cf->snd[ix], "clr evcnt\n");
+		cf->cmd_cnt++;
+		ix++;
+	}
 
 	while (fgets(cf->snd[ix], CMD_LINE_SIZE, fptr))
 	{
