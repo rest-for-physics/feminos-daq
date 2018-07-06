@@ -821,9 +821,6 @@ int EventBuilder_GetBufferToRecycle(EventBuilder *eb, void* *bufo, int *src)
 *******************************************************************************/
 int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 {
-	int tt = (int) time(NULL);
-	timeStart = tt;
-	printf( "Starting timestamp : %d\n", tt );
 
 	if( readOnly ) 
 		return 0;
@@ -920,6 +917,10 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 		// Get the time of start
 		time(&start_time);
 		now = localtime(&start_time);
+
+        int tt = (int) time(NULL);
+        timeStart = tt;
+        printf( "Starting timestamp : %d\n", tt );
 
 		// Clear the run string
 		for (i=0; i<40; i++)
