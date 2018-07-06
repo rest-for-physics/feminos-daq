@@ -61,6 +61,7 @@ EventBuilder eventbuilder;
 *******************************************************************************/
 int shareBuffer = 0;
 int readOnly = 0;
+int tcm = 0;
 
 int ShMem_Buffer_ID;
 int ShMem_DaqInfo_ID;
@@ -280,6 +281,24 @@ int parse_cmd_args(int argc, char **argv)
 		{
 			match = 1;
 			readOnly = 1;
+		}
+		else if (strncmp(argv[i], "tcm", 3 ) == 0)
+		{
+			match = 1;
+			tcm = 1;
+		}
+		else if (strncmp(argv[i], "RST", 3 ) == 0)
+		{
+			match = 1;
+			tcm = 1;
+			shareBuffer = 1;
+			readOnly = 1;
+		}
+		else if (strncmp(argv[i], "ST", 3 ) == 0)
+		{
+			match = 1;
+			tcm = 1;
+			shareBuffer = 1;
 		}
 		// unmatched options
 		if (match == 0)

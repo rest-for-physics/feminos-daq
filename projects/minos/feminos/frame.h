@@ -202,7 +202,7 @@ typedef struct {
 	unsigned int bufferSize;
 } daqInfo;
 
-void Frame_ToSharedMemory( void *fp, void *fr, int fr_sz, unsigned int vflg, daqInfo *dInfo, unsigned short int *Buffer, int tStart );
+void Frame_ToSharedMemory( void *fp, void *fr, int fr_sz, unsigned int vflg, daqInfo *dInfo, unsigned short int *Buffer, int tStart, int tcm );
 void Frame_Print(void *fp, void *fr, int fr_sz, unsigned int vflg);
 int  Frame_IsCFrame(void *fr, short *err_code);
 int  Frame_IsDFrame(void *fr);

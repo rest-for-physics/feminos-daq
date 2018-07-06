@@ -175,7 +175,7 @@ int Frame_GetEventTyNbTs(void *fr,
 /*******************************************************************************
  Frame_ToSharedMemory
 *******************************************************************************/
-void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , daqInfo *dInfo, unsigned short int *Buffer, int tStart )
+void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , daqInfo *dInfo, unsigned short int *Buffer, int tStart, int tcm )
 {
 	unsigned short *p;
 	int i, j;
@@ -202,6 +202,7 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , daq
 
 	while ( !done )
 	{
+
 		// Is it a prefix for 14-bit content?
 		if ((*p & PFX_14_BIT_CONTENT_MASK) == PFX_CARD_CHIP_CHAN_HIT_IX)
 		{
@@ -224,6 +225,7 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , daq
 				daqChannel = r0 * 72 * 4 + r1 * 72 + r2;
 				
 				Buffer[bufferPosition] = daqChannel;
+				bufferPosition++;
 			}
 		}
 		else if ((*p & PFX_14_BIT_CONTENT_MASK) == PFX_CARD_CHIP_CHAN_HIT_CNT)
@@ -257,14 +259,18 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , daq
 		{
 			r0 = GET_ADC_DATA(*p);
 
-			bufferPosition++;
-			if( bufferPosition > dInfo->bufferSize )
+			if( bufferPosition >= dInfo->bufferSize )
 			{
 				printf( "Writting outside shared memory range!!!\n" );
 				printf( "This problem should be fixed by increasing the shared memory size\n" );
 				printf( "MAX_SIGNALS and MAX_POINTS may need to be increased\n" );
 			}
-			Buffer[bufferPosition] = r0;
+
+			if( dInfo->dataReady == 1 )
+			{
+				Buffer[bufferPosition] = r0;
+				bufferPosition++;
+			}
 
 			if ( (vflg & FRAME_PRINT_ALL) || (vflg & FRAME_PRINT_CHAN_DATA))
 			{
@@ -588,12 +594,10 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , daq
 			}
 
 			/////////////////////////////// NEW ADDED 
-			if( dInfo->dataReady == 1 )
+			if( !tcm && dInfo->dataReady == 1 )
 			{
-				/*
-				printf("End OF BUILD. Setting data ready to TWO.\n") ;
-				printf( "Only if dataReady is ZERO\n" );
-				*/
+				//printf(" Setting data ready to TWO.\n") ;
+				//printf( "Only if dataReady is ONE\n" );
 				dInfo->dataReady = 2;
 			}
 			/////////////////////////////// NEW ADDED 
@@ -1088,7 +1092,7 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , daq
 				fprintf((FILE *) fp, "Server TX stat: cmd_replies=%d daq_replies=%d daq_replies_resent=%d\n", tmp_i[6], tmp_i[7], tmp_i[8]);
 			}
 		}
-		else if (*p == PFX_START_OF_BUILT_EVENT)
+		else if ( *p == PFX_START_OF_BUILT_EVENT)
 		{
 			if ( (vflg & FRAME_PRINT_ALL) || (vflg & FRAME_PRINT_EBBND))
 			{
@@ -1118,7 +1122,7 @@ void Frame_ToSharedMemory(void *fp, void *fr, int fr_sz, unsigned int vflg , daq
 
 
 			/////////////////////////////// NEW ADDED 
-			if( dInfo->dataReady == 1 )
+			if( !tcm && dInfo->dataReady == 1 )
 			{
 				printf("End OF BUILD. Setting data ready to ONE\n") ;
 				printf( "Only if dataReady is ZERO\n" );

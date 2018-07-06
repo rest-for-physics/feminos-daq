@@ -22,3 +22,13 @@ Relevant changes to the original version
 
    * The generated file under FILES_TO_ANALYSE_PATH will have extension *.endRun*. And it will use the same file name as the last file written.
 
+* When launching a command file (using exec) that is not named "start", "ped" or "runTCM" a command will be sent to the cards to reinitialize the event counter and timestamp.
+   * This is important in order to construct the timestamp using the file creation timestamp and the internal electronics clock sampling.
+   * An alternative way (future implementation required) would be to use directly the system time.
+
+* A new option has been added to support TCM event build. We need to specify in the command line an argument to let know mclient we are using a TCM.
+  Usage : ./mclient shareBuffer tcm
+
+* We can now specify several options using an argument RST or ST.
+  Usage : ./mclient RST # Equivalent to readOnly, shareBuffer and tcm
+  Usage : ./mclient ST # Equivalent to shareBuffer and tcm
