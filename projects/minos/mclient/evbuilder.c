@@ -48,8 +48,9 @@ extern double *ShMem_timeStamp;
 
 extern int SemaphoreId;
 
-extern int shareBuffer; // mclient will set it to 1 if we want to share the resource
-extern int readOnly;	// mclient will set it to 1 if we do not want to write data to disk
+extern int shareBuffer; // it must be set to 1 (in mclientUDP.c) if we want to share the resource
+extern int readOnly;	// it must be set to 1 (in mclientUDP.c) if we do not want to write data to disk
+extern int tcm;		// it must be set to 1 (in mclientUDP.c) if we are using a TCM
 
 extern int runNumber;
 extern int eLogActive;
@@ -400,7 +401,7 @@ int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu)
 		SemaphoreRed( SemaphoreId );
 
 	//	printf( "Event time BEFORE : %lf\n", ShMem_DaqInfo->timeStamp );
-		Frame_ToSharedMemory((void *) stdout, (void *) bu_s, (int) sz, 0x0 , ShMem_DaqInfo, ShMem_Buffer, timeStart );
+		Frame_ToSharedMemory((void *) stdout, (void *) bu_s, (int) sz, 0x0 , ShMem_DaqInfo, ShMem_Buffer, timeStart, tcm );
 
 		//printf( "TIME START : %d\n", timeStart );
 	//	printf( "Event time : %lf\n", ShMem_DaqInfo->timeStamp );
@@ -468,6 +469,13 @@ int EventBuilder_EmitEventBoundary(EventBuilder *eb, int bnd)
 		buf[0] = 4; // size in bytes
 		buf[1] = PFX_END_OF_BUILT_EVENT;
 		sz     = 4;
+
+		SemaphoreRed( SemaphoreId );
+		if( tcm && ShMem_DaqInfo->dataReady == 1 )
+		{
+			ShMem_DaqInfo->dataReady = 2;
+		}
+		SemaphoreGreen( SemaphoreId );
 	}
 
 	// Print data with the desired amount of details
