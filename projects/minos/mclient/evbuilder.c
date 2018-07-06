@@ -847,6 +847,8 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 	FILE *anFiles;
 	char fileAnalysis[256];
 
+	int tt;
+
 	// Close the last file 
 	if (action == EBFA_CloseLast)
 	{
@@ -926,9 +928,9 @@ int EventBuilder_FileAction(EventBuilder *eb, EBFileActions action, int format)
 		time(&start_time);
 		now = localtime(&start_time);
 
-        int tt = (int) time(NULL);
-        timeStart = tt;
-        printf( "Starting timestamp : %d\n", tt );
+		tt = (int) time(NULL);
+		timeStart = tt;
+		printf( "Starting timestamp : %d\n", tt );
 
 		// Clear the run string
 		for (i=0; i<40; i++)
