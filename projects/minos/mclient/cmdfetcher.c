@@ -310,6 +310,18 @@ int CmdFetcher_Main(CmdFetcher *cf)
 
 						if( !readOnly )
 						{
+
+							sprintf( tmpStr, "%s/%s", getenv( "DAQ_CONFIG" ), "ped.info" );
+							fRunInfo = fopen( tmpStr, "rt" );
+
+							fscanf( fRunInfo, "%s\n", clockStr );
+							fscanf( fRunInfo, "%s\n", shapingStr );
+							fscanf( fRunInfo, "%s\n", gainStr );
+							fclose( fRunInfo );
+
+							printf( "Getting info from ped.info\n" );
+							printf( "Clock divisions : %s shaping : %s gain : %s\n", clockStr, shapingStr, gainStr );
+
 							sprintf( tmpStr, "%s/%s", getenv( "DAQ_CONFIG" ), "run.info" );
 							fRunInfo = fopen( tmpStr, "rt" );
 							fscanf( fRunInfo, "%s\n", runNumberStr );
@@ -427,7 +439,16 @@ int CmdFetcher_Main(CmdFetcher *cf)
 								if( strcmp( myStr, "time" ) == 0 ) getShaping = 1;
 								else getShaping = 0;
 
+
 							}
+							fclose( fRunInfo );
+
+							sprintf( tmpStr, "%s/%s", getenv( "DAQ_CONFIG" ), "ped.info" );
+							fRunInfo = fopen( tmpStr, "wt" );
+
+							fprintf( fRunInfo, "%s\n", clockStr );
+							fprintf( fRunInfo, "%s\n", shapingStr );
+							fprintf( fRunInfo, "%s\n", gainStr );
 							fclose( fRunInfo );
 						}
 					}
