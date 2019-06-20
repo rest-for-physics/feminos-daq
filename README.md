@@ -1,13 +1,15 @@
-In order to FeminosDAQ to work properly few environment variables must be defined in the system. 
+In order to mclient from FeminosDAQ to work properly few environment variables must be defined in the system. 
+
 The file `loadDAQ_EnvVars.sh` will serve as a template to help definning those variables.
-The best practice is to modify that file and add the following line to your `.bashrc` or similar.
+
+The best practice is to modify that file and add the following line to your `.bashrc`, or similar.
 
 ```
 source $HOME/git/FeminosDAQ/loadDAQ_EnvVars.sh
 ```
 assuming your FeminosDAQ directory lies under `$HOME/git`.
 
-Relevant changes to the original version
+#### Relevant changes to the original version
 
 * When using "exec" command with a command file with name different from "ped,start,runTCM", which are the values to be used for pedestal, initialization and TCM, we will be prompted for some run conditions.
 
