@@ -61,6 +61,18 @@ char dacFineStr[16];
 
 extern int readOnly;
 
+// Function to remove all spaces from a given string 
+void removeSpaces(char *str) 
+{ 
+	int n = 0;
+	for (int i = 0; str[i]; i++)  {
+		n++;
+		if (str[i] == ' ') 
+			str[i] = '_'; // here count is 
+	}
+	str[n] = '\0'; 
+}
+
 /* Event Builder mode interpretation  */
 static char EventBuilder_Mode2str[16][40] = {
 	"transparent",                            // 0
@@ -364,6 +376,7 @@ int CmdFetcher_Main(CmdFetcher *cf)
 							if( strcmp (tmpStr, "\n" ) != 0 )
 								sprintf( runTagStr, "%s", tmpStr );
 							printf("\n");
+							removeSpaces( runTagStr );
 							printf("Run tag set to : %s\n", runTagStr );
 
 							printf("\nDetector (%s) : ", detectorStr );
