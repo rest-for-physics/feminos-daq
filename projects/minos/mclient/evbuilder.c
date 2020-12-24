@@ -1120,7 +1120,7 @@ int EventBuilder_FileAction(EventBuilder *eb,
         fwrite(&hdr, 2, 1, eb->fout);
         eb->byte_wr += 2;
 
-        fwrite(&tt, sizeof(int), 1, eb->fout);
+        fwrite(&timeStart, sizeof(int), 1, eb->fout);
         eb->byte_wr += sizeof(int);
         /*
 
