@@ -1,3 +1,19 @@
+
+### Compiling the mclient executable
+
+Quick recipe to generate the `mclient` executable
+
+```
+cd projects/minos/mclient/linux
+make
+```
+
+If everything went smooth, the binary will be placed at `projects/bin/minos/linux/`.
+
+A good option is to create a symbolic link to that executable wherever you want to use it.
+
+#### Setting up the DAQ environment
+
 In order to mclient from FeminosDAQ to work properly few environment variables must be defined in the system. 
 
 The file `loadDAQ_EnvVars.sh` will serve as a template to help definning those variables.
