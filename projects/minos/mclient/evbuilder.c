@@ -1033,7 +1033,13 @@ int EventBuilder_FileAction(EventBuilder *eb,
         fclose(felog);
 
         char elogActive[64];
-        sprintf(elogActive, "%s", getenv("ELOG_ACTIVE"));
+
+        if(getenv("ELOG_ACTIVE")){
+            sprintf(elogActive, "%s", getenv("ELOG_ACTIVE"));
+        }else{
+            sprintf(elogActive, "%s", "OFF");
+        }           
+        printf("elogActive:%s\n", elogActive);
 
         if (strstr(elogActive, "YES") != NULL) {
             char elogName[64];
