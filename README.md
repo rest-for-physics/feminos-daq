@@ -1,4 +1,3 @@
-
 ### Compiling the mclient executable
 
 Quick recipe to generate the `mclient` executable
@@ -16,7 +15,9 @@ A good option is to create a symbolic link to that executable wherever you want 
 
 In order to mclient from FeminosDAQ to work properly few environment variables must be defined in the system. 
 
-The file `loadDAQ_EnvVars.sh` will serve as a template to help definning those variables.
+The file `loadDAQ_EnvVars.sh` will serve as a template to help definning those variables. 
+
+All these varibles are needed, values could be changed.
 
 The best practice is to modify that file and add the following line to your `.bashrc`, or similar.
 
