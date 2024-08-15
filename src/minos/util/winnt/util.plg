@@ -1,0 +1,31 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: util - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\calvet\LOCALS~1\Temp\RSP612.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GX /ZI /Od /I "../../platforms/winnt" /I "../../util" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /Fp"c:/compil/minos/util.pch" /YX /Fo"c:/compil/minos/" /Fd"c:/compil/minos/" /FD /GZ /c 
+"D:\users\calvet\projects\minos\util\randgen.c"
+"D:\users\calvet\projects\minos\util\winnt\sock_util.c"
+"D:\users\calvet\projects\minos\util\winnt\timerlib.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\calvet\LOCALS~1\Temp\RSP612.tmp" 
+Creating command line "link.exe -lib /nologo /out:"../../../lib/minos/util/winnt\util_dbg.lib"  c:\compil\minos\randgen.obj c:\compil\minos\sock_util.obj c:\compil\minos\timerlib.obj "
+<h3>Output Window</h3>
+Compiling...
+randgen.c
+sock_util.c
+timerlib.c
+Creating library...
+
+
+
+<h3>Results</h3>
+util_dbg.lib - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

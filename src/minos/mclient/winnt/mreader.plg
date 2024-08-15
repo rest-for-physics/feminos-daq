@@ -1,0 +1,40 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: mreader - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\calvet\LOCALS~1\Temp\RSP1FE.tmp" with contents
+[
+/nologo /ML /W3 /GX /O2 /I "../../platforms/winnt" /I "../../util" /I "../../feminos" /I "../../spiflash" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /Fp"c:\compil\minos/mreader.pch" /YX /Fo"c:\compil\minos/" /Fd"c:\compil\minos/" /FD /c 
+"D:\users\calvet\projects\minos\feminos\frame.c"
+"D:\users\calvet\projects\minos\mclient\mreader.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\calvet\LOCALS~1\Temp\RSP1FE.tmp" 
+Creating temporary file "C:\DOCUME~1\calvet\LOCALS~1\Temp\RSP1FF.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"..\..\..\bin\minos\winnt/mreader.pdb" /machine:I386 /out:"..\..\..\bin\minos\winnt/mreader.exe" 
+c:\compil\minos\frame.obj
+c:\compil\minos\mreader.obj
+]
+Creating command line "link.exe @C:\DOCUME~1\calvet\LOCALS~1\Temp\RSP1FF.tmp"
+<h3>Output Window</h3>
+Compiling...
+frame.c
+mreader.c
+D:\users\calvet\projects\minos\mclient\mreader.c(451) : warning C4101: 'i' : unreferenced local variable
+D:\users\calvet\projects\minos\mclient\mreader.c(451) : warning C4101: 'j' : unreferenced local variable
+D:\users\calvet\projects\minos\mclient\mreader.c(451) : warning C4101: 'k' : unreferenced local variable
+D:\users\calvet\projects\minos\mclient\mreader.c(451) : warning C4101: 'l' : unreferenced local variable
+D:\users\calvet\projects\minos\mclient\mreader.c(451) : warning C4101: 'm' : unreferenced local variable
+Linking...
+
+
+
+<h3>Results</h3>
+mreader.exe - 0 error(s), 5 warning(s)
+</pre>
+</body>
+</html>
