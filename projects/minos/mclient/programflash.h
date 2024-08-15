@@ -7,7 +7,7 @@
 
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-              
+
 
  History:
    October 2012 : created
@@ -19,6 +19,6 @@
 
 #include "cmdfetcher.h"
 
-int CmdFetcher_ProgramFlash(CmdFetcher *cf);
+int CmdFetcher_ProgramFlash(CmdFetcher* cf);
 
 #endif

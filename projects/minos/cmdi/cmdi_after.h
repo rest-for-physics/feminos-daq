@@ -8,7 +8,7 @@
   Definition of commands specific to the AFTER chip
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-        		  
+
  History:
   January 2012: created with code moved from cmdi.c
 
@@ -20,7 +20,6 @@
 #include "cmdi.h"
 
 /* Function prototypes */
-int Cmdi_AfterCommands(CmdiContext *c);
+int Cmdi_AfterCommands(CmdiContext* c);
 
 #endif
-

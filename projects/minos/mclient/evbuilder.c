@@ -24,21 +24,21 @@ and timestamps depending on event builder mode
 *******************************************************************************/
 
 #include "evbuilder.h"
+#include "bufpool.h"
+#include "femarray.h"
+#include "frame.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-#include "bufpool.h"
-#include "femarray.h"
-#include "frame.h"
 
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
 
-extern daqInfo *ShMem_DaqInfo;
-extern short int *ShMem_Buffer;
+extern daqInfo* ShMem_DaqInfo;
+extern short int* ShMem_Buffer;
 
 /*
 extern int *ShMem_dataReady;
@@ -50,13 +50,13 @@ extern double *ShMem_timeStamp;
 extern int SemaphoreId;
 
 extern int
-    shareBuffer;  // it must be set to 1 (in mclientUDP.c)
-                  // if we want to share the resource
+        shareBuffer; // it must be set to 1 (in mclientUDP.c)
+                     // if we want to share the resource
 extern int
-    readOnly;    // it must be set to 1 (in mclientUDP.c) if
-                 // we do not want to write data to disk
-extern int tcm;  // it must be set to 1 (in mclientUDP.c) if
-                 // we are using a TCM
+        readOnly; // it must be set to 1 (in mclientUDP.c) if
+                  // we do not want to write data to disk
+extern int tcm;   // it must be set to 1 (in mclientUDP.c) if
+                  // we are using a TCM
 
 extern int runNumber;
 extern int eLogActive;
@@ -81,15 +81,15 @@ char fileNameNow[256];
 char fileNameEndRun[256];
 
 #if defined(__GNU_LIBRARY__) && \
-    !defined(_SEM_SEMUN_UNDEFINED)
+        !defined(_SEM_SEMUN_UNDEFINED)
 // The union is already defined in sys/sem.h
 #else
 // We must define the union
 union semun {
     int val;
-    struct semid_ds *buf;
-    unsigned short int *array;
-    struct seminfo *__buf;
+    struct semid_ds* buf;
+    unsigned short int* array;
+    struct seminfo* __buf;
 };
 #endif
 
@@ -98,7 +98,7 @@ struct sembuf op;
 void SemaphoreRed(int id) {
     int sem_id = 0;
 
-    op.sem_num = sem_id;  // sem_id
+    op.sem_num = sem_id; // sem_id
     op.sem_op = -1;
     op.sem_flg = 0;
 
@@ -108,7 +108,7 @@ void SemaphoreRed(int id) {
 void SemaphoreGreen(int id) {
     int sem_id = 0;
 
-    op.sem_num = sem_id;  // sem_id
+    op.sem_num = sem_id; // sem_id
     op.sem_op = 1;
     op.sem_flg = 0;
 
@@ -118,7 +118,7 @@ void SemaphoreGreen(int id) {
 /*******************************************************************************
  EventBuilder_Clear
 *******************************************************************************/
-void EventBuilder_Clear(EventBuilder *eb) {
+void EventBuilder_Clear(EventBuilder* eb) {
     int i, j;
 
     eb->id = 0;
@@ -127,7 +127,7 @@ void EventBuilder_Clear(EventBuilder *eb) {
     // Clear input Queues
     for (i = 0; i < MAX_NB_OF_SOURCES; i++) {
         for (j = 0; j < MAX_QUEUE_SIZE; j++) {
-            eb->q_buf_i[i][j] = (void *)0;
+            eb->q_buf_i[i][j] = (void*) 0;
         }
         eb->q_buf_i_rd[i] = 0;
         eb->q_buf_i_wr[i] = 0;
@@ -136,7 +136,7 @@ void EventBuilder_Clear(EventBuilder *eb) {
 
     // Clear output Queue
     for (i = 0; i < MAX_QUEUE_SIZE; i++) {
-        eb->q_buf_o[i] = (void *)0;
+        eb->q_buf_o[i] = (void*) 0;
         eb->q_src_o[i] = 0;
     }
     eb->q_buf_o_rd = 0;
@@ -146,12 +146,12 @@ void EventBuilder_Clear(EventBuilder *eb) {
     eb->vflags = 0;
 
     eb->savedata = 0;
-    eb->fout = (FILE *)0;
+    eb->fout = (FILE*) 0;
 
     eb->byte_wr = 0;
     eb->file_max_size =
-        1024 * 1024 *
-        1024;  // Allow 1 GByte per file by default
+            1024 * 1024 *
+            1024; // Allow 1 GByte per file by default
 
     sprintf(&(eb->file_path[0]), "");
 
@@ -173,16 +173,16 @@ void EventBuilder_Clear(EventBuilder *eb) {
 /*******************************************************************************
  EventBuilder_Open
 *******************************************************************************/
-int EventBuilder_Open(EventBuilder *eb) {
+int EventBuilder_Open(EventBuilder* eb) {
     int err = 0;
 
     // Create semaphore to wakeup event builder when new
     // packets are posted
     if ((err = Semaphore_Create(&(eb->sem_wakeup))) < 0) {
         printf(
-            "EventBuilder_Open: Semaphore_Create failed "
-            "%d\n",
-            err);
+                "EventBuilder_Open: Semaphore_Create failed "
+                "%d\n",
+                err);
         return (err);
     }
 
@@ -190,8 +190,8 @@ int EventBuilder_Open(EventBuilder *eb) {
     // ressources
     if ((err = Mutex_Create(&eb->q_mutex)) < 0) {
         printf(
-            "EventBuilder_Open: Mutex_Create failed %d\n",
-            err);
+                "EventBuilder_Open: Mutex_Create failed %d\n",
+                err);
         return (err);
     }
 
@@ -201,7 +201,7 @@ int EventBuilder_Open(EventBuilder *eb) {
 /*******************************************************************************
  EventBuilder_Close
 *******************************************************************************/
-void EventBuilder_Close(EventBuilder *eb) {
+void EventBuilder_Close(EventBuilder* eb) {
     int err = 0;
 
     // Delete semaphore
@@ -209,9 +209,9 @@ void EventBuilder_Close(EventBuilder *eb) {
         if ((err = Semaphore_Delete(&(eb->sem_wakeup))) <
             0) {
             printf(
-                "EventBuilder_Close: Semaphore_Delete "
-                "failed %d\n",
-                err);
+                    "EventBuilder_Close: Semaphore_Delete "
+                    "failed %d\n",
+                    err);
         }
     }
 
@@ -219,9 +219,9 @@ void EventBuilder_Close(EventBuilder *eb) {
     if (eb->q_mutex) {
         if ((err = Mutex_Delete(&eb->q_mutex)) < 0) {
             printf(
-                "EventBuilder_Close: Mutex_Delete failed "
-                "%d\n",
-                err);
+                    "EventBuilder_Close: Mutex_Delete failed "
+                    "%d\n",
+                    err);
         }
     }
 }
@@ -229,13 +229,13 @@ void EventBuilder_Close(EventBuilder *eb) {
 /*******************************************************************************
  EventBuilder_Flush
 *******************************************************************************/
-int EventBuilder_Flush(EventBuilder *eb) {
+int EventBuilder_Flush(EventBuilder* eb) {
     int src;
-    void *buf;
-    FemArray *fa;
+    void* buf;
+    FemArray* fa;
     int err = 0;
 
-    fa = (FemArray *)eb->fa;
+    fa = (FemArray*) eb->fa;
 
     // Get exclusive access to event builder queues
     if ((err = Mutex_Lock(eb->q_mutex)) < 0) {
@@ -255,12 +255,12 @@ int EventBuilder_Flush(EventBuilder *eb) {
             // buf, src, eb->q_buf_i_rd[src],
             // eb->q_buf_i_wr[src], eb->q_buf_i_sz[src]);
             eb->q_buf_i_rd[src] =
-                (eb->q_buf_i_rd[src] + 1) % MAX_QUEUE_SIZE;
+                    (eb->q_buf_i_rd[src] + 1) % MAX_QUEUE_SIZE;
             eb->q_buf_i_sz[src] = eb->q_buf_i_sz[src] - 1;
 
             // Return the buffer to the pool
             BufPool_ReturnBuffer(fa->bp,
-                                 (unsigned long)buf);
+                                 (unsigned long) buf);
         }
     }
 
@@ -273,8 +273,8 @@ int EventBuilder_Flush(EventBuilder *eb) {
     // Release mutex to send over the network
     if ((err = Mutex_Unlock(eb->q_mutex)) < 0) {
         printf(
-            "EventBuilder_Flush: Mutex_Unlock failed %d\n",
-            err);
+                "EventBuilder_Flush: Mutex_Unlock failed %d\n",
+                err);
         return (err);
     }
 
@@ -284,9 +284,9 @@ int EventBuilder_Flush(EventBuilder *eb) {
 /*******************************************************************************
  EventBuilder_CheckBuffer
 *******************************************************************************/
-int EventBuilder_CheckBuffer(EventBuilder *eb, int src,
-                             void *bu) {
-    void *fr;
+int EventBuilder_CheckBuffer(EventBuilder* eb, int src,
+                             void* bu) {
+    void* fr;
     unsigned short ev_ty;
     unsigned int ev_nb;
     unsigned short ev_tsl;
@@ -304,16 +304,16 @@ int EventBuilder_CheckBuffer(EventBuilder *eb, int src,
         // event for this source
         if (!((eb->src_had_soe) & (1 << src))) {
             // Skip size in buffer, start of frame and size
-            fr = (void *)((unsigned int)bu + 6);
+            fr = (void*) ((unsigned int) bu + 6);
 
             // Get the event type, number and timestamp
             if ((err = Frame_GetEventTyNbTs(
-                     fr, &ev_ty, &ev_nb, &ev_tsl, &ev_tsm,
-                     &ev_tsh)) < 0) {
+                         fr, &ev_ty, &ev_nb, &ev_tsl, &ev_tsm,
+                         &ev_tsh)) < 0) {
                 printf(
-                    "EventBuilder_CheckBuffer: "
-                    "Frame_GetEventTyNbTs failed %d\n",
-                    err);
+                        "EventBuilder_CheckBuffer: "
+                        "Frame_GetEventTyNbTs failed %d\n",
+                        err);
                 return (err);
             }
 
@@ -353,12 +353,12 @@ int EventBuilder_CheckBuffer(EventBuilder *eb, int src,
                     // timestamp won't change by adding +-1
                     // to the LSB's
                     ev_tsml =
-                        (((unsigned int)ev_tsm) << 16) |
-                        ((unsigned int)ev_tsl);
+                            (((unsigned int) ev_tsm) << 16) |
+                            ((unsigned int) ev_tsl);
                     eb_ev_tsml =
-                        (((unsigned int)eb->cur_ev_tsm)
-                         << 16) |
-                        ((unsigned int)eb->cur_ev_tsl);
+                            (((unsigned int) eb->cur_ev_tsm)
+                             << 16) |
+                            ((unsigned int) eb->cur_ev_tsl);
 
                     if ((eb->cur_ev_tsh != ev_tsh) &&
                         (ev_tsml != 0x00000000) &&
@@ -376,20 +376,20 @@ int EventBuilder_CheckBuffer(EventBuilder *eb, int src,
                 // Mismatch found
                 if (match == 0) {
                     printf(
-                        "EventBuilder_CheckBuffer: "
-                        "Mismatch Src %02d Event_Type 0x%x "
-                        " Event_Count 0x%08x  Time 0x%04x "
-                        "0x%04x 0x%04x\n",
-                        src, ev_ty, ev_nb, ev_tsh, ev_tsm,
-                        ev_tsl);
+                            "EventBuilder_CheckBuffer: "
+                            "Mismatch Src %02d Event_Type 0x%x "
+                            " Event_Count 0x%08x  Time 0x%04x "
+                            "0x%04x 0x%04x\n",
+                            src, ev_ty, ev_nb, ev_tsh, ev_tsm,
+                            ev_tsl);
                     printf(
-                        "                                "
-                        "Expected: Event_Type 0x%x  "
-                        "Event_Count 0x%08x  Time 0x%04x "
-                        "0x%04x 0x%04x\n",
-                        eb->cur_ev_ty, eb->cur_ev_nb,
-                        eb->cur_ev_tsh, eb->cur_ev_tsm,
-                        eb->cur_ev_tsl);
+                            "                                "
+                            "Expected: Event_Type 0x%x  "
+                            "Event_Count 0x%08x  Time 0x%04x "
+                            "0x%04x 0x%04x\n",
+                            eb->cur_ev_ty, eb->cur_ev_nb,
+                            eb->cur_ev_tsh, eb->cur_ev_tsm,
+                            eb->cur_ev_tsl);
                 }
             }
 
@@ -404,14 +404,14 @@ int EventBuilder_CheckBuffer(EventBuilder *eb, int src,
 /*******************************************************************************
  EventBuilder_ProcessBuffer
 *******************************************************************************/
-int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu) {
+int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     int err = 0;
-    unsigned short *bu_s;
+    unsigned short* bu_s;
     unsigned short sz;
     int wrb;
 
     // Get frame size from first two bytes of buffer
-    bu_s = (unsigned short *)bu;
+    bu_s = (unsigned short*) bu;
     sz = *bu_s;
     // skip the field that contains buffer size
     bu_s++;
@@ -419,7 +419,7 @@ int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu) {
 
     // Print data with the desired amount of details
     if (eb->vflags) {
-        Frame_Print((void *)stdout, (void *)bu_s, (int)sz,
+        Frame_Print((void*) stdout, (void*) bu_s, (int) sz,
                     eb->vflags);
     }
 
@@ -428,8 +428,8 @@ int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu) {
 
         //	printf( "Event time BEFORE : %lf\n",
         // ShMem_DaqInfo->timeStamp );
-        Frame_ToSharedMemory((void *)stdout, (void *)bu_s,
-                             (int)sz, 0x0, ShMem_DaqInfo,
+        Frame_ToSharedMemory((void*) stdout, (void*) bu_s,
+                             (int) sz, 0x0, ShMem_DaqInfo,
                              ShMem_Buffer, timeStart, tcm);
 
         // printf( "TIME START : %d\n", timeStart );
@@ -448,15 +448,15 @@ int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu) {
         // one?
         if ((eb->byte_wr + sz) > eb->file_max_size) {
             if ((err = EventBuilder_FileAction(
-                     eb, EBFA_CloseCurrentOpenNext,
-                     eb->savedata)) < 0) {
+                         eb, EBFA_CloseCurrentOpenNext,
+                         eb->savedata)) < 0) {
                 return (err);
             }
         }
 
         // save in ASCII format
         if (eb->savedata == 1) {
-            Frame_Print((void *)eb->fout, bu_s, (int)sz,
+            Frame_Print((void*) eb->fout, bu_s, (int) sz,
                         FRAME_PRINT_ALL);
         }
         // save in binary format
@@ -465,9 +465,9 @@ int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu) {
             if ((wrb = fwrite(bu_s, sz, 1, eb->fout)) ==
                 0) {
                 printf(
-                    "EventBuilder_ProcessBuffer: failed to "
-                    "write %d bytes to file\n",
-                    sz);
+                        "EventBuilder_ProcessBuffer: failed to "
+                        "write %d bytes to file\n",
+                        sz);
                 return (-1);
             }
         }
@@ -483,7 +483,7 @@ int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu) {
 /*******************************************************************************
  EventBuilder_EmitEventBoundary
 *******************************************************************************/
-int EventBuilder_EmitEventBoundary(EventBuilder *eb,
+int EventBuilder_EmitEventBoundary(EventBuilder* eb,
                                    int bnd) {
     int err = 0;
     unsigned short buf[16];
@@ -491,11 +491,11 @@ int EventBuilder_EmitEventBoundary(EventBuilder *eb,
     int wrb;
 
     if (bnd == 0) {
-        buf[0] = 4;  // size in bytes
+        buf[0] = 4; // size in bytes
         buf[1] = PFX_START_OF_BUILT_EVENT;
         sz = 4;
     } else {
-        buf[0] = 4;  // size in bytes
+        buf[0] = 4; // size in bytes
         buf[1] = PFX_END_OF_BUILT_EVENT;
         sz = 4;
 
@@ -508,7 +508,7 @@ int EventBuilder_EmitEventBoundary(EventBuilder *eb,
 
     // Print data with the desired amount of details
     if (eb->vflags) {
-        Frame_Print((void *)stdout, &buf[1], (int)(sz - 2),
+        Frame_Print((void*) stdout, &buf[1], (int) (sz - 2),
                     eb->vflags);
     }
 
@@ -516,8 +516,8 @@ int EventBuilder_EmitEventBoundary(EventBuilder *eb,
     if (eb->savedata) {
         // save in ASCII format
         if (eb->savedata == 1) {
-            Frame_Print((void *)eb->fout, &buf[1],
-                        (int)(sz - 2), FRAME_PRINT_ALL);
+            Frame_Print((void*) eb->fout, &buf[1],
+                        (int) (sz - 2), FRAME_PRINT_ALL);
         }
         // save in binary format
         else if (eb->savedata == 2) {
@@ -528,9 +528,9 @@ int EventBuilder_EmitEventBoundary(EventBuilder *eb,
             if ((wrb = fwrite(&buf[1], sz, 1, eb->fout)) ==
                 0) {
                 printf(
-                    "EventBuilder_ProcessBuffer: failed to "
-                    "write %d bytes to file\n",
-                    sz);
+                        "EventBuilder_ProcessBuffer: failed to "
+                        "write %d bytes to file\n",
+                        sz);
                 return (-1);
             } else {
                 eb->byte_wr += 2;
@@ -549,13 +549,13 @@ int EventBuilder_EmitEventBoundary(EventBuilder *eb,
 /*******************************************************************************
  EventBuilder_Loop
 *******************************************************************************/
-int EventBuilder_Loop(EventBuilder *eb) {
+int EventBuilder_Loop(EventBuilder* eb) {
     int err = 0;
-    void *buf;
-    FemArray *fa;
+    void* buf;
+    FemArray* fa;
     int done;
     int fem_src;
-    unsigned short *sz;
+    unsigned short* sz;
     int len;
     char cmd[40];
     int had_buf;
@@ -565,7 +565,7 @@ int EventBuilder_Loop(EventBuilder *eb) {
 
     printf("EventBuilder_Loop: started.\n");
 
-    fa = (FemArray *)eb->fa;
+    fa = (FemArray*) eb->fa;
 
     // Event Builder Loop
     while (eb->state) {
@@ -579,9 +579,9 @@ int EventBuilder_Loop(EventBuilder *eb) {
                 // detected.\n", err);
             } else {
                 printf(
-                    "EventBuilder_Loop: "
-                    "Semaphore_Wait_Timeout failed %d\n",
-                    err);
+                        "EventBuilder_Loop: "
+                        "Semaphore_Wait_Timeout failed %d\n",
+                        err);
                 return (err);
             }
         }
@@ -590,8 +590,8 @@ int EventBuilder_Loop(EventBuilder *eb) {
         // Get exclusive access to event builder queues
         if ((err = Mutex_Lock(eb->q_mutex)) < 0) {
             printf(
-                "EventBuilder_Loop: Mutex_Lock failed %d\n",
-                err);
+                    "EventBuilder_Loop: Mutex_Lock failed %d\n",
+                    err);
             return (err);
         }
 
@@ -618,14 +618,14 @@ int EventBuilder_Loop(EventBuilder *eb) {
                         (eb->had_sobe == 0)) {
                         // Emit start of built event
                         if ((err =
-                                 EventBuilder_EmitEventBoundary(
-                                     eb, 0)) < 0) {
+                                     EventBuilder_EmitEventBoundary(
+                                             eb, 0)) < 0) {
                             printf(
-                                "EventBuilder_Loop: "
-                                "EventBuilder_"
-                                "EmitEventBoundary failed "
-                                "%d\n",
-                                err);
+                                    "EventBuilder_Loop: "
+                                    "EventBuilder_"
+                                    "EmitEventBoundary failed "
+                                    "%d\n",
+                                    err);
                             return (err);
                         } else {
                             eb->had_sobe = 1;
@@ -645,30 +645,30 @@ int EventBuilder_Loop(EventBuilder *eb) {
                     // eb->q_buf_i_wr[src],
                     // eb->q_buf_i_sz[src]);
                     eb->q_buf_i_rd[src] =
-                        (eb->q_buf_i_rd[src] + 1) %
-                        MAX_QUEUE_SIZE;
+                            (eb->q_buf_i_rd[src] + 1) %
+                            MAX_QUEUE_SIZE;
                     eb->q_buf_i_sz[src] =
-                        eb->q_buf_i_sz[src] - 1;
+                            eb->q_buf_i_sz[src] - 1;
 
                     // Check the content of this buffer
                     if ((err = EventBuilder_CheckBuffer(
-                             eb, src, buf)) < 0) {
+                                 eb, src, buf)) < 0) {
                         printf(
-                            "EventBuilder_Loop: "
-                            "EventBuilder_CheckBuffer "
-                            "failed %d\n",
-                            err);
+                                "EventBuilder_Loop: "
+                                "EventBuilder_CheckBuffer "
+                                "failed %d\n",
+                                err);
                         return (err);
                     }
 
                     // Process the current buffer
                     if ((err = EventBuilder_ProcessBuffer(
-                             eb, buf)) < 0) {
+                                 eb, buf)) < 0) {
                         printf(
-                            "EventBuilder_Loop: "
-                            "EventBuilder_ProcessBuffer "
-                            "failed %d\n",
-                            err);
+                                "EventBuilder_Loop: "
+                                "EventBuilder_ProcessBuffer "
+                                "failed %d\n",
+                                err);
                         return (err);
                     }
 
@@ -690,16 +690,16 @@ int EventBuilder_Loop(EventBuilder *eb) {
                          MAX_QUEUE_SIZE) ==
                         eb->q_buf_o_rd) {
                         printf(
-                            "EventBuilder_Loop: q_buf_o "
-                            "full\n");
+                                "EventBuilder_Loop: q_buf_o "
+                                "full\n");
                         err = -1;
                         return (err);
                     } else {
                         eb->q_buf_o[eb->q_buf_o_wr] = buf;
                         eb->q_src_o[eb->q_buf_o_wr] = src;
                         eb->q_buf_o_wr =
-                            (eb->q_buf_o_wr + 1) %
-                            MAX_QUEUE_SIZE;
+                                (eb->q_buf_o_wr + 1) %
+                                MAX_QUEUE_SIZE;
                         eb->q_buf_o_sz = eb->q_buf_o_sz + 1;
                         // printf("EventBuilder_Loop: added
                         // buffer 0x%x src=%d o_rd=%d
@@ -719,12 +719,12 @@ int EventBuilder_Loop(EventBuilder *eb) {
             if (eb->pnd_src == 0) {
                 // Emit end of built event
                 if ((err = EventBuilder_EmitEventBoundary(
-                         eb, 1)) < 0) {
+                             eb, 1)) < 0) {
                     printf(
-                        "EventBuilder_Loop: "
-                        "EventBuilder_EmitEventBoundary "
-                        "failed %d\n",
-                        err);
+                            "EventBuilder_Loop: "
+                            "EventBuilder_EmitEventBoundary "
+                            "failed %d\n",
+                            err);
                     return (err);
                 } else {
                     // printf("EventBuilder_Loop: event
@@ -750,9 +750,9 @@ int EventBuilder_Loop(EventBuilder *eb) {
         // Get mutex to send over the network
         if ((err = Mutex_Lock(fa->snd_mutex)) < 0) {
             printf(
-                "FemArray_EventBuilderIO: Mutex_Lock "
-                "failed %d\n",
-                err);
+                    "FemArray_EventBuilderIO: Mutex_Lock "
+                    "failed %d\n",
+                    err);
             return (err);
         }
 
@@ -761,18 +761,18 @@ int EventBuilder_Loop(EventBuilder *eb) {
         done = 0;
         while (!done) {
             if ((err = EventBuilder_GetBufferToRecycle(
-                     fa->eb, &buf, &fem_src)) < 0) {
+                         fa->eb, &buf, &fem_src)) < 0) {
                 printf(
-                    "EventBuilder_Loop: "
-                    "EventBuilder_GetBufferToRecycle "
-                    "failed %d\n",
-                    err);
+                        "EventBuilder_Loop: "
+                        "EventBuilder_GetBufferToRecycle "
+                        "failed %d\n",
+                        err);
                 return (err);
             }
             if (buf) {
                 // Get the size of the buffer
-                sz = (unsigned short *)buf;
-                len = (int)(*sz);
+                sz = (unsigned short*) buf;
+                len = (int) (*sz);
 
                 // Update the global size of data received
                 // and left to collect
@@ -804,7 +804,7 @@ int EventBuilder_Loop(EventBuilder *eb) {
                 */
                 // Return the buffer to the pool
                 BufPool_ReturnBuffer(fa->bp,
-                                     (unsigned long)buf);
+                                     (unsigned long) buf);
             } else {
                 done = 1;
             }
@@ -813,9 +813,9 @@ int EventBuilder_Loop(EventBuilder *eb) {
         // Release mutex to send over the network
         if ((err = Mutex_Unlock(fa->snd_mutex)) < 0) {
             printf(
-                "FemArray_EventBuilderIO: Mutex_Unlock "
-                "failed %d\n",
-                err);
+                    "FemArray_EventBuilderIO: Mutex_Unlock "
+                    "failed %d\n",
+                    err);
             return (err);
         }
 
@@ -825,7 +825,7 @@ int EventBuilder_Loop(EventBuilder *eb) {
             // Try to post some requests to avoid starving
             sprintf(cmd, "DAQ -2\n");
             if ((err = FemArray_SendDaq(
-                     fa, 0, 31, fa->fem_proxy_set, cmd)) <
+                         fa, 0, 31, fa->fem_proxy_set, cmd)) <
                 0) {
                 return (err);
             }
@@ -834,9 +834,9 @@ int EventBuilder_Loop(EventBuilder *eb) {
         // Release exclusive access to event builder queues
         if ((err = Mutex_Unlock(eb->q_mutex)) < 0) {
             printf(
-                "EventBuilder_Loop: Mutex_Unlock failed "
-                "%d\n",
-                err);
+                    "EventBuilder_Loop: Mutex_Unlock failed "
+                    "%d\n",
+                    err);
             return (err);
         }
     }
@@ -849,22 +849,22 @@ int EventBuilder_Loop(EventBuilder *eb) {
 /*******************************************************************************
  EventBuilder_PutBufferToProcess
 *******************************************************************************/
-int EventBuilder_PutBufferToProcess(EventBuilder *eb,
-                                    void *bufi, int src) {
+int EventBuilder_PutBufferToProcess(EventBuilder* eb,
+                                    void* bufi, int src) {
     int err = 0;
 
     // Check that this input queue is not full
     if (((eb->q_buf_i_wr[src] + 1) % MAX_QUEUE_SIZE) ==
         eb->q_buf_i_rd[src]) {
         printf(
-            "EventBuilder_PutBufferToProcess: Queue %d is "
-            "full!\n",
-            src);
+                "EventBuilder_PutBufferToProcess: Queue %d is "
+                "full!\n",
+                src);
         err = -1;
     } else {
         eb->q_buf_i[src][eb->q_buf_i_wr[src]] = bufi;
         eb->q_buf_i_wr[src] =
-            (eb->q_buf_i_wr[src] + 1) % MAX_QUEUE_SIZE;
+                (eb->q_buf_i_wr[src] + 1) % MAX_QUEUE_SIZE;
         eb->q_buf_i_sz[src] = eb->q_buf_i_sz[src] + 1;
         // printf("EventBuilder_PutBufferToProcess: added
         // buffer 0x%x Queue %d i_rd=%d i_wr=%d i_sz=%d\n",
@@ -878,17 +878,17 @@ int EventBuilder_PutBufferToProcess(EventBuilder *eb,
 /*******************************************************************************
  EventBuilder_GetBufferToRecycle
 *******************************************************************************/
-int EventBuilder_GetBufferToRecycle(EventBuilder *eb,
-                                    void **bufo, int *src) {
+int EventBuilder_GetBufferToRecycle(EventBuilder* eb,
+                                    void** bufo, int* src) {
     if (eb->q_buf_o_rd == eb->q_buf_o_wr) {
-        *bufo = (void *)0;
+        *bufo = (void*) 0;
         *src = -1;
         return (0);
     } else {
         *bufo = eb->q_buf_o[eb->q_buf_o_rd];
         *src = eb->q_src_o[eb->q_buf_o_rd];
         eb->q_buf_o_rd =
-            (eb->q_buf_o_rd + 1) % MAX_QUEUE_SIZE;
+                (eb->q_buf_o_rd + 1) % MAX_QUEUE_SIZE;
         eb->q_buf_o_sz = eb->q_buf_o_sz - 1;
         // printf("EventBuilder_GetBufferToRecycle: recycle
         // buffer 0x%x from Source %d\n", *bufo, *src);
@@ -899,12 +899,12 @@ int EventBuilder_GetBufferToRecycle(EventBuilder *eb,
 /*******************************************************************************
  EventBuilder_FileAction
 *******************************************************************************/
-int EventBuilder_FileAction(EventBuilder *eb,
+int EventBuilder_FileAction(EventBuilder* eb,
                             EBFileActions action,
                             int format) {
     if (readOnly) return 0;
 
-    struct tm *now;
+    struct tm* now;
     char name[120];
     time_t start_time;
     char str_res[4];
@@ -915,7 +915,7 @@ int EventBuilder_FileAction(EventBuilder *eb,
 
     int err = 0;
 
-    FILE *anFiles;
+    FILE* anFiles;
     char fileAnalysis[256];
 
     int tt;
@@ -944,16 +944,16 @@ int EventBuilder_FileAction(EventBuilder *eb,
             anFiles = fopen(fileAnalysis, "wt");
             fclose(anFiles);
 
-            eb->fout = (FILE *)0;
+            eb->fout = (FILE*) 0;
 
             if (eb->savedata == 1) {
                 printf("File closed\n");
             } else if (eb->savedata == 2) {
                 printf(
-                    "File closed (size: %d MB   %d "
-                    "bytes)\n",
-                    eb->byte_wr / (1024 * 1024),
-                    eb->byte_wr);
+                        "File closed (size: %d MB   %d "
+                        "bytes)\n",
+                        eb->byte_wr / (1024 * 1024),
+                        eb->byte_wr);
             }
             eb->savedata = 0;
         }
@@ -973,7 +973,7 @@ int EventBuilder_FileAction(EventBuilder *eb,
             anFiles = fopen(fileAnalysis, "wt");
             fclose(anFiles);
 
-            eb->fout = (FILE *)0;
+            eb->fout = (FILE*) 0;
         }
     }
 
@@ -993,7 +993,7 @@ int EventBuilder_FileAction(EventBuilder *eb,
         time(&start_time);
         now = localtime(&start_time);
 
-        tt = (int)time(NULL);
+        tt = (int) time(NULL);
         timeStart = tt;
         printf("Starting timestamp : %d\n", tt);
 
@@ -1020,7 +1020,7 @@ int EventBuilder_FileAction(EventBuilder *eb,
                 driftFieldStr, detectorPressureStr, gainStr,
                 shapingStr, clockStr);
 
-        FILE *felog = fopen("/tmp/elog.file", "wt");
+        FILE* felog = fopen("/tmp/elog.file", "wt");
 
         fprintf(felog, "%s\n", runComments);
         fprintf(felog, "Vmesh : %s V\n", meshVoltageStr);
@@ -1034,11 +1034,11 @@ int EventBuilder_FileAction(EventBuilder *eb,
 
         char elogActive[64];
 
-        if(getenv("ELOG_ACTIVE")){
+        if (getenv("ELOG_ACTIVE")) {
             sprintf(elogActive, "%s", getenv("ELOG_ACTIVE"));
-        }else{
+        } else {
             sprintf(elogActive, "%s", "OFF");
-        }           
+        }
         printf("elogActive:%s\n", elogActive);
 
         if (strstr(elogActive, "YES") != NULL) {
@@ -1088,9 +1088,9 @@ int EventBuilder_FileAction(EventBuilder *eb,
     // Open result file
     if (!(eb->fout = fopen(name, str_res))) {
         printf(
-            "EventBuilder_FileAction: could not open file "
-            "%s.\n",
-            name);
+                "EventBuilder_FileAction: could not open file "
+                "%s.\n",
+                name);
         return (-1);
     }
 

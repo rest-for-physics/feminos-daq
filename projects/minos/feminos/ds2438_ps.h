@@ -8,7 +8,7 @@
               version for: PowerPC 405
 
  Author:      X. de la Bro�se,        labroise@cea.fr
-              D. Calvet,        calvet@hep.saclay.cea.fr        
+              D. Calvet,        calvet@hep.saclay.cea.fr
 
  History:
   October 2007: created

@@ -12,7 +12,7 @@
 
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-              
+
 
  History:
   July 2006: created
@@ -26,23 +26,21 @@ extern char inbyte(void);
 /*
  * read bytes from stdin serial port
  */
-int read_stdin(char* buf, int nbytes)
-{
-	int i = 0;
-  
-	for (i = 0; i < nbytes; i++)
-	{
-		*(buf + i) = inbyte();
-		if( *(buf + i) == '\n' ) // LF after already treated CR
-		{
-				i=-1;
-		}
-		if( *(buf + i) == '\r' ) // CR
-		{
-			*(buf + i) = '\n';
-			*(buf + i + 1) = 0;
-			break;
-		}
-	}
-	return (i);
+int read_stdin(char* buf, int nbytes) {
+    int i = 0;
+
+    for (i = 0; i < nbytes; i++) {
+        *(buf + i) = inbyte();
+        if (*(buf + i) == '\n') // LF after already treated CR
+        {
+            i = -1;
+        }
+        if (*(buf + i) == '\r') // CR
+        {
+            *(buf + i) = '\n';
+            *(buf + i + 1) = 0;
+            break;
+        }
+    }
+    return (i);
 }

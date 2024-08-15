@@ -7,7 +7,7 @@
  Description: Definition of interface for communication over Ethernet.
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-              
+
 
  History:
   April 2006: created
@@ -19,9 +19,9 @@
 
 #include "ethernet_ps.h"
 
-int Ethernet_Open(Ethernet *et, EthernetParam *etp);
-int Ethernet_Close(Ethernet *et);
-void Ethernet_StatShow(Ethernet *et);
-void Ethernet_StatClear(Ethernet *et);
+int Ethernet_Open(Ethernet* et, EthernetParam* etp);
+int Ethernet_Close(Ethernet* et);
+void Ethernet_StatShow(Ethernet* et);
+void Ethernet_StatClear(Ethernet* et);
 
-#endif //ETHERNET_H
+#endif // ETHERNET_H

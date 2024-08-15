@@ -7,7 +7,7 @@
  Description: Definition of command interpreter function to read/write SPI Flash
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-        		  
+
  History:
 
   October 2012: created
@@ -24,6 +24,6 @@
 #include "tcm_cmdi.h"
 #endif
 
-int Cmdi_FlashCommands(CmdiContext *c);
+int Cmdi_FlashCommands(CmdiContext* c);
 
 #endif

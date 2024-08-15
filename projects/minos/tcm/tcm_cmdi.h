@@ -8,7 +8,7 @@
 
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-              
+
 
  History:
   April 2012: created
@@ -67,30 +67,29 @@ extern char server_time[];
 //                 2 bytes (signed short error code)
 //                 2 bytes (PFX_ASCII_MSG_LEN)
 // Total:          6 bytes
-#define CFRAME_ASCII_MSG_OFFSET   6
+#define CFRAME_ASCII_MSG_OFFSET 6
 
 typedef struct _CmdiContext {
-	int     do_reply;
-	int     reply_is_cframe;
-	short   rep_size;
-	char    *cmd;
-	void     *frrep; // Base address of a reply message
-	void     *burep; // Base address of the user payload in the reply message
-	BufPool *bp;
-	Ethernet *et;
-	Tcm     *fem; // the variable is called fem but it is a tcm
-	XIic    *i2c_inst;
+    int do_reply;
+    int reply_is_cframe;
+    short rep_size;
+    char* cmd;
+    void* frrep; // Base address of a reply message
+    void* burep; // Base address of the user payload in the reply message
+    BufPool* bp;
+    Ethernet* et;
+    Tcm* fem; // the variable is called fem but it is a tcm
+    XIic* i2c_inst;
 
-	int     lst_socket; // Socket from which the last message was received
-	int     daq_socket; // Socket from which the last daq command was received
+    int lst_socket; // Socket from which the last message was received
+    int daq_socket; // Socket from which the last daq command was received
 
-	int      rx_cmd_cnt;
-	int      err_cmd_cnt;
-	int      tx_rep_cnt;
+    int rx_cmd_cnt;
+    int err_cmd_cnt;
+    int tx_rep_cnt;
 } CmdiContext;
 
-int TcmCmdi_Cmd_Interpret(CmdiContext *c);
-void TcmCmdi_Context_Init(CmdiContext *c);
+int TcmCmdi_Cmd_Interpret(CmdiContext* c);
+void TcmCmdi_Context_Init(CmdiContext* c);
 
 #endif
-

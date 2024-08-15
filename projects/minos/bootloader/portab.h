@@ -12,15 +12,13 @@
 #ifndef BL_PORTAB_H
 #define BL_PORTAB_H
 
-typedef unsigned char   uint8_t;
-typedef unsigned short  uint16_t;
-typedef unsigned int    uint32_t;
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned int uint32_t;
 
-typedef char   int8_t;
-typedef short  int16_t;
-typedef int    int32_t;
-
-
+typedef char int8_t;
+typedef short int16_t;
+typedef int int32_t;
 
 /* An anonymous union allows the compiler to report typedef errors automatically */
 /* Does not work with gcc. Might work only for g++ */
@@ -34,7 +32,5 @@ typedef int    int32_t;
 /*     char int32_t_incorrect  [sizeof( int32_t) == 4]; */
 /*     char uint32_t_incorrect [sizeof(uint32_t) == 4]; */
 /* }; */
-
-
 
 #endif /* BL_PORTTAB_H */

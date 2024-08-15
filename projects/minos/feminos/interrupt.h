@@ -7,11 +7,11 @@
  Description: Interrupt System.
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-              
+
 
  History:
   September 2012: created
-  
+
 *******************************************************************************/
 
 #ifndef INTERRUPT_H

@@ -8,7 +8,7 @@
    on an Enclustra Mars MX2 module.
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-        		  
+
  History:
 
   October 2012: created by extraction from cmdi.c
@@ -25,6 +25,6 @@
 #include "tcm_cmdi.h"
 #endif
 
-int Cmdi_I2CCommands(CmdiContext *c);
+int Cmdi_I2CCommands(CmdiContext* c);
 
 #endif

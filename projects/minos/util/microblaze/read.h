@@ -4,10 +4,10 @@
 
  File:        read.h
 
- Description: 
+ Description:
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-              
+
 
  History:
   July 2006: created

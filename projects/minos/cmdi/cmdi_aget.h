@@ -8,7 +8,7 @@
 
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-              
+
 
  History:
   November 2011: created
@@ -20,7 +20,6 @@
 #include "cmdi.h"
 
 /* Function prototypes */
-int Cmdi_AgetCommands(CmdiContext *c);
+int Cmdi_AgetCommands(CmdiContext* c);
 
 #endif
-

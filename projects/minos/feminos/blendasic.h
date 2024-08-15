@@ -13,7 +13,7 @@
  and AGET chips
 
  Author:      D. Calvet,        calvet@hep.saclay.cea.fr
-              
+
 
  History:
   November 2011: created
@@ -27,12 +27,10 @@
 #define BLEND_ASIC_REGISTER_MAX_NB_OF_REGISTERS 16
 
 typedef struct _BlendAsicRegister {
-	unsigned short bars[BLEND_ASIC_REGISTER_MAX_SIZE_IN_SHORT];
+    unsigned short bars[BLEND_ASIC_REGISTER_MAX_SIZE_IN_SHORT];
 } BlendAsicRegister;
 typedef struct _BlendAsic {
-	BlendAsicRegister bar[BLEND_ASIC_REGISTER_MAX_NB_OF_REGISTERS];
+    BlendAsicRegister bar[BLEND_ASIC_REGISTER_MAX_NB_OF_REGISTERS];
 } BlendAsic;
 
-
 #endif
-

@@ -29,21 +29,19 @@
  * constant is the address divided by 2.
  */
 
-#define CURRSENS_MARS 		0x40	/* Current Monitor on Mars - 7 bit number */
-#define CURRSENS_STARTER 	0x4F	/* Current Monitor on Mars Starter - 7 bit number */
-#define GPIO_ADDR 			0x21	/* GPIO - 7 bit number */
-#define RTC_ADDR 			0x6F	/* RTC - 7 bit number */
-#define EEPROM_ADDR 		0x50	/* EEPROM - 7 bit number */
-
+#define CURRSENS_MARS 0x40    /* Current Monitor on Mars - 7 bit number */
+#define CURRSENS_STARTER 0x4F /* Current Monitor on Mars Starter - 7 bit number */
+#define GPIO_ADDR 0x21        /* GPIO - 7 bit number */
+#define RTC_ADDR 0x6F         /* RTC - 7 bit number */
+#define EEPROM_ADDR 0x50      /* EEPROM - 7 bit number */
 
 extern volatile u8 TransmitComplete;
 extern volatile u8 ReceiveComplete;
 extern XIic IicInstance;
 
-void SendHandler(XIic * InstancePtr);
-void ReceiveHandler(XIic * InstancePtr);
-void StatusHandler(XIic *InstancePtr, int Event);
-
+void SendHandler(XIic* InstancePtr);
+void ReceiveHandler(XIic* InstancePtr);
+void StatusHandler(XIic* InstancePtr, int Event);
 
 void CurrSenseInit(int DevAddr);
 int CurrSenseWriteConfig(u16 Value);

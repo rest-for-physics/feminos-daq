@@ -1,13 +1,11 @@
-#include "xparameters.h"
 #include "platform_config.h"
+#include "xparameters.h"
 
 #ifdef STDOUT_IS_16550
 #include "xuartns550_l.h"
 #endif
 
-void
-init_stdout()
-{
+void init_stdout() {
     /* if we have a uart 16550, then that needs to be initialized */
 #ifdef STDOUT_IS_16550
     XUartNs550_SetBaud(STDOUT_BASEADDR, XPAR_XUARTNS550_CLOCK_HZ, 9600);
