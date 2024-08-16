@@ -4,11 +4,12 @@ cmake_minimum_required(VERSION 3.20)
 project(mclient)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions(-DLINUX)
 add_definitions(-DJUMBO_POOL)
 
-option(PROMETHEUS "Enable Prometheus" ON)
+option(PROMETHEUS "Enable Prometheus" OFF)
 # option(TEST "Enable test" OFF)
 
 include(FetchContent)
@@ -21,8 +22,6 @@ if (PROMETHEUS)
     )
     FetchContent_MakeAvailable(Prometheus)
 endif ()
-
-file(GLOB_RECURSE INCLUDE_DIRECTORIES src/minos/*/*)
 
 add_executable(mclient src/minos/mclient/mclientUDP.c)
 
@@ -44,7 +43,6 @@ target_include_directories(mclient PRIVATE
 )
 
 file(GLOB_RECURSE SOURCE_FILES
-        src/minos/mclient/mclientUDP.c
         src/minos/mclient/femproxy.c
         src/minos/mclient/evbuilder.c
         src/minos/mclient/femarray.c
@@ -56,6 +54,11 @@ file(GLOB_RECURSE SOURCE_FILES
         src/minos/platforms/linux/os_al.c
 )
 
-target_sources(mclient PRIVATE ${SOURCE_FILES})
+if (PROMETHEUS)
+    message(STATUS "Prometheus enabled")
+    target_include_directories(mclient PRIVATE src/minos/prometheus)
+    list(APPEND SOURCE_FILES src/minos/prometheus/prometheus.c)
+    target_link_libraries(mclient PRIVATE prometheus-cpp::core prometheus-cpp::pull prometheus-cpp::push)
+endif ()
 
-target_link_libraries(mclient PRIVATE prometheus-cpp::core prometheus-cpp::pull prometheus-cpp::push)
+target_sources(mclient PRIVATE ${SOURCE_FILES})

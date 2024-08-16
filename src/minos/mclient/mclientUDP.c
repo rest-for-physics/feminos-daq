@@ -24,11 +24,9 @@
 #include "os_al.h"
 #include "platform_spec.h"
 #include "sock_util.h"
-#include "timerlib.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 // For shared memory
 #include <sys/ipc.h>
@@ -64,8 +62,8 @@ int tcm = 0;
 
 int ShMem_Buffer_ID;
 int ShMem_DaqInfo_ID;
-daqInfo* ShMem_DaqInfo;
-unsigned short int* ShMem_Buffer;
+daqInfo *ShMem_DaqInfo;
+unsigned short int *ShMem_Buffer;
 int SemaphoreId;
 
 const int MAX_SIGNALS = 1152; // To cover up to 4 Feminos boards 72 * 4 * 4
@@ -89,7 +87,7 @@ void help() {
 /*******************************************************************************
  parse_cmd_args() to parse command line arguments
 *******************************************************************************/
-int parse_cmd_args(int argc, char** argv) {
+int parse_cmd_args(int argc, char **argv) {
     int i;
     int match;
     int err = 0;
@@ -101,8 +99,8 @@ int parse_cmd_args(int argc, char** argv) {
             match = 1;
             if ((i + 1) < argc) {
                 i++;
-                if (sscanf(argv[i], "%d.%d.%d.%d", &(femarray.rem_ip_beg)[0], &(femarray.rem_ip_beg[1]), &(femarray.rem_ip_beg[2]), &(femarray.rem_ip_beg[3])) == 4) {
-
+                if (sscanf(argv[i], "%d.%d.%d.%d", &(femarray.rem_ip_beg)[0], &(femarray.rem_ip_beg[1]),
+                           &(femarray.rem_ip_beg[2]), &(femarray.rem_ip_beg[3])) == 4) {
                 } else {
                     printf("illegal argument %s\n", argv[i]);
                     return (-1);
@@ -112,7 +110,7 @@ int parse_cmd_args(int argc, char** argv) {
                 return (-1);
             }
         }
-        // remote port number
+            // remote port number
         else if (strncmp(argv[i], "-p", 2) == 0) {
             match = 1;
             if ((i + 1) < argc) {
@@ -128,7 +126,7 @@ int parse_cmd_args(int argc, char** argv) {
                 return (-1);
             }
         }
-        // Server pattern
+            // Server pattern
         else if (strncmp(argv[i], "-S", 2) == 0) {
             match = 1;
             if ((i + 1) < argc) {
@@ -149,7 +147,8 @@ int parse_cmd_args(int argc, char** argv) {
             match = 1;
             if ((i + 1) < argc) {
                 i++;
-                if (sscanf(argv[i], "%d.%d.%d.%d", &(femarray.loc_ip[0]), &(femarray.loc_ip[1]), &(femarray.loc_ip[2]), &(femarray.loc_ip[3])) == 4) {
+                if (sscanf(argv[i], "%d.%d.%d.%d", &(femarray.loc_ip[0]), &(femarray.loc_ip[1]), &(femarray.loc_ip[2]),
+                           &(femarray.loc_ip[3])) == 4) {
 
                 } else {
                     printf("illegal argument %s\n", argv[i]);
@@ -160,7 +159,7 @@ int parse_cmd_args(int argc, char** argv) {
                 return (-1);
             }
         }
-        // get file name for commands
+            // get file name for commands
         else if (strncmp(argv[i], "-f", 2) == 0) {
             match = 1;
             if ((i + 1) < argc) {
@@ -172,7 +171,7 @@ int parse_cmd_args(int argc, char** argv) {
                 return (-1);
             }
         }
-        // result file name
+            // result file name
         else if (strncmp(argv[i], "-o", 2) == 0) {
             match = 1;
             if ((i + 1) < argc) {
@@ -184,7 +183,7 @@ int parse_cmd_args(int argc, char** argv) {
                 return (-1);
             }
         }
-        // format for saving data
+            // format for saving data
         else if (strncmp(argv[i], "-F", 2) == 0) {
             match = 1;
             if ((i + 1) < argc) {
@@ -197,7 +196,7 @@ int parse_cmd_args(int argc, char** argv) {
                 format_ver = 2;
             }
         }
-        // verbose
+            // verbose
         else if (strncmp(argv[i], "-v", 2) == 0) {
             match = 1;
             if ((i + 1) < argc) {
@@ -256,7 +255,7 @@ void CleanSharedMemory(int s) {
 /*******************************************************************************
  Main
 *******************************************************************************/
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 
     int err;
 
@@ -284,12 +283,12 @@ int main(int argc, char** argv) {
 
     ////////////////////////////////////////////////
 
-    /* {{{ Creating shared memory to dump event data */
+    /* Creating shared memory to dump event data */
     if (shareBuffer) {
 
         key_t MemKey = ftok("/bin/ls", 3);
         ShMem_DaqInfo_ID = shmget(MemKey, sizeof(daqInfo), 0777 | IPC_CREAT);
-        ShMem_DaqInfo = (daqInfo*) shmat(ShMem_DaqInfo_ID, (char*) 0, 0);
+        ShMem_DaqInfo = (daqInfo *) shmat(ShMem_DaqInfo_ID, (char *) 0, 0);
 
         ShMem_DaqInfo->maxSignals = MAX_SIGNALS;
         ShMem_DaqInfo->maxSamples = MAX_POINTS;
@@ -303,11 +302,10 @@ int main(int argc, char** argv) {
 
         MemKey = ftok("/bin/ls", 13);
         ShMem_Buffer_ID = shmget(MemKey, N_DATA * sizeof(unsigned short int), 0777 | IPC_CREAT);
-        ShMem_Buffer = (unsigned short int*) shmat(ShMem_Buffer_ID, (char*) 0, 0);
+        ShMem_Buffer = (unsigned short int *) shmat(ShMem_Buffer_ID, (char *) 0, 0);
         /////////////////////////////////
 
-        for (int n = 0; n < N_DATA; n++)
-            ShMem_Buffer[n] = 0;
+        for (int n = 0; n < N_DATA; n++) { ShMem_Buffer[n] = 0; }
 
         // Creating semaphores to handle access to shared memory
 
@@ -317,8 +315,6 @@ int main(int argc, char** argv) {
 
         signal(SIGINT, CleanSharedMemory);
     }
-
-    /* }}} */
 
     // Initialize Buffer Pool
     BufPool_Init(&bufpool);
@@ -336,18 +332,18 @@ int main(int argc, char** argv) {
     }
 
     // Pass a pointer to the fem array to the command catcher
-    cmdfetcher.fa = (void*) &femarray;
+    cmdfetcher.fa = (void *) &femarray;
 
     // Pass a pointer to buffer pool and event builder to the fem array
-    femarray.bp = (void*) &bufpool;
-    femarray.eb = (void*) &eventbuilder;
+    femarray.bp = (void *) &bufpool;
+    femarray.eb = (void *) &eventbuilder;
 
     // Pass a pointer to the fem array to the event builder
-    eventbuilder.fa = (void*) &femarray;
+    eventbuilder.fa = (void *) &femarray;
 
     // Create FEM Array thread
-    femarray.thread.routine = (void*) FemArray_ReceiveLoop;
-    femarray.thread.param = (void*) &femarray;
+    femarray.thread.routine = (void *) FemArray_ReceiveLoop;
+    femarray.thread.param = (void *) &femarray;
     femarray.state = 1;
     if ((err = Thread_Create(&femarray.thread)) < 0) {
         printf("Thread_Create failed %d\n", err);
@@ -356,8 +352,8 @@ int main(int argc, char** argv) {
     // printf("femarray Thread_Create done\n" );
 
     // Create Event Builder thread
-    eventbuilder.thread.routine = (void*) EventBuilder_Loop;
-    eventbuilder.thread.param = (void*) &eventbuilder;
+    eventbuilder.thread.routine = (void *) EventBuilder_Loop;
+    eventbuilder.thread.param = (void *) &eventbuilder;
     eventbuilder.state = 1;
     if ((err = Thread_Create(&eventbuilder.thread)) < 0) {
         printf("Thread_Create failed %d\n", err);
@@ -386,12 +382,13 @@ int main(int argc, char** argv) {
         }
     }
 
-cleanup:
+    cleanup:
 
     socket_cleanup();
 
-    if (shareBuffer)
+    if (shareBuffer) {
         CleanSharedMemory(0);
+    }
 
     return (err);
 }
