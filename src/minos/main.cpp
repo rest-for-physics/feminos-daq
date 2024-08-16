@@ -35,7 +35,9 @@
 
 #include <csignal>
 
+#include "graph.h"
 #include "prometheus.h"
+#include "storage.h"
 
 /*******************************************************************************
  Constants types and global variables
@@ -261,6 +263,8 @@ int main(int argc, char** argv) {
 
     // prometheus manager
     auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
+    auto& graph_manager = mclient_graph::GraphManager::Instance();
+    auto& storage_manager = mclient_storage::StorageManager::Instance();
 
     int err;
 
