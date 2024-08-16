@@ -437,7 +437,7 @@ Bool_t ReadFrame(void* fr, int fr_sz) {
             p++;
             si = 0;
 
-            cout << " + Card: " << cardNumber << " Chip: " << chipNumber << " Channel: " << daqChannel << endl;
+            // cout << " + Card: " << cardNumber << " Chip: " << chipNumber << " Channel: " << daqChannel << endl;
             // sgnl.Initialize();
             // sgnl.SetSignalID(daqChannel);
 
@@ -535,10 +535,10 @@ Bool_t ReadFrame(void* fr, int fr_sz) {
             p++;
             done = 1;
         } else if (*p == PFX_START_OF_BUILT_EVENT) {
-            cout << "++ Start of built event" << endl;
+            cout << "!+ Start of built event" << endl;
             p++;
         } else if (*p == PFX_END_OF_BUILT_EVENT) {
-            cout << "-- End of built event" << endl;
+            cout << "!- End of built event" << endl;
             p++;
         } else if (*p == PFX_SOBE_SIZE) {
             // Skip header
@@ -571,6 +571,13 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     // Get frame size from first two bytes of buffer
     bu_s = (unsigned short*) bu;
     sz = *bu_s;
+
+    if ((sz & PFX_0_BIT_CONTENT_MASK) == PFX_START_OF_BUILT_EVENT) {
+        cout << "XXX Start of built event" << endl;
+    }else if ((sz & PFX_0_BIT_CONTENT_MASK) == PFX_END_OF_BUILT_EVENT) {
+        cout << "XXX End of built event" << endl;
+    }
+
     // skip the field that contains buffer size
     bu_s++;
     sz -= 2;
@@ -673,6 +680,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     }
 
     ReadFrame((void*) bu_s, (int) sz);
+
     return (err);
 }
 
