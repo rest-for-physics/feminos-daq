@@ -246,8 +246,8 @@ int parse_cmd_args(int argc, char **argv) {
 void CleanSharedMemory(int s) {
     printf("Cleaning shared resources\n");
 
-    int err = shmctl(ShMem_Buffer_ID, IPC_RMID, NULL);
-    err = shmctl(ShMem_DaqInfo_ID, IPC_RMID, NULL);
+    int err = shmctl(ShMem_Buffer_ID, IPC_RMID, nullptr);
+    err = shmctl(ShMem_DaqInfo_ID, IPC_RMID, nullptr);
 
     semctl(SemaphoreId, 0, IPC_RMID, 0);
 

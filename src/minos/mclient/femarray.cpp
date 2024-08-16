@@ -643,7 +643,7 @@ int FemArray_ReceiveLoop(FemArray *fa) {
         t_timeout.tv_sec = 5;
         t_timeout.tv_usec = 0;
 
-        // Copy the read fds from what we computed outside of the loop
+        // Copy the read fds from what we computed outside the loop
         readfds_work = readfds;
 
         // Wait for any of these sockets to be ready

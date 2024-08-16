@@ -17,14 +17,6 @@ double GetFreeDiskSpaceMegabytes(const std::string &path) {
     return static_cast<double>(space.free) / (1024 * 1024); // Convert bytes to megabytes
 }
 
-void mclient_prometheus::PrometheusManager::InitializeMetrics() {
-
-}
-
-void mclient_prometheus::PrometheusManager::ExposeMetrics() {
-
-}
-
 mclient_prometheus::PrometheusManager::PrometheusManager() {
     exposer = std::make_unique<Exposer>("localhost:8080");
 
@@ -62,7 +54,24 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
 
     daq_speed = &daq_speed_metric;
 
-    // Start the metrics server
+    auto &event_id_gauge = BuildGauge()
+            .Name("event_id")
+            .Help("Event ID")
+            .Register(*registry);
+
+    auto &event_id_metric = event_id_gauge.Add({});
+
+    event_id = &event_id_metric;
+
+    auto &number_of_signals_in_event_gauge = BuildGauge()
+            .Name("number_of_signals_in_event")
+            .Help("Number of signals in event")
+            .Register(*registry);
+
+    auto &number_of_signals_in_event_metric = number_of_signals_in_event_gauge.Add({});
+
+    number_of_signals_in_event = &number_of_signals_in_event_metric;
+
     exposer->RegisterCollectable(registry);
 }
 
@@ -73,5 +82,21 @@ void mclient_prometheus::PrometheusManager::SetDaqSpeed(double speed) {
 
     if (daq_speed) {
         daq_speed->Set(speed);
+    }
+}
+
+void mclient_prometheus::PrometheusManager::SetEventId(unsigned int id) {
+    lock_guard<mutex> lock(mutex_);
+
+    if (event_id) {
+        event_id->Set(id);
+    }
+}
+
+void mclient_prometheus::PrometheusManager::SetNumberOfSignalsInEvent(unsigned int number) {
+    lock_guard<mutex> lock(mutex_);
+
+    if (number_of_signals_in_event) {
+        number_of_signals_in_event->Set(number);
     }
 }

@@ -25,7 +25,9 @@
    The size has therefore to be coded on a 32-bit integer.
 
 *******************************************************************************/
+
 #include "frame.h"
+
 #include <cstdio>
 
 //////////////////////////////////////////////////////////////
@@ -224,7 +226,7 @@ void Frame_ToSharedMemory(void* fp, void* fr, int fr_sz, unsigned int vflg, daqI
             r0 = GET_ADC_DATA(*p);
 
             if (bufferPosition >= dInfo->bufferSize) {
-                printf("Writting outside shared memory range!!!\n");
+                printf("Writing outside shared memory range!!!\n");
                 printf("This problem should be fixed by increasing the shared memory size\n");
                 printf("MAX_SIGNALS and MAX_POINTS may need to be increased\n");
             }

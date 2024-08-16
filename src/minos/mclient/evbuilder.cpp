@@ -30,12 +30,14 @@ and timestamps depending on event builder mode
 #include <fcntl.h>
 #include <cstdio>
 #include <cstdlib>
-#include <time.h>
+#include <ctime>
 #include <unistd.h>
 
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
+
+#include "prometheus.h"
 
 extern daqInfo *ShMem_DaqInfo;
 extern short int *ShMem_Buffer;
@@ -127,7 +129,7 @@ void EventBuilder_Clear(EventBuilder *eb) {
     // Clear input Queues
     for (i = 0; i < MAX_NB_OF_SOURCES; i++) {
         for (j = 0; j < MAX_QUEUE_SIZE; j++) {
-            eb->q_buf_i[i][j] = (void *) 0;
+            eb->q_buf_i[i][j] = (void *) nullptr;
         }
         eb->q_buf_i_rd[i] = 0;
         eb->q_buf_i_wr[i] = 0;
@@ -136,7 +138,7 @@ void EventBuilder_Clear(EventBuilder *eb) {
 
     // Clear output Queue
     for (i = 0; i < MAX_QUEUE_SIZE; i++) {
-        eb->q_buf_o[i] = (void *) 0;
+        eb->q_buf_o[i] = (void *) nullptr;
         eb->q_src_o[i] = 0;
     }
     eb->q_buf_o_rd = 0;
@@ -429,6 +431,12 @@ int EventBuilder_ProcessBuffer(EventBuilder *eb, void *bu) {
         Frame_ToSharedMemory((void *) stdout, (void *) bu_s,
                              (int) sz, 0x0, ShMem_DaqInfo,
                              ShMem_Buffer, timeStart, tcm);
+
+
+        auto &manager = mclient_prometheus::PrometheusManager::Instance();
+
+        manager.SetEventId(ShMem_DaqInfo->eventId);
+        manager.SetNumberOfSignalsInEvent(ShMem_DaqInfo->nSignals);
 
         // printf( "TIME START : %d\n", timeStart );
         //	printf( "Event time : %lf\n",

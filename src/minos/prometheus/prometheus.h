@@ -32,13 +32,11 @@ namespace mclient_prometheus {
 
         PrometheusManager &operator=(const PrometheusManager &) = delete;
 
-        // Initialize metrics
-        void InitializeMetrics();
-
-        // Expose metrics handler
-        void ExposeMetrics();
-
         void SetDaqSpeed(double speed);
+
+        void SetEventId(unsigned int id);
+
+        void SetNumberOfSignalsInEvent(unsigned int number);
 
     private:
         PrometheusManager();
@@ -52,6 +50,8 @@ namespace mclient_prometheus {
         std::shared_ptr<Registry> registry;
 
         Gauge *daq_speed = nullptr;
+        Gauge *event_id = nullptr;
+        Gauge *number_of_signals_in_event = nullptr; // TODO: histogram
     };
 }
 

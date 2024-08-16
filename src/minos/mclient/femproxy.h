@@ -55,7 +55,7 @@ typedef struct _FemProxy {
     unsigned char exp_rep_nb; // expected sequence number of the daq next response
 
     unsigned char* buf_in;     // buffer to receive data
-    unsigned short buf_in_len; // beffer in length
+    unsigned short buf_in_len; // buffer in length
     unsigned char* buf_to_bp;  // buffer to return to buffer pool
     unsigned char* buf_to_eb;  // buffer to be passed to event builder
 } FemProxy;
