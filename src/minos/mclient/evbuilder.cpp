@@ -673,7 +673,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         // bytes to file\n", sz);
     }
 
-    // ReadFrame((void*) bu_s, (int) sz);
+    ReadFrame((void*) bu_s, (int) sz);
 
     return (err);
 }
