@@ -26,6 +26,7 @@ jobs:
 
       - name: Print ROOT version
         run: |
+          conda activate
           which root
           root-config --version
           root-config --cflags
