@@ -535,8 +535,10 @@ Bool_t ReadFrame(void* fr, int fr_sz) {
             p++;
             done = 1;
         } else if (*p == PFX_START_OF_BUILT_EVENT) {
+            cout << "++ Start of built event" << endl;
             p++;
         } else if (*p == PFX_END_OF_BUILT_EVENT) {
+            cout << "-- End of built event" << endl;
             p++;
         } else if (*p == PFX_SOBE_SIZE) {
             // Skip header
