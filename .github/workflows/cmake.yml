@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
       - name: Set up Anaconda
         uses: conda-incubator/setup-miniconda@v2
 
@@ -21,7 +19,17 @@ jobs:
         run: |
           conda install -c conda-forge root
 
+      - name: Print ROOT version
+        run: |
+          which root
+          root-config --version
+          root-config --cflags
+
+      - uses: actions/checkout@v4
+
       - name: Build
         run: |
+          # source root
+          source /opt/conda/etc/profile.d/conda.sh
           cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
           cmake --build ${{github.workspace}}/build
