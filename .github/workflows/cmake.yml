@@ -38,7 +38,5 @@ jobs:
 
       - name: Build
         run: |
-          # source root
-          source /opt/conda/etc/profile.d/conda.sh
           cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
           cmake --build ${{github.workspace}}/build
