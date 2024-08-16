@@ -29,8 +29,9 @@
 #include "frame.h"
 
 #include <cstdio>
+#include <iostream>
 
-//////////////////////////////////////////////////////////////
+using namespace std;
 
 /*******************************************************************************
  Frame_IsDFrame_EndOfEvent
@@ -494,6 +495,8 @@ void Frame_ToSharedMemory(void* fp, void* fr, int fr_sz, unsigned int vflg, daqI
                 dInfo->dataReady = 1;
                 dInfo->timeStamp = (double) tStart + tt;
                 dInfo->eventId = tmp;
+
+                cout << "Start of Event: " << dInfo->eventId << " at " << dInfo->timeStamp << endl;
             }
             /////////////////////////////// NEW ADDED
 
@@ -509,6 +512,8 @@ void Frame_ToSharedMemory(void* fp, void* fr, int fr_sz, unsigned int vflg, daqI
             if ((vflg & FRAME_PRINT_ALL) || (vflg & FRAME_PRINT_EVBND)) {
                 fprintf((FILE*) fp, "----- End of Event ----- (size %d bytes)\n", tmp);
             }
+
+            cout << "End of Event: " << dInfo->eventId << " at " << dInfo->timeStamp << endl;
 
             /////////////////////////////// NEW ADDED
             if (!tcm && dInfo->dataReady == 1) {

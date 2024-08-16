@@ -442,6 +442,8 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         // "Event time added : %lf\n",
         // ShMem_DaqInfo->timeStamp ); printf( "-----\n");
 
+
+        /*
         auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();
         auto& storageManager = mclient_storage::StorageManager::Instance();
         auto& graphManager = mclient_graph::GraphManager::Instance();
@@ -457,7 +459,6 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         cout << "Event ID: " << storageManager.event.id << endl;
         cout << "Event timestamp: " << storageManager.event.timestamp << endl;
 
-        /*
         // AFAIK the first number is the signal id and the rest is the signal data
         std::array<unsigned short, 512> waveform;
         for (int i = 0; i < ShMem_DaqInfo->nSignals; ++i) {
