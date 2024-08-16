@@ -25,13 +25,14 @@
 #include "platform_spec.h"
 #include "sock_util.h"
 
+#include <chrono>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
-
-#include <csignal>
+#include <thread>
 
 #include "graph.h"
 #include "prometheus.h"
