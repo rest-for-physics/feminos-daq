@@ -9,6 +9,8 @@
 
 #include <iostream>
 
+#include "storage.h"
+
 namespace mclient_graph {
 class GraphManager {
 public:
@@ -23,6 +25,9 @@ public:
 
     GraphManager();
 
+    void DrawEvent(const mclient_storage::Event& event);
+
+private:
     std::unique_ptr<TCanvas> canvas;
     std::vector<TGraph> graphs;
     std::unique_ptr<TMultiGraph> multiGraph;

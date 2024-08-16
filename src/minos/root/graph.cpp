@@ -2,10 +2,15 @@
 #include "graph.h"
 
 #include <TAxis.h>
+#include <TLegend.h>
 #include <TText.h>
 #include <TThread.h>
+#include <TSystem.h>
+
+#include <iostream>
 
 using namespace mclient_graph;
+using namespace std;
 
 GraphManager::GraphManager() {
     int argc = 0;
@@ -15,17 +20,23 @@ GraphManager::GraphManager() {
 
     canvas = std::make_unique<TCanvas>("canvas", "mclient", 1600, 900);
 
-    int nGraphs = 5;
-    constexpr int n = 512;
+    multiGraph = std::make_unique<TMultiGraph>("multiGraph", "mclient");
 
+    multiGraph->GetXaxis()->SetTitle("Time bin");
+    multiGraph->GetYaxis()->SetTitle("ADC value");
+}
+
+void GraphManager::DrawEvent(const mclient_storage::Event& event) {
     graphs.clear();
-    for (int i = 0; i < nGraphs; i++) {
+    for (size_t i = 0; i < event.size(); i++) {
+        auto [channel, data] = event.get_signal_id_data_pair(i);
         graphs.emplace_back();
         auto& graph = graphs.back();
-        graph.SetTitle(Form("Graph %d", i));
+        graph.SetTitle(Form("Channel %d", channel));
 
-        for (int j = 0; j < n; j++) {
-            graph.SetPoint(j, j, sin(j / (10.0 * (i + 1))) * 100);
+        for (size_t j = 0; j < data.size(); j++) {
+            cout << "j: " << j << " data[j]: " << data[j] << endl;
+            graph.SetPoint(j, j, data[j]);
         }
 
         graph.SetLineWidth(3);
@@ -33,21 +44,22 @@ GraphManager::GraphManager() {
         graph.SetLineColor(i + 1);
     }
 
-    multiGraph = std::make_unique<TMultiGraph>("multiGraph", "mclient");
-
+    // update draw
+    multiGraph->Clear();
     for (auto& graph: graphs) {
         multiGraph->Add(&graph);
     }
 
-    multiGraph->GetXaxis()->SetTitle("Time bin");
-    multiGraph->GetYaxis()->SetTitle("ADC value");
-    multiGraph->GetXaxis()->SetRangeUser(0, n);
-    // multiGraph->GetXaxis()->SetNdivisions(n / 64, 5, 0);
+    multiGraph->GetXaxis()->SetRangeUser(0, mclient_storage::Event::SIGNAL_SIZE);
+    multiGraph->GetXaxis()->SetNdivisions(mclient_storage::Event::SIGNAL_SIZE / 64, 5, 0);
 
-    // draw
+    canvas->cd();
     multiGraph->Draw("AL");
 
-    // TODO: correct labels (instead of every 100, every 128 points, etc)
+    canvas->Update();
+    canvas->Pad()->Draw();
+
+    gSystem->ProcessEvents();
 
     app->Run();
 }

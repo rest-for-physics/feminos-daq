@@ -13,7 +13,8 @@ namespace mclient_storage {
 class Event {
 public:
     constexpr static size_t SIGNAL_SIZE = 512;
-    Long64_t timestamp;
+    unsigned long long timestamp = 0;
+    unsigned int event_id = 0;
     std::vector<unsigned short> signal_ids;
     std::vector<unsigned short> signal_data; // all data points from all signals concatenated (same order as signal_ids)
 
@@ -53,8 +54,13 @@ public:
         file = std::make_unique<TFile>("events.root", "RECREATE");
         tree = std::make_unique<TTree>("EventTree", "Tree of DAQ signal events");
         tree->Branch("timestamp", &event.timestamp, "timestamp/L");
+        tree->Branch("event_id", &event.event_id, "event_id/i");
         tree->Branch("signals.id", &event.signal_ids);
         tree->Branch("signals.data", &event.signal_data);
+    }
+
+    void Clear() {
+        event = {};
     }
 
     std::unique_ptr<TFile> file;

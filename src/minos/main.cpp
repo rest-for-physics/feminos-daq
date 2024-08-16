@@ -27,8 +27,6 @@
 
 #include <cstdio>
 #include <cstdlib>
-
-// For shared memory
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
@@ -264,7 +262,32 @@ int main(int argc, char** argv) {
     // prometheus manager
     auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
     auto& graph_manager = mclient_graph::GraphManager::Instance();
-    // auto& storage_manager = mclient_storage::StorageManager::Instance();
+    auto& storage_manager = mclient_storage::StorageManager::Instance();
+
+    // delay 1 second
+    int eventId = 0;
+    while (true) {
+        storage_manager.Clear();
+        auto& event = storage_manager.event;
+        event.event_id = eventId++;
+
+        // random between 1 and 5
+        int nSignals = rand() % 5 + 1;
+        for (int i = 0; i < nSignals; i++) {
+            unsigned short id = rand() % 1000;
+            std::array<unsigned short, mclient_storage::Event::SIGNAL_SIZE> data{};
+            for (int j = 0; j < mclient_storage::Event::SIGNAL_SIZE; j++) {
+                data[j] = rand() % 4096;
+            }
+            event.add_signal(id, data);
+        }
+
+        cout << "Event ID: " << storage_manager.event.event_id << endl;
+
+        graph_manager.DrawEvent(event);
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
     int err;
 
