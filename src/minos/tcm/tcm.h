@@ -75,43 +75,43 @@
 #define R22_BIOS_B 0x80000000
 
 #define R22_PUT_TRIG_RATE(r22, rat) (((r22) & (~R22_TRIG_RATE_M)) | (((rat) << 0) & R22_TRIG_RATE_M))
-#define R22_GET_TRIG_RATE(r22) (((r22) &R22_TRIG_RATE_M) >> 0)
+#define R22_GET_TRIG_RATE(r22) (((r22) & R22_TRIG_RATE_M) >> 0)
 #define R22_PUT_EVENT_LIMIT(r22, lim) (((r22) & (~R22_EVENT_LIMIT_M)) | (((lim) << 9) & R22_EVENT_LIMIT_M))
-#define R22_GET_EVENT_LIMIT(r22) (((r22) &R22_EVENT_LIMIT_M) >> 9)
+#define R22_GET_EVENT_LIMIT(r22) (((r22) & R22_EVENT_LIMIT_M) >> 9)
 #define R22_PUT_TRIG_ENABLE(r22, ena) (((r22) & (~R22_TRIG_ENABLE_M)) | (((ena) << 12) & R22_TRIG_ENABLE_M))
-#define R22_GET_TRIG_ENABLE(r22) (((r22) &R22_TRIG_ENABLE_M) >> 12)
+#define R22_GET_TRIG_ENABLE(r22) (((r22) & R22_TRIG_ENABLE_M) >> 12)
 #define R22_PUT_SEL_EDGE(r22, sel) (((r22) & (~R22_SEL_EDGE)) | (((sel) << 16) & R22_SEL_EDGE))
-#define R22_GET_SEL_EDGE(r22) (((r22) &R22_SEL_EDGE) >> 16)
+#define R22_GET_SEL_EDGE(r22) (((r22) & R22_SEL_EDGE) >> 16)
 #define R22_PUT_INV_TCM_SIG(r22, inv) (((r22) & (~R22_INV_TCM_SIG)) | (((inv) << 17) & R22_INV_TCM_SIG))
-#define R22_GET_INV_TCM_SIG(r22) (((r22) &R22_INV_TCM_SIG) >> 17)
+#define R22_GET_INV_TCM_SIG(r22) (((r22) & R22_INV_TCM_SIG) >> 17)
 #define R22_PUT_DO_END_OF_BUSY(r22, eob) (((r22) & (~R22_DO_END_OF_BUSY)) | (((eob) << 18) & R22_DO_END_OF_BUSY))
-#define R22_GET_DO_END_OF_BUSY(r22) (((r22) &R22_DO_END_OF_BUSY) >> 18)
+#define R22_GET_DO_END_OF_BUSY(r22) (((r22) & R22_DO_END_OF_BUSY) >> 18)
 #define R22_PUT_INV_TCM_CLK(r22, inv) (((r22) & (~R22_INV_TCM_CLK)) | (((inv) << 19) & R22_INV_TCM_CLK))
-#define R22_GET_INV_TCM_CLK(r22) (((r22) &R22_INV_TCM_CLK) >> 19)
+#define R22_GET_INV_TCM_CLK(r22) (((r22) & R22_INV_TCM_CLK) >> 19)
 #define R22_PUT_MAX_READOUT_TIME(r22, mr) (((r22) & (~R22_MAX_READOUT_TIME_M)) | (((mr) << 20) & R22_MAX_READOUT_TIME_M))
-#define R22_GET_MAX_READOUT_TIME(r22) (((r22) &R22_MAX_READOUT_TIME_M) >> 20)
+#define R22_GET_MAX_READOUT_TIME(r22) (((r22) & R22_MAX_READOUT_TIME_M) >> 20)
 #define R22_PUT_DCBAL_ENC(r22, enc) (((r22) & (~R22_DCBAL_ENC)) | (((enc) << 24) & R22_DCBAL_ENC))
-#define R22_GET_DCBAL_ENC(r22) (((r22) &R22_DCBAL_ENC) >> 24)
+#define R22_GET_DCBAL_ENC(r22) (((r22) & R22_DCBAL_ENC) >> 24)
 #define R22_PUT_DCBAL_DEC(r22, dec) (((r22) & (~R22_DCBAL_DEC)) | (((dec) << 25) & R22_DCBAL_DEC))
-#define R22_GET_DCBAL_DEC(r22) (((r22) &R22_DCBAL_DEC) >> 25)
+#define R22_GET_DCBAL_DEC(r22) (((r22) & R22_DCBAL_DEC) >> 25)
 #define R22_PUT_MULT_TRIG_ENA(r22, ena) (((r22) & (~R22_MULT_TRIG_ENA)) | (((ena) << 26) & R22_MULT_TRIG_ENA))
-#define R22_GET_MULT_TRIG_ENA(r22) (((r22) &R22_MULT_TRIG_ENA) >> 26)
+#define R22_GET_MULT_TRIG_ENA(r22) (((r22) & R22_MULT_TRIG_ENA) >> 26)
 #define R22_PUT_MULT_TRIG_DST(r22, dst) (((r22) & (~R22_MULT_TRIG_DST)) | (((dst) << 27) & R22_MULT_TRIG_DST))
-#define R22_GET_MULT_TRIG_DST(r22) (((r22) &R22_MULT_TRIG_DST) >> 27)
+#define R22_GET_MULT_TRIG_DST(r22) (((r22) & R22_MULT_TRIG_DST) >> 27)
 #define R22_PUT_TCM_BERT(r22, ber) (((r22) & (~R22_TCM_BERT)) | (((ber) << 28) & R22_TCM_BERT))
-#define R22_GET_TCM_BERT(r22) (((r22) &R22_TCM_BERT) >> 28)
+#define R22_GET_TCM_BERT(r22) (((r22) & R22_TCM_BERT) >> 28)
 
 /* Definitions and Macros for Register 24 */
 #define R24_PUT_TRIG_DELAY_L(r24, dly) (((r24) & (~0x0000FFFF)) | (((dly) << 0) & 0x0000FFFF))
 #define R24_PUT_TRIG_DELAY_H(r24, dly) (((r24) & (~0xFFFF0000)) | (((dly) << 16) & 0xFFFF0000))
-#define R24_GET_TRIG_DELAY_L(r24) (((r24) &0x0000FFFF) >> 0)
-#define R24_GET_TRIG_DELAY_H(r24) (((r24) &0xFFFF0000) >> 16)
+#define R24_GET_TRIG_DELAY_L(r24) (((r24) & 0x0000FFFF) >> 0)
+#define R24_GET_TRIG_DELAY_H(r24) (((r24) & 0xFFFF0000) >> 16)
 
 /* Definitions and Macros for Register 25 */
 #define R25_PUT_TRIG_DELAY_L(r25, dly) (((r25) & (~0x0000FFFF)) | (((dly) << 0) & 0x0000FFFF))
 #define R25_PUT_TRIG_DELAY_H(r25, dly) (((r25) & (~0xFFFF0000)) | (((dly) << 16) & 0xFFFF0000))
-#define R25_GET_TRIG_DELAY_L(r25) (((r25) &0x0000FFFF) >> 0)
-#define R25_GET_TRIG_DELAY_H(r25) (((r25) &0xFFFF0000) >> 16)
+#define R25_GET_TRIG_DELAY_L(r25) (((r25) & 0x0000FFFF) >> 0)
+#define R25_GET_TRIG_DELAY_H(r25) (((r25) & 0xFFFF0000) >> 16)
 
 /* Definitions and Macros for Register 28 */
 #define R28_FEM_MASK_M ((1 << NB_OF_FEMINOS_PORTS) - 1)
@@ -120,9 +120,9 @@
 #define R29_MULT_MORE_THAN_M 0x0000007F
 #define R29_MULT_LESS_THAN_M 0x00003F80
 #define R29_PUT_MULT_MORE_THAN(r29, thr) (((r29) & (~R29_MULT_MORE_THAN_M)) | (((thr) << 0) & R29_MULT_MORE_THAN_M))
-#define R29_GET_MULT_MORE_THAN(r29) (((r29) &R29_MULT_MORE_THAN_M) >> 0)
+#define R29_GET_MULT_MORE_THAN(r29) (((r29) & R29_MULT_MORE_THAN_M) >> 0)
 #define R29_PUT_MULT_LESS_THAN(r29, thr) (((r29) & (~R29_MULT_LESS_THAN_M)) | (((thr) << 7) & R29_MULT_LESS_THAN_M))
-#define R29_GET_MULT_LESS_THAN(r29) (((r29) &R29_MULT_LESS_THAN_M) >> 7)
+#define R29_GET_MULT_LESS_THAN(r29) (((r29) & R29_MULT_LESS_THAN_M) >> 7)
 
 typedef struct _Tcm {
     int card_id;

@@ -124,8 +124,8 @@ typedef struct _TCPPseudoHdr {
 #define TCP_FLAG_URG 0x0020
 #define TCP_FLAG_ECN 0x0040
 
-#define TCP_GET_HDR_LEN(w) (((w) &0xF000) >> 10)
-#define TCP_PUT_HDR_LEN(w, len) (((w) &0x0FFF) | ((len & 0x003C) << 10))
+#define TCP_GET_HDR_LEN(w) (((w) & 0xF000) >> 10)
+#define TCP_PUT_HDR_LEN(w, len) (((w) & 0x0FFF) | ((len & 0x003C) << 10))
 
 /* Function prototypes */
 unsigned short ip_checksum(unsigned short* buf, unsigned short len);

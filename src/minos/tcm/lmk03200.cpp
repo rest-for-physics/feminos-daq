@@ -190,8 +190,7 @@ int UW_ConfigureLMK03200(Tcm* tcm) {
         }
 
         // Introduce a delay
-        for (waste = 0; waste < 1000; waste++)
-            ;
+        for (waste = 0; waste < 1000; waste++);
 
         // See if too many retry were made
         retry++;

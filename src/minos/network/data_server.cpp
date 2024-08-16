@@ -70,7 +70,7 @@
 #define FRAME_TYPE_DCC_DATA 0x0001
 #define FRAME_FLAG_EORQ 0x0004
 #define FRAME_FLAG_EOEV 0x0008
-#define PUT_FRAME_TY_V2(word, ty) (((word) &0x03FF) | FRAME_HDR_V2 | (((ty) &0x000F) << 10))
+#define PUT_FRAME_TY_V2(word, ty) (((word) & 0x03FF) | FRAME_HDR_V2 | (((ty) & 0x000F) << 10))
 
 BufPool BufferPool;
 SockUDP su;
