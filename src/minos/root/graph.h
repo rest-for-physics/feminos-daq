@@ -2,8 +2,11 @@
 #ifndef MCLIENT_GRAPH_H
 #define MCLIENT_GRAPH_H
 
+#include <TApplication.h>
 #include <TCanvas.h>
 #include <TGraph.h>
+#include <TMultiGraph.h>
+
 #include <iostream>
 
 namespace mclient_graph {
@@ -18,31 +21,14 @@ public:
 
     GraphManager& operator=(const GraphManager&) = delete;
 
-    GraphManager() {
-        std::cout << "GraphManager::GraphManager()" << std::endl;
-        canvas = std::make_unique<TCanvas>("c1", "A Simple Graph Example", 200, 10, 700, 500);
-
-        // graph with 10 points
-        graph = std::make_unique<TGraph>();
-        for (int i = 0; i < 10; i++) {
-            graph->SetPoint(i, i, i * i);
-        }
-
-        // show
-        canvas->cd();
-        graph->Draw("AC*");
-        canvas->Update();
-
-        // block
-        std::cout << "Press enter to continue" << std::endl;
-        std::cin.get();
-
-        std::cout << "GraphManager::GraphManager() done" << std::endl;
-    }
+    GraphManager();
 
     std::unique_ptr<TCanvas> canvas;
-    std::unique_ptr<TGraph> graph;
+    std::vector<TGraph> graphs;
+    std::unique_ptr<TMultiGraph> multiGraph;
+    std::unique_ptr<TApplication> app;
 };
+
 } // namespace mclient_graph
 
 #endif // MCLIENT_GRAPH_H
