@@ -572,12 +572,6 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     bu_s = (unsigned short*) bu;
     sz = *bu_s;
 
-    if ((sz & PFX_0_BIT_CONTENT_MASK) == PFX_START_OF_BUILT_EVENT) {
-        cout << "XXX Start of built event" << endl;
-    }else if ((sz & PFX_0_BIT_CONTENT_MASK) == PFX_END_OF_BUILT_EVENT) {
-        cout << "XXX End of built event" << endl;
-    }
-
     // skip the field that contains buffer size
     bu_s++;
     sz -= 2;
