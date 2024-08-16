@@ -62,7 +62,7 @@ char dacFineStr[16];
 extern int readOnly;
 
 // Function to remove all spaces from a given string
-void removeSpaces(char* str) {
+void removeSpaces(char *str) {
     int n = 0;
     for (int i = 0; str[i]; i++) {
         n++;
@@ -95,7 +95,7 @@ static char EventBuilder_Mode2str[16][40] = {
 /*******************************************************************************
   CmdFetcher_Init
  *******************************************************************************/
-void CmdFetcher_Init(CmdFetcher* cf) {
+void CmdFetcher_Init(CmdFetcher *cf) {
     sprintf(&(cf->cmd_file[0]), "");
     cf->no_echo_this = 0;
     cf->cmd_cnt = 0;
@@ -106,15 +106,15 @@ void CmdFetcher_Init(CmdFetcher* cf) {
     cf->cur_fem_cnt = 0;
     cf->fem_ix_min = 0;
     cf->fem_ix_max = 0;
-    cf->fa = (void*) 0;
-    cf->eb = (void*) 0;
-    cf->sem_cur_cmd_done = (void*) 0;
+    cf->fa = (void *) 0;
+    cf->eb = (void *) 0;
+    cf->sem_cur_cmd_done = (void *) 0;
 }
 
 /*******************************************************************************
   CmdFetcher_UpdateFemBoundaries
  *******************************************************************************/
-void CmdFetcher_UpdateFemBoundaries(CmdFetcher* cf) {
+void CmdFetcher_UpdateFemBoundaries(CmdFetcher *cf) {
     int i;
     unsigned int mask;
     int min_fnd;
@@ -144,7 +144,7 @@ void CmdFetcher_UpdateFemBoundaries(CmdFetcher* cf) {
 /*******************************************************************************
   CmdFetcher_Main
  *******************************************************************************/
-int CmdFetcher_Main(CmdFetcher* cf) {
+int CmdFetcher_Main(CmdFetcher *cf) {
     int tst;
     int getClock = 0;
     int getShaping = 0;
@@ -158,24 +158,24 @@ int CmdFetcher_Main(CmdFetcher* cf) {
     int cmd_loop_ix;
     char cmd_stdin[80];
     char tmp_str[80];
-    char* cmd;
+    char *cmd;
     int cmd_stdin_done;
     int mask;
     int post_cmd, post_daq;
     char fem_tar_str[80];
     unsigned int fem_beg, fem_end, fem_pat;
-    FemArray* fa;
-    EventBuilder* eb;
+    FemArray *fa;
+    EventBuilder *eb;
     int param[8];
     char str[8][32];
     char myStr[256];
 
-    FILE* fRunInfo;
+    FILE *fRunInfo;
 
     printf("CmdFetcher_Main: started\n");
 
-    fa = (FemArray*) cf->fa;
-    eb = (EventBuilder*) fa->eb;
+    fa = (FemArray *) cf->fa;
+    eb = (EventBuilder *) fa->eb;
 
     // Parse command file if it was passed in command argument
     if (cf->use_stdin == 0) {
@@ -271,14 +271,15 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             cmd_stdin_done = 0;
             while (!cmd_stdin_done) {
                 printf("(%d) >", cf->cmd_index);
-                if (fgets(&cmd_stdin[0], 80, stdin) < 0) {
+                if (fgets(&cmd_stdin[0], 80, stdin) == nullptr) {
                     printf("failed to get input from stdin\n");
                     return (-1);
                 }
                 // check for exec command
                 if (strncmp(cmd_stdin, "exec ", 5) == 0) {
                     sscanf(&cmd_stdin[5], "%s", cf->cmd_file);
-                    if (strcmp(cf->cmd_file, "ped") != 0 && strcmp(cf->cmd_file, "start") != 0 && strcmp(cf->cmd_file, "runTCM") != 0) {
+                    if (strcmp(cf->cmd_file, "ped") != 0 && strcmp(cf->cmd_file, "start") != 0 &&
+                        strcmp(cf->cmd_file, "runTCM") != 0) {
 
                         if (!readOnly) {
 
@@ -369,7 +370,8 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                                 savePed = 0;
                             }
 
-                            sprintf(tmpStr, "cp %s %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.run", cf->cmd_file,
+                            sprintf(tmpStr, "cp %s %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.run",
+                                    cf->cmd_file,
                                     getenv("RAWDATA_PATH"), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
                                     detectorPressureStr, gainStr, shapingStr, clockStr);
                             system(tmpStr);
@@ -381,20 +383,17 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                         if (fRunInfo) {
                             while (fscanf(fRunInfo, "%s", myStr) != EOF) {
                                 if (getClock) {
-                                    if (strncmp(myStr, "0x", 2) == 0)
-                                        ;
+                                    if (strncmp(myStr, "0x", 2) == 0);
                                     sprintf(clockStr, "%s", myStr);
                                 }
 
                                 if (getShaping) {
-                                    if (strncmp(myStr, "0x", 2) == 0)
-                                        ;
+                                    if (strncmp(myStr, "0x", 2) == 0);
                                     sprintf(shapingStr, "%s", myStr);
                                 }
 
                                 if (getGain == 1) {
-                                    if (strncmp(myStr, "0x", 2) == 0)
-                                        ;
+                                    if (strncmp(myStr, "0x", 2) == 0);
                                     sprintf(gainStr, "%s", myStr);
                                 }
 
@@ -455,7 +454,8 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             alldone = 1;
             post_cmd = 0;
         } else if (strncmp(cmd, "version", 7) == 0) {
-            printf("Client Version %d.%d Compiled %s at %s\n", CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, client_date, client_time);
+            printf("Client Version %d.%d Compiled %s at %s\n", CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, client_date,
+                   client_time);
             post_cmd = 1;
         } else if (strncmp(cmd, "sleep", 5) == 0) {
             if (sscanf(cmd, "sleep %d\n", &mask) == 1) {
@@ -487,7 +487,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             }
             post_cmd = 1;
         }
-        // Command to show/restore FEM credits
+            // Command to show/restore FEM credits
         else if (strncmp(cmd, "credits", 7) == 0) {
             param[0] = 0;
             if (strncmp(cmd, "credits show", 12) == 0) {
@@ -516,7 +516,8 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                         } else {
                             sprintf(tmp_str, "Bytes");
                         }
-                        printf("FEM(%d) Credits = %d %s Request_Threshold = %d %s\n", j, fa->fp[j].req_credit, tmp_str, fa->req_threshold, tmp_str);
+                        printf("FEM(%d) Credits = %d %s Request_Threshold = %d %s\n", j, fa->fp[j].req_credit, tmp_str,
+                               fa->req_threshold, tmp_str);
                     } else if (param[0] == 1) {
                         fa->fp[j].req_credit = param[1];
                         fa->req_threshold = param[2];
@@ -527,7 +528,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             }
             post_cmd = 0;
         }
-        // Check if the command reads or changes to which fem target commands are sent
+            // Check if the command reads or changes to which fem target commands are sent
         else if ((strncmp(cmd, "fem ", 4) == 0) || (strncmp(cmd, "fem\n", 4) == 0)) {
             // Wildcard to address all FEMs?
             if (strncmp(cmd, "fem *", 5) == 0) {
@@ -577,7 +578,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             }
             post_cmd = 0;
         }
-        // debug printout verboseness
+            // debug printout verboseness
         else if (strncmp(cmd, "verbose", 7) == 0) {
             if (sscanf(cmd, "verbose %d\n", &(cf->verbose)) == 1) {
                 verbose = cf->verbose;
@@ -588,7 +589,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             post_cmd = 0;
 
         }
-        // event data printout verboseness
+            // event data printout verboseness
         else if (strncmp(cmd, "vflags", 6) == 0) {
             if (sscanf(cmd, "vflags 0x%x\n", &(eb->vflags)) == 1) {
 
@@ -598,7 +599,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             post_cmd = 0;
 
         }
-        // open result file
+            // open result file
         else if (strncmp(cmd, "fopen", 5) == 0) {
             if (strncmp(cmd, "fopen asc", 9) == 0) {
                 mask = 1; // save data in ASCII
@@ -610,12 +611,12 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             EventBuilder_FileAction(eb, EBFA_OpenFirst, mask);
             post_cmd = 0;
         }
-        // close result file
+            // close result file
         else if (strncmp(cmd, "fclose", 6) == 0) {
             EventBuilder_FileAction(eb, EBFA_CloseLast, 0);
             post_cmd = 0;
         }
-        // result file path
+            // result file path
         else if (strncmp(cmd, "path", 4) == 0) {
             if (sscanf(cmd, "path %s\n", &tmp_str[0]) == 1) {
                 if (tmp_str[strlen(&tmp_str[0]) - 1] == '/') {
@@ -627,7 +628,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             printf("%s.rep(?): path: \"%s\"\n", fem_tar_str, &(eb->file_path[0]));
             post_cmd = 0;
         }
-        // Event Builder mode
+            // Event Builder mode
         else if (strncmp(cmd, "event_builder", 13) == 0) {
             if (sscanf(cmd, "event_builder %i\n", &param[0]) == 1) {
                 if ((param[0] >= 0) && (param[0] < 16)) {
@@ -636,10 +637,11 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             }
             // Flush any data left over in the Event Builder
             EventBuilder_Flush(eb);
-            printf("%s.rep(?): Event Builder Mode: %s (0x%x)\n", fem_tar_str, &EventBuilder_Mode2str[eb->eb_mode][0], eb->eb_mode);
+            printf("%s.rep(?): Event Builder Mode: %s (0x%x)\n", fem_tar_str, &EventBuilder_Mode2str[eb->eb_mode][0],
+                   eb->eb_mode);
             post_cmd = 0;
         }
-        // File chunk size
+            // File chunk size
         else if (strncmp(cmd, "file_chunk", 10) == 0) {
             if (sscanf(cmd, "file_chunk %d\n", &param[0]) == 1) {
                 if (param[0] <= 2048) {
@@ -649,8 +651,9 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             printf("%s.rep(?): File Chunk: %d MBytes\n", fem_tar_str, eb->file_max_size / (1024 * 1024));
             post_cmd = 0;
         }
-        // Commands that use the loop index as a variable in 4th or 5th argument
-        else if ((err = sscanf(cmd, "%s %s %s %s %s", &str[0][0], &str[1][0], &str[2][0], &str[3][0], &str[4][0])) >= 4) {
+            // Commands that use the loop index as a variable in 4th or 5th argument
+        else if ((err = sscanf(cmd, "%s %s %s %s %s", &str[0][0], &str[1][0], &str[2][0], &str[3][0], &str[4][0])) >=
+                 4) {
             if ((err == 5) && (strncmp(&str[4][0], "$loop", 5) == 0)) {
                 sprintf(tmp_str, "%s %s %s %s 0x%x\n", &str[0][0], &str[1][0], &str[2][0], &str[3][0], loop_ix);
                 cmd = &tmp_str[0];
@@ -661,13 +664,13 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                 post_cmd = 1;
             }
         }
-        // Drop credit to inject an error
+            // Drop credit to inject an error
         else if (strncmp(cmd, "drop credit", 11) == 0) {
             fa->drop_a_credit = 1;
             printf("%s.rep(?): One credit frame will be dropped\n", fem_tar_str);
             post_cmd = 0;
         }
-        // Delay credit to inject an error
+            // Delay credit to inject an error
         else if (strncmp(cmd, "delay credit", 12) == 0) {
             if (sscanf(cmd, "delay credit %d\n", &fa->delay_a_credit) == 1) {
 
@@ -677,7 +680,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             printf("%s.rep(?): Sending credit will be delayded by %d ms\n", fem_tar_str, fa->delay_a_credit);
             post_cmd = 0;
         }
-        // Re-program Feminos Flash with new firmware
+            // Re-program Feminos Flash with new firmware
         else if (strncmp(cmd, "program flash", 13) == 0) {
             err = 0;
             // Get file name
@@ -688,7 +691,8 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             }
             // Check that file name extension is .mcs
             if (strncmp(&cf->cmd_file[strlen(cf->cmd_file) - 4], ".mcs", 4) != 0) {
-                printf("%s.rep(?): file format must be \".mcs\" not \"%s\"\n", fem_tar_str, &cf->cmd_file[strlen(cf->cmd_file) - 4]);
+                printf("%s.rep(?): file format must be \".mcs\" not \"%s\"\n", fem_tar_str,
+                       &cf->cmd_file[strlen(cf->cmd_file) - 4]);
                 err = -1;
                 cf->no_echo_this = 1;
             }
@@ -782,8 +786,8 @@ int CmdFetcher_Main(CmdFetcher* cf) {
 /*******************************************************************************
   CmdFetcher_ParseCmdFile
  *******************************************************************************/
-int CmdFetcher_ParseCmdFile(CmdFetcher* cf) {
-    FILE* fptr;
+int CmdFetcher_ParseCmdFile(CmdFetcher *cf) {
+    FILE *fptr;
     int ix = 0;
     int err = 0;
     int sl_comment, ml_comment, ml_cnext;

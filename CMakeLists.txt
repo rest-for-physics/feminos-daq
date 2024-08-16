@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-project(mclient)
+project(mclient LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -9,7 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-DLINUX)
 add_definitions(-DJUMBO_POOL)
 
-option(PROMETHEUS "Enable Prometheus" OFF)
+# we converted C files into C++ files with minimal changes. We need to suppress some warnings. (TODO: fix them)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+
+option(PROMETHEUS "Enable Prometheus" ON)
 # option(TEST "Enable test" OFF)
 
 include(FetchContent)
@@ -23,7 +26,7 @@ if (PROMETHEUS)
     FetchContent_MakeAvailable(Prometheus)
 endif ()
 
-add_executable(mclient src/minos/mclient/mclientUDP.c)
+add_executable(mclient src/minos/main.cpp)
 
 target_include_directories(mclient PRIVATE
         src/minos/bootloader
@@ -43,22 +46,24 @@ target_include_directories(mclient PRIVATE
 )
 
 file(GLOB_RECURSE SOURCE_FILES
-        src/minos/mclient/femproxy.c
-        src/minos/mclient/evbuilder.c
-        src/minos/mclient/femarray.c
-        src/minos/mclient/cmdfetcher.c
-        src/minos/mclient/programflash.c
-        src/minos/spiflash/hexreader.c
-        src/minos/bufmgr/bufpool.c
-        src/minos/feminos/frame.c
-        src/minos/platforms/linux/os_al.c
+        src/minos/mclient/femproxy.cpp
+        src/minos/mclient/evbuilder.cpp
+        src/minos/mclient/femarray.cpp
+        src/minos/mclient/cmdfetcher.cpp
+        src/minos/mclient/programflash.cpp
+        src/minos/spiflash/hexreader.cpp
+        src/minos/bufmgr/bufpool.cpp
+        src/minos/feminos/frame.cpp
+        src/minos/platforms/linux/os_al.cpp
 )
 
 if (PROMETHEUS)
     message(STATUS "Prometheus enabled")
     target_include_directories(mclient PRIVATE src/minos/prometheus)
-    list(APPEND SOURCE_FILES src/minos/prometheus/prometheus.c)
+    list(APPEND SOURCE_FILES src/minos/prometheus/prometheus.cpp)
     target_link_libraries(mclient PRIVATE prometheus-cpp::core prometheus-cpp::pull prometheus-cpp::push)
+else ()
+    message(STATUS "Prometheus disabled")
 endif ()
 
 target_sources(mclient PRIVATE ${SOURCE_FILES})
