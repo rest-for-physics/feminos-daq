@@ -36,7 +36,7 @@ extern int verbose;
 ////////////////////////////////////////////////
 // Manage Major/Minor version numbering manually
 #define CLIENT_VERSION_MAJOR 1
-#define CLIENT_VERSION_MINOR 3
+#define CLIENT_VERSION_MINOR 4
 char client_date[] = __DATE__;
 char client_time[] = __TIME__;
 ////////////////////////////////////////////////
