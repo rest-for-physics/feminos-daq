@@ -8,6 +8,20 @@ set(CMAKE_CXX_STANDARD 20)
 add_definitions(-DLINUX)
 add_definitions(-DJUMBO_POOL)
 
+option(PROMETHEUS "Enable Prometheus" ON)
+# option(TEST "Enable test" OFF)
+
+include(FetchContent)
+
+if (PROMETHEUS)
+    FetchContent_Declare(
+            Prometheus
+            GIT_REPOSITORY https://github.com/jupp0r/prometheus-cpp.git
+            GIT_TAG v1.2.4
+    )
+    FetchContent_MakeAvailable(Prometheus)
+endif ()
+
 file(GLOB_RECURSE INCLUDE_DIRECTORIES src/minos/*/*)
 
 add_executable(mclient src/minos/mclient/mclientUDP.c)
@@ -43,3 +57,5 @@ file(GLOB_RECURSE SOURCE_FILES
 )
 
 target_sources(mclient PRIVATE ${SOURCE_FILES})
+
+target_link_libraries(mclient PRIVATE prometheus-cpp::core prometheus-cpp::pull prometheus-cpp::push)
