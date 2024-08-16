@@ -38,6 +38,7 @@ namespace mclient_prometheus {
         // Expose metrics handler
         void ExposeMetrics();
 
+        void SetDaqSpeed(double speed);
 
     private:
         PrometheusManager();
@@ -45,10 +46,12 @@ namespace mclient_prometheus {
         ~PrometheusManager();
 
         // Mutex for thread-safe access
-        std::mutex mutex;
+        std::mutex mutex_;
 
         std::unique_ptr<Exposer> exposer;
         std::shared_ptr<Registry> registry;
+
+        Gauge *daq_speed = nullptr;
     };
 }
 

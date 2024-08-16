@@ -36,13 +36,13 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
             .Help("Total number of events")
             .Register(*registry);
 
-    auto& free_disk_space_gauge = BuildGauge()
+    auto &free_disk_space_gauge = BuildGauge()
             .Name("free_disk_space_mb")
             .Help("Free disk space in megabytes")
             .Register(*registry);
 
     // Gauge to track free disk space
-    auto& free_disk_space_metric = free_disk_space_gauge.Add({{"path", "/"}});
+    auto &free_disk_space_metric = free_disk_space_gauge.Add({{"path", "/"}});
 
     // Start a thread to update the free disk space metric every 10 seconds
     std::thread([this, &free_disk_space_metric]() {
@@ -55,11 +55,25 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
         }
     }).detach();
 
+    auto &daq_speed_gauge = BuildGauge()
+            .Name("daq_speed_mb_per_sec")
+            .Help("DAQ speed in megabytes per second")
+            .Register(*registry);
+
+    auto &daq_speed_metric = daq_speed_gauge.Add({});
+
+    daq_speed = &daq_speed_metric;
+
     // Start the metrics server
     exposer->RegisterCollectable(registry);
-
 }
 
-mclient_prometheus::PrometheusManager::~PrometheusManager() {
+mclient_prometheus::PrometheusManager::~PrometheusManager() = default;
 
+void mclient_prometheus::PrometheusManager::SetDaqSpeed(double speed) {
+    lock_guard<mutex> lock(mutex_);
+
+    if (daq_speed) {
+        daq_speed->Set(speed);
+    }
 }
