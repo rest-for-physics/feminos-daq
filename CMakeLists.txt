@@ -9,10 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-DLINUX)
 add_definitions(-DJUMBO_POOL)
 
-# we converted C files into C++ files with minimal changes. We need to suppress some warnings. (TODO: fix them)
+# we converted C files into C++ files with minimal changes. We need to suppress some warnings. TODO: fix them
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
-option(PROMETHEUS "Enable Prometheus" ON)
+option(PROMETHEUS "Enable Prometheus" ON) # TODO: make OFF work
 # option(TEST "Enable test" OFF)
 
 include(FetchContent)

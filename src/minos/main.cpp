@@ -35,6 +35,8 @@
 
 #include <signal.h>
 
+#include "prometheus.h"
+
 /*******************************************************************************
  Constants types and global variables
 *******************************************************************************/
@@ -257,6 +259,9 @@ void CleanSharedMemory(int s) {
 *******************************************************************************/
 int main(int argc, char **argv) {
 
+    // prometheus manager
+    auto &prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
+
     int err;
 
     // Initialize Command Fetcher
@@ -288,7 +293,7 @@ int main(int argc, char **argv) {
 
         key_t MemKey = ftok("/bin/ls", 3);
         ShMem_DaqInfo_ID = shmget(MemKey, sizeof(daqInfo), 0777 | IPC_CREAT);
-        ShMem_DaqInfo = (daqInfo *) shmat(ShMem_DaqInfo_ID, (char *) 0, 0);
+        ShMem_DaqInfo = (daqInfo *) shmat(ShMem_DaqInfo_ID, nullptr, 0);
 
         ShMem_DaqInfo->maxSignals = MAX_SIGNALS;
         ShMem_DaqInfo->maxSamples = MAX_POINTS;
@@ -302,8 +307,7 @@ int main(int argc, char **argv) {
 
         MemKey = ftok("/bin/ls", 13);
         ShMem_Buffer_ID = shmget(MemKey, N_DATA * sizeof(unsigned short int), 0777 | IPC_CREAT);
-        ShMem_Buffer = (unsigned short int *) shmat(ShMem_Buffer_ID, (char *) 0, 0);
-        /////////////////////////////////
+        ShMem_Buffer = (unsigned short int *) shmat(ShMem_Buffer_ID, nullptr, 0);
 
         for (int n = 0; n < N_DATA; n++) { ShMem_Buffer[n] = 0; }
 
