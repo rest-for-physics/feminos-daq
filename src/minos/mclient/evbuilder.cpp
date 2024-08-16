@@ -434,6 +434,18 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
                              (int) sz, 0x0, ShMem_DaqInfo,
                              ShMem_Buffer, timeStart, tcm);
 
+        // printf( "TIME START : %d\n", timeStart );
+        //	printf( "Event time : %lf\n",
+        // ShMem_DaqInfo->timeStamp );
+        //	ShMem_DaqInfo->timeStamp = (double)
+        // timeStart + ShMem_DaqInfo->timeStamp; printf(
+        // "Event time added : %lf\n",
+        // ShMem_DaqInfo->timeStamp ); printf( "-----\n");
+        SemaphoreGreen(SemaphoreId);
+    }
+
+    // this should be called at the end of each event
+    {
         auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();
         auto& storageManager = mclient_storage::StorageManager::Instance();
         auto& graphManager = mclient_graph::GraphManager::Instance();
@@ -445,6 +457,9 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
 
         storageManager.event.id = ShMem_DaqInfo->eventId;
         storageManager.event.timestamp = ShMem_DaqInfo->timeStamp; // TODO: check if this is the correct timestamp
+
+        cout << "Event ID: " << storageManager.event.id << endl;
+        cout << "Event timestamp: " << storageManager.event.timestamp << endl;
 
         // AFAIK the first number is the signal id and the rest is the signal data
         std::array<unsigned short, 512> waveform;
@@ -464,15 +479,6 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
             // Avoid drawing too often
             graphManager.DrawEvent(storageManager.event);
         }
-
-        // printf( "TIME START : %d\n", timeStart );
-        //	printf( "Event time : %lf\n",
-        // ShMem_DaqInfo->timeStamp );
-        //	ShMem_DaqInfo->timeStamp = (double)
-        // timeStart + ShMem_DaqInfo->timeStamp; printf(
-        // "Event time added : %lf\n",
-        // ShMem_DaqInfo->timeStamp ); printf( "-----\n");
-        SemaphoreGreen(SemaphoreId);
     }
 
     // Save data to file
