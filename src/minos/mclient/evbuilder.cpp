@@ -949,25 +949,27 @@ int EventBuilder_Loop(EventBuilder* eb) {
                     // storageManager.event.timestamp = ShMem_DaqInfo->timeStamp; // TODO: Check if this is the correct timestamp
 
                     // AFAIK the first number is the signal id and the rest is the signal data
+                    unsigned long long check = 0;
                     std::array<unsigned short, 512> waveform;
                     for (int i = 0; i < ShMem_DaqInfo->nSignals; ++i) {
                         unsigned short signal_id = ShMem_Buffer[0 + i * 512];
                         for (int j = 0; j < 512; ++j) {
                             waveform[j] = ShMem_Buffer[1 + j + i * 512];
+                            check += waveform[j];
                         }
                         storageManager.event.add_signal(signal_id, waveform);
                     }
 
                     storageManager.tree->Fill();
 
-                    cout << "Event with ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals" << endl;
+                    cout << "Event with ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals and check: " << check << endl;
 
                     // checkpoint the file
                     storageManager.file->Write("", TObject::kOverwrite);
 
                     if (graphManager.GetSecondsSinceLastDraw() > 2) {
                         // Avoid drawing too often
-                        graphManager.DrawEvent(storageManager.event);
+                        // graphManager.DrawEvent(storageManager.event);
                     }
 
                     SemaphoreGreen(SemaphoreId);
