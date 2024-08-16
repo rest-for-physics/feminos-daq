@@ -13,6 +13,7 @@
   March 2006: created
 
 *******************************************************************************/
+
 #ifndef PLATFORM_SPEC_H
 #define PLATFORM_SPEC_H
 
@@ -22,10 +23,9 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <unistd.h>
-// #include <stropts.h>
-#include <errno.h>
+#include <cerrno>
 #include <sched.h>
-#include <string.h>
+#include <cstring>
 
 extern int errno;
 

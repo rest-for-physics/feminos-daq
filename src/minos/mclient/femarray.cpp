@@ -67,7 +67,7 @@ void FemArray_Clear(FemArray *fa) {
     fa->rem_ip_beg[3] = 1;
     fa->rem_port = REMOTE_DST_PORT;
     fa->pending_rep_cnt = 0;
-    fa->sem_cur_cmd_done = (void *) 0;
+    fa->sem_cur_cmd_done = (void *) nullptr;
     fa->daq_infinite = 0;
     fa->daq_size_left = 0;
     fa->daq_size_rcv = 0;

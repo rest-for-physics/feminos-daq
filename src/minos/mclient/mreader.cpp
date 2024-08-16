@@ -17,8 +17,9 @@
 
 
 *******************************************************************************/
+
 #include <cstdio>
-#include <string.h>
+#include <cstring>
 
 #include "frame.h"
 #include "histo_int.h"

@@ -31,7 +31,7 @@ as 4th or 5th argument in any command
 extern int verbose;
 
 #include <cstdio>
-#include <stdlib.h>
+#include <cstdlib>
 
 ////////////////////////////////////////////////
 // Manage Major/Minor version numbering manually

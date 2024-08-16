@@ -26,14 +26,14 @@
 #include "sock_util.h"
 
 #include <cstdio>
-#include <stdlib.h>
+#include <cstdlib>
 
 // For shared memory
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
 
-#include <signal.h>
+#include <csignal>
 
 #include "prometheus.h"
 
