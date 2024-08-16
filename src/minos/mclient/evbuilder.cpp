@@ -461,6 +461,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         cout << "Event ID: " << storageManager.event.id << endl;
         cout << "Event timestamp: " << storageManager.event.timestamp << endl;
 
+        /*
         // AFAIK the first number is the signal id and the rest is the signal data
         std::array<unsigned short, 512> waveform;
         for (int i = 0; i < ShMem_DaqInfo->nSignals; ++i) {
@@ -479,6 +480,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
             // Avoid drawing too often
             graphManager.DrawEvent(storageManager.event);
         }
+         */
     }
 
     // Save data to file
