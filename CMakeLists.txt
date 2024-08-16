@@ -12,60 +12,66 @@ add_definitions(-DJUMBO_POOL)
 # some warnings. TODO: fix them
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
-option(PROMETHEUS "Enable Prometheus" ON) # TODO: make OFF work
-# option(TEST "Enable test" OFF)
+find_package(ROOT REQUIRED COMPONENTS RIO Tree)
 
 include(FetchContent)
 
-if (PROMETHEUS)
-    FetchContent_Declare(
+FetchContent_Declare(
         Prometheus
         GIT_REPOSITORY https://github.com/jupp0r/prometheus-cpp.git
         GIT_TAG v1.2.4)
-    FetchContent_MakeAvailable(Prometheus)
-endif ()
+FetchContent_MakeAvailable(Prometheus)
+
+FetchContent_Declare(
+        CLI11
+        GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+        GIT_TAG v2.4.2
+)
+FetchContent_MakeAvailable(CLI11)
 
 add_executable(mclient src/minos/main.cpp)
 
 target_include_directories(
-    mclient
-    PRIVATE src/minos/bootloader
-            src/minos/bufmgr
-            src/minos/cmdi
-            src/minos/common
-            src/minos/feminos
-            src/minos/mars
-            src/minos/mclient
-            src/minos/network
-            src/minos/platforms
-            src/minos/platforms/linux
-            src/minos/spiflash
-            src/minos/tcm
-            src/minos/util
-            src/minos/util/linux)
+        mclient
+        PRIVATE
+        ${ROOT_INCLUDE_DIRS}
+        src/minos/bootloader
+        src/minos/bufmgr
+        src/minos/cmdi
+        src/minos/common
+        src/minos/feminos
+        src/minos/mars
+        src/minos/mclient
+        src/minos/network
+        src/minos/platforms
+        src/minos/platforms/linux
+        src/minos/spiflash
+        src/minos/tcm
+        src/minos/util
+        src/minos/util/linux
+        src/minos/prometheus
+        src/minos/root
+)
 
 file(
-    GLOB_RECURSE
-    SOURCE_FILES
-    src/minos/mclient/femproxy.cpp
-    src/minos/mclient/evbuilder.cpp
-    src/minos/mclient/femarray.cpp
-    src/minos/mclient/cmdfetcher.cpp
-    src/minos/mclient/programflash.cpp
-    src/minos/spiflash/hexreader.cpp
-    src/minos/bufmgr/bufpool.cpp
-    src/minos/feminos/frame.cpp
-    src/minos/platforms/linux/os_al.cpp)
+        GLOB_RECURSE
+        SOURCE_FILES
+        src/minos/mclient/femproxy.cpp
+        src/minos/mclient/evbuilder.cpp
+        src/minos/mclient/femarray.cpp
+        src/minos/mclient/cmdfetcher.cpp
+        src/minos/mclient/programflash.cpp
+        src/minos/spiflash/hexreader.cpp
+        src/minos/bufmgr/bufpool.cpp
+        src/minos/feminos/frame.cpp
+        src/minos/platforms/linux/os_al.cpp
+        src/minos/prometheus/prometheus.cpp
+        src/minos/root/storage.cpp
+        src/minos/root/graph.cpp
+)
 
-if (PROMETHEUS)
-    message(STATUS "Prometheus enabled")
-    target_include_directories(mclient PRIVATE src/minos/prometheus)
-    list(APPEND SOURCE_FILES src/minos/prometheus/prometheus.cpp)
-    target_link_libraries(
-        mclient PRIVATE prometheus-cpp::core prometheus-cpp::pull
-                        prometheus-cpp::push)
-else ()
-    message(STATUS "Prometheus disabled")
-endif ()
+target_link_libraries(
+        mclient PRIVATE CLI11::CLI11 prometheus-cpp::core prometheus-cpp::pull
+        prometheus-cpp::push ${ROOT_LIBRARIES})
 
 target_sources(mclient PRIVATE ${SOURCE_FILES})
