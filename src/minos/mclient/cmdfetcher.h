@@ -44,18 +44,18 @@ typedef struct _CmdFetcher {
     unsigned int fem_ix_min;
     unsigned int fem_ix_max;
 
-    void *fa; // pointer to FEM Array
-    void *eb; // pointer to Event Builder
+    void* fa; // pointer to FEM Array
+    void* eb; // pointer to Event Builder
 
-    void *sem_cur_cmd_done;
+    void* sem_cur_cmd_done;
 
 } CmdFetcher;
 
 /* Function prototypes */
-void CmdFetcher_Init(CmdFetcher *cf);
+void CmdFetcher_Init(CmdFetcher* cf);
 
-int CmdFetcher_Main(CmdFetcher *cf);
+int CmdFetcher_Main(CmdFetcher* cf);
 
-int CmdFetcher_ParseCmdFile(CmdFetcher *cf);
+int CmdFetcher_ParseCmdFile(CmdFetcher* cf);
 
 #endif

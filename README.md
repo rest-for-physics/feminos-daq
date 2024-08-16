@@ -13,9 +13,9 @@ A good option is to create a symbolic link to that executable wherever you want 
 
 #### Setting up the DAQ environment
 
-In order to mclient from FeminosDAQ to work properly few environment variables must be defined in the system. 
+In order to mclient from FeminosDAQ to work properly few environment variables must be defined in the system.
 
-The file `loadDAQ_EnvVars.sh` will serve as a template to help definning those variables. 
+The file `loadDAQ_EnvVars.sh` will serve as a template to help definning those variables.
 
 All these varibles are needed, values could be changed.
 

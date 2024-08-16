@@ -62,24 +62,24 @@
 #define LMK_R14_POWERDOWN 0x04000000
 
 // Macros
-#define UW_MAKE_COMMAND_WORD(r, d) (((r) & 0xF) | ((d) & 0xFFFFFFF0))
+#define UW_MAKE_COMMAND_WORD(r, d) (((r) &0xF) | ((d) &0xFFFFFFF0))
 
-#define LMK_R_PUT_DELAY(r, d) (((r) & 0xFFFFFF0F) | (((d) & 0x0000000F) << 4))
-#define LMK_R_PUT_DIVIDER(r, d) (((r) & 0xFFFF00FF) | (((d) & 0x000000FF) << 8))
+#define LMK_R_PUT_DELAY(r, d) (((r) &0xFFFFFF0F) | (((d) &0x0000000F) << 4))
+#define LMK_R_PUT_DIVIDER(r, d) (((r) &0xFFFF00FF) | (((d) &0x000000FF) << 8))
 
-#define LMK_R13_PUT_OSCIN_FREQ(r, f) (((r) & 0xFFC03FFF) | (((f) & 0x000FF) << 14))
-#define LMK_R13_PUT_VCO_R4_LF(r, f) (((r) & 0xFFFFC7FF) | (((f) & 0x00007) << 11))
-#define LMK_R13_PUT_VCO_R3_LF(r, f) (((r) & 0xFFFFF8FF) | (((f) & 0x00007) << 8))
-#define LMK_R13_PUT_VCO_C3C4_LF(r, f) (((r) & 0xFFFFFF0F) | (((f) & 0x0000F) << 4))
+#define LMK_R13_PUT_OSCIN_FREQ(r, f) (((r) &0xFFC03FFF) | (((f) &0x000FF) << 14))
+#define LMK_R13_PUT_VCO_R4_LF(r, f) (((r) &0xFFFFC7FF) | (((f) &0x00007) << 11))
+#define LMK_R13_PUT_VCO_R3_LF(r, f) (((r) &0xFFFFF8FF) | (((f) &0x00007) << 8))
+#define LMK_R13_PUT_VCO_C3C4_LF(r, f) (((r) &0xFFFFFF0F) | (((f) &0x0000F) << 4))
 
-#define LMK_R14_PUT_PLL_MUX(r, f) (((r) & 0xFF0FFFFF) | (((f) & 0x0000F) << 20))
-#define LMK_R14_PUT_PLL_R(r, f) (((r) & 0xFFF000FF) | (((f) & 0x00FFF) << 8))
-#define LMK_R14_PUT_PLL_R_DLY(r, f) (((r) & 0xFFFFFF0F) | (((f) & 0x0000F) << 4))
+#define LMK_R14_PUT_PLL_MUX(r, f) (((r) &0xFF0FFFFF) | (((f) &0x0000F) << 20))
+#define LMK_R14_PUT_PLL_R(r, f) (((r) &0xFFF000FF) | (((f) &0x00FFF) << 8))
+#define LMK_R14_PUT_PLL_R_DLY(r, f) (((r) &0xFFFFFF0F) | (((f) &0x0000F) << 4))
 
-#define LMK_R15_PUT_PLL_CP_GAIN(r, f) (((r) & 0x3FFFFFFF) | (((f) & 0x00003) << 30))
-#define LMK_R15_PUT_VCO_DIV(r, f) (((r) & 0xC3FFFFFF) | (((f) & 0x0000F) << 26))
-#define LMK_R15_PUT_PLL_N(r, f) (((r) & 0xFC0000FF) | (((f) & 0x3FFFF) << 8))
-#define LMK_R15_PUT_PLL_N_DLY(r, f) (((r) & 0xFFFFFF0F) | (((f) & 0x0000F) << 4))
+#define LMK_R15_PUT_PLL_CP_GAIN(r, f) (((r) &0x3FFFFFFF) | (((f) &0x00003) << 30))
+#define LMK_R15_PUT_VCO_DIV(r, f) (((r) &0xC3FFFFFF) | (((f) &0x0000F) << 26))
+#define LMK_R15_PUT_PLL_N(r, f) (((r) &0xFC0000FF) | (((f) &0x3FFFF) << 8))
+#define LMK_R15_PUT_PLL_N_DLY(r, f) (((r) &0xFFFFFF0F) | (((f) &0x0000F) << 4))
 
 // Function prototypes
 int UWire_WriteRegister(Tcm* tcm, unsigned int reg, unsigned int dat);

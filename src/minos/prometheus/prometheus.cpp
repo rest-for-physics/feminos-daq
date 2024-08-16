@@ -1,13 +1,13 @@
 
 #include "prometheus.h"
 
-#include <thread>
 #include <chrono>
 #include <filesystem>
+#include <thread>
 
 namespace fs = std::filesystem;
 
-double GetFreeDiskSpaceMegabytes(const std::string &path) {
+double GetFreeDiskSpaceMegabytes(const std::string& path) {
     std::error_code ec;
     fs::space_info space = fs::space(path, ec);
     if (ec) {
@@ -22,18 +22,18 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
 
     registry = std::make_shared<Registry>();
 
-    auto &event_counter = BuildCounter()
-            .Name("events_total")
-            .Help("Total number of events")
-            .Register(*registry);
+    auto& event_counter = BuildCounter()
+                                  .Name("events_total")
+                                  .Help("Total number of events")
+                                  .Register(*registry);
 
-    auto &free_disk_space_gauge = BuildGauge()
-            .Name("free_disk_space_mb")
-            .Help("Free disk space in megabytes")
-            .Register(*registry);
+    auto& free_disk_space_gauge = BuildGauge()
+                                          .Name("free_disk_space_mb")
+                                          .Help("Free disk space in megabytes")
+                                          .Register(*registry);
 
     // Gauge to track free disk space
-    auto &free_disk_space_metric = free_disk_space_gauge.Add({{"path", "/"}});
+    auto& free_disk_space_metric = free_disk_space_gauge.Add({{"path", "/"}});
 
     std::thread([this, &free_disk_space_metric]() {
         while (true) {
@@ -45,30 +45,30 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
         }
     }).detach();
 
-    auto &daq_speed_gauge = BuildGauge()
-            .Name("daq_speed_mb_per_sec")
-            .Help("DAQ speed in megabytes per second")
-            .Register(*registry);
+    auto& daq_speed_gauge = BuildGauge()
+                                    .Name("daq_speed_mb_per_sec")
+                                    .Help("DAQ speed in megabytes per second")
+                                    .Register(*registry);
 
-    auto &daq_speed_metric = daq_speed_gauge.Add({});
+    auto& daq_speed_metric = daq_speed_gauge.Add({});
 
     daq_speed = &daq_speed_metric;
 
-    auto &event_id_gauge = BuildGauge()
-            .Name("event_id")
-            .Help("Event ID")
-            .Register(*registry);
+    auto& event_id_gauge = BuildGauge()
+                                   .Name("event_id")
+                                   .Help("Event ID")
+                                   .Register(*registry);
 
-    auto &event_id_metric = event_id_gauge.Add({});
+    auto& event_id_metric = event_id_gauge.Add({});
 
     event_id = &event_id_metric;
 
-    auto &number_of_signals_in_event_gauge = BuildGauge()
-            .Name("number_of_signals_in_event")
-            .Help("Number of signals in event")
-            .Register(*registry);
+    auto& number_of_signals_in_event_gauge = BuildGauge()
+                                                     .Name("number_of_signals_in_event")
+                                                     .Help("Number of signals in event")
+                                                     .Register(*registry);
 
-    auto &number_of_signals_in_event_metric = number_of_signals_in_event_gauge.Add({});
+    auto& number_of_signals_in_event_metric = number_of_signals_in_event_gauge.Add({});
 
     number_of_signals_in_event = &number_of_signals_in_event_metric;
 

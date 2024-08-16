@@ -129,7 +129,8 @@ int SpiFlash_WriteEnable(SpiFlash* sf) {
      * Wait till the Transfer is complete and check if there are any errors
      * in the transaction..
      */
-    while (SpiTransferInProgress);
+    while (SpiTransferInProgress)
+        ;
     if (SpiErrorCount != 0) {
         SpiErrorCount = 0;
         return XST_FAILURE;
@@ -172,7 +173,8 @@ int SpiFlash_GetStatus(SpiFlash* sf) {
      * Wait till the Transfer is complete and check if there are any errors
      * in the transaction.
      */
-    while (SpiTransferInProgress);
+    while (SpiTransferInProgress)
+        ;
     if (SpiErrorCount != 0) {
         SpiErrorCount = 0;
         return XST_FAILURE;
@@ -285,7 +287,8 @@ int SpiFlash_SectorErase(SpiFlash* sf, unsigned int sect) {
      * Wait till the Transfer is complete and check if there are any errors
      * in the transaction.
      */
-    while (SpiTransferInProgress);
+    while (SpiTransferInProgress)
+        ;
     if (SpiErrorCount != 0) {
         SpiErrorCount = 0;
         return (-XST_FAILURE);
@@ -354,7 +357,8 @@ int SpiFlash_ReadUniqueID(SpiFlash* sf, unsigned char** dout) {
      * Wait till the Transfer is complete and check if there are any errors
      * in the transaction.
      */
-    while (SpiTransferInProgress);
+    while (SpiTransferInProgress)
+        ;
     if (SpiErrorCount != 0) {
         SpiErrorCount = 0;
         return XST_FAILURE;
@@ -424,7 +428,8 @@ int SpiFlash_ReadPage(SpiFlash* sf, unsigned int page, unsigned int size, unsign
      * Wait till the Transfer is complete and check if there are any errors
      * in the transaction..
      */
-    while (SpiTransferInProgress);
+    while (SpiTransferInProgress)
+        ;
     if (SpiErrorCount != 0) {
         SpiErrorCount = 0;
         return (-XST_FAILURE);
@@ -531,7 +536,8 @@ int SpiFlash_WritePage(SpiFlash* sf, unsigned int erase, unsigned int page, unsi
      * Wait till the Transfer is complete and check if there are any errors
      * in the transaction..
      */
-    while (SpiTransferInProgress);
+    while (SpiTransferInProgress)
+        ;
     if (SpiErrorCount != 0) {
         SpiErrorCount = 0;
         return (-XST_FAILURE);

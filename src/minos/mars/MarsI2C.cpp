@@ -484,7 +484,8 @@ int EEPROM_read(u32 addr, u32 len, u8* readbuffer) {
     }
 
     // Wait till all the data is received.
-    while (ReceiveComplete);
+    while (ReceiveComplete)
+        ;
 
     // Stop the IIC device.
     Status = XIic_Stop(&IicInstance);

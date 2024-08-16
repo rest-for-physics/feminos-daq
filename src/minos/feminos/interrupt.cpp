@@ -65,7 +65,7 @@ int InterruptSystem_Setup(XIntc* x_intc) {
 
     /*
      * Enable MicroBlaze interrupts
-	 */
+     */
     microblaze_enable_interrupts();
 
     return XST_SUCCESS;

@@ -24,8 +24,8 @@
 #define TIMER_LIB_H
 
 #ifdef LINUX
-#include <sys/time.h> //for gettimeofday
 #include <libgen.h>   //for basename
+#include <sys/time.h> //for gettimeofday
 #endif
 
 #ifndef LINUX

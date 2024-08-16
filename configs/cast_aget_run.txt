@@ -24,7 +24,7 @@ sleep 1
 serve_target 0
 sleep 4
 ##################################
-# Feminos Settings 
+# Feminos Settings
 ##################################
 sca cnt 0x200
 sca autostart 1
@@ -33,7 +33,7 @@ rst_len 0
 # Readout settings
 ##################################
 modify_hit_reg 0
-# Allow erase of hit register 
+# Allow erase of hit register
 erase_hit_ena 0
 # Allowable hit limit threshold
 erase_hit_thr * 2
@@ -77,14 +77,14 @@ mult_trig_ena 1
 event_limit 0x0
 # Range: 0:0.1Hz-10Hz 1:10Hz-1kHz 2:100Hz-10kHz 3:1kHz-100kHz
 trig_rate 1 50
-# Trigger enable bits (OR several if desired): 0x1:generator 0x2:trigger pin 0x4:pulser 0x8: TCM 
+# Trigger enable bits (OR several if desired): 0x1:generator 0x2:trigger pin 0x4:pulser 0x8: TCM
 trig_enable 0x0
 ##################################
 # Set Data server target:
 #  0: drop data
 #  1: send to DAQ
 #  2: feed to pedestal histos
-#  3: feed to hit channel histos 
+#  3: feed to hit channel histos
 ##################################
 serve_target 1
 ##################################
@@ -123,7 +123,3 @@ hhit get 3
 # Close result file
 ##################################
 #fclose
-
-
-
-

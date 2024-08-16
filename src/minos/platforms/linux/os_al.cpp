@@ -17,13 +17,13 @@
 
 *******************************************************************************/
 /*#define _POSIX_C_SOURCE 199506L*/
+#include <cstdio>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
-#include <cstdio>
 #include <stdlib.h>
 #include <sys/ipc.h>
 #include <sys/mman.h>

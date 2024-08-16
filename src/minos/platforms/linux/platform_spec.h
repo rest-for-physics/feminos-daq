@@ -17,15 +17,15 @@
 #ifndef PLATFORM_SPEC_H
 #define PLATFORM_SPEC_H
 
+#include <cerrno>
+#include <cstring>
 #include <netinet/in.h>
+#include <sched.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <unistd.h>
-#include <cerrno>
-#include <sched.h>
-#include <cstring>
 
 extern int errno;
 

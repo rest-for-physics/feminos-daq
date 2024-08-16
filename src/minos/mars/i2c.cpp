@@ -168,12 +168,12 @@ int I2C_GetCurrentMonitor(XIic* i2c_inst, char* str) {
     CurrSenseInit(CURRSENS_STARTER);
 
     if ((Status = CurrSenseWriteConfig(0x019F)) != XST_SUCCESS)
-	{
+    {
         sprintf(str, "I2C_GetCurrentMonitor: CurrSenseWriteConfig failed (status:%d)", Status);
         return (-1);
     }
 
-	if ((Status = CurrSenseWriteCalib (0xC800)) != XST_SUCCESS)
+    if ((Status = CurrSenseWriteCalib (0xC800)) != XST_SUCCESS)
     {
         sprintf(str, "I2C_GetCurrentMonitor: CurrSenseWriteConfig failed (status:%d)", Status);
         return (-1);
@@ -185,7 +185,7 @@ int I2C_GetCurrentMonitor(XIic* i2c_inst, char* str) {
         return (-1);
     }
 
-	if ((Status = CurrSenseReadCurrent(&Current)) != XST_SUCCESS)
+    if ((Status = CurrSenseReadCurrent(&Current)) != XST_SUCCESS)
     {
         sprintf(str, "I2C_GetCurrentMonitor: CurrSenseReadCurrent failed (status:%d)", Status);
         return (-1);
@@ -197,7 +197,7 @@ int I2C_GetCurrentMonitor(XIic* i2c_inst, char* str) {
         return (-1);
     }
 
-	sprintf(str, "Module Voltage: %d mV  Current: %d mA  Power:%d mW", Voltage, Current, Power);
+    sprintf(str, "Module Voltage: %d mV  Current: %d mA  Power:%d mW", Voltage, Current, Power);
 
     return(0);
     */

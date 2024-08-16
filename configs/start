@@ -36,4 +36,3 @@ polarity 0
 ##################################
 fec_enable 1
 asic_mask 0x0
-

@@ -47,7 +47,7 @@
 /*******************************************************************************
  FemArray_Clear
 *******************************************************************************/
-void FemArray_Clear(FemArray *fa) {
+void FemArray_Clear(FemArray* fa) {
     int i;
 
     fa->id = 0;
@@ -67,7 +67,7 @@ void FemArray_Clear(FemArray *fa) {
     fa->rem_ip_beg[3] = 1;
     fa->rem_port = REMOTE_DST_PORT;
     fa->pending_rep_cnt = 0;
-    fa->sem_cur_cmd_done = (void *) nullptr;
+    fa->sem_cur_cmd_done = (void*) nullptr;
     fa->daq_infinite = 0;
     fa->daq_size_left = 0;
     fa->daq_size_rcv = 0;
@@ -85,16 +85,16 @@ void FemArray_Clear(FemArray *fa) {
         FemProxy_Clear(&(fa->fp[i]));
     }
 
-    fa->bp = (void *) nullptr;
-    fa->eb = (void *) nullptr;
+    fa->bp = (void*) nullptr;
+    fa->eb = (void*) nullptr;
 
-    fa->pedthr = (FILE *) nullptr;
+    fa->pedthr = (FILE*) nullptr;
 }
 
 /*******************************************************************************
  FemArray_Open
 *******************************************************************************/
-int FemArray_Open(FemArray *fa) {
+int FemArray_Open(FemArray* fa) {
 
     int i;
     int done;
@@ -146,7 +146,7 @@ int FemArray_Open(FemArray *fa) {
 /*******************************************************************************
  FemArray_Close
 *******************************************************************************/
-void FemArray_Close(FemArray *fa) {
+void FemArray_Close(FemArray* fa) {
     int i;
 
     // Close all proxy to FEM
@@ -158,7 +158,7 @@ void FemArray_Close(FemArray *fa) {
 /*******************************************************************************
  FemArray_SendCommand
 *******************************************************************************/
-int FemArray_SendCommand(FemArray *fa, unsigned int fem_beg, unsigned int fem_end, unsigned int fem_pat, char *cmd) {
+int FemArray_SendCommand(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, unsigned int fem_pat, char* cmd) {
     unsigned int i;
     int err, err2;
     unsigned int mask;
@@ -190,7 +190,7 @@ int FemArray_SendCommand(FemArray *fa, unsigned int fem_beg, unsigned int fem_en
                                   cmd,
                                   strlen(cmd),
                                   0,
-                                  (struct sockaddr *) &(fa->fp[i].target),
+                                  (struct sockaddr*) &(fa->fp[i].target),
                                   sizeof(struct sockaddr))) == -1) {
                     err = socket_get_error();
                     printf("FemArray_SendCommand: sendto fem(%02d) failed: error %d\n", i, err);
@@ -224,7 +224,7 @@ int FemArray_SendCommand(FemArray *fa, unsigned int fem_beg, unsigned int fem_en
 /*******************************************************************************
  FemArray_SendDaq
 *******************************************************************************/
-int FemArray_SendDaq(FemArray *fa, unsigned int fem_beg, unsigned int fem_end, unsigned int fem_pat, char *cmd) {
+int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, unsigned int fem_pat, char* cmd) {
     unsigned int i;
     int err, err2;
     unsigned int mask;
@@ -307,7 +307,7 @@ int FemArray_SendDaq(FemArray *fa, unsigned int fem_beg, unsigned int fem_end, u
 
 #endif
 
-            auto &manager = mclient_prometheus::PrometheusManager::Instance();
+            auto& manager = mclient_prometheus::PrometheusManager::Instance();
 
             manager.SetDaqSpeed(daq_speed);
 
@@ -408,7 +408,7 @@ int FemArray_SendDaq(FemArray *fa, unsigned int fem_beg, unsigned int fem_end, u
                                           daq_cmd,
                                           strlen(daq_cmd),
                                           0,
-                                          (struct sockaddr *) &(fa->fp[i].target),
+                                          (struct sockaddr*) &(fa->fp[i].target),
                                           sizeof(struct sockaddr))) == -1) {
                             err = socket_get_error();
                             printf("FemArray_SendDaq: sendto fem(%02d) failed: error %d\n", i, err);
@@ -469,15 +469,15 @@ int FemArray_SendDaq(FemArray *fa, unsigned int fem_beg, unsigned int fem_end, u
 /*******************************************************************************
  FemArray_EventBuilderIO
 *******************************************************************************/
-int FemArray_EventBuilderIO(FemArray *fa, unsigned int fem_beg, unsigned int fem_end, unsigned int fem_pat) {
+int FemArray_EventBuilderIO(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, unsigned int fem_pat) {
     unsigned int i;
     int err, err2;
     unsigned int mask;
-    EventBuilder *eb;
+    EventBuilder* eb;
 
     err = 0;
     mask = 1 << fem_beg;
-    eb = (EventBuilder *) fa->eb;
+    eb = (EventBuilder*) fa->eb;
 
     // Get mutex to event builder queues
     if ((err = Mutex_Lock(eb->q_mutex)) < 0) {
@@ -525,14 +525,14 @@ int FemArray_EventBuilderIO(FemArray *fa, unsigned int fem_beg, unsigned int fem
 /*******************************************************************************
  FemArray_SavePedThrList
 *******************************************************************************/
-int FemArray_SavePedThrList(FemArray *fa, void *buf) {
-    struct tm *now;
+int FemArray_SavePedThrList(FemArray* fa, void* buf) {
+    struct tm* now;
     char file_str[80];
     time_t start_time;
     int err;
     char namec[8];
     unsigned short sz;
-    unsigned short *buf_s;
+    unsigned short* buf_s;
 
     err = 0;
 
@@ -551,7 +551,7 @@ int FemArray_SavePedThrList(FemArray *fa, void *buf) {
 
         // Prepare the file name string
         sprintf(file_str, "%s%s%4d_%02d_%02d-%02d_%02d_%02d.txt",
-                &(((EventBuilder *) fa->eb)->file_path[0]),
+                &(((EventBuilder*) fa->eb)->file_path[0]),
                 namec,
                 ((now->tm_year) + 1900),
                 ((now->tm_mon) + 1),
@@ -565,7 +565,7 @@ int FemArray_SavePedThrList(FemArray *fa, void *buf) {
         // Open result file
         if (!(fa->pedthr = fopen(file_str, "w"))) {
             printf("FemArray_SavePedThrList: could not open file %s.\n", file_str);
-            fa->pedthr = (FILE *) 0;
+            fa->pedthr = (FILE*) 0;
             return (-1);
         } else {
             fa->is_first_fr = 0;
@@ -575,11 +575,11 @@ int FemArray_SavePedThrList(FemArray *fa, void *buf) {
     // Save pedestal/thresholds to file
     if (fa->pedthr) {
         // Get the size field and skip it
-        buf_s = (unsigned short *) buf;
+        buf_s = (unsigned short*) buf;
         sz = *buf_s;
         buf_s++;
         sz -= 2;
-        Frame_Print((void *) fa->pedthr, (void *) buf_s, (int) sz, FRAME_PRINT_LISTS);
+        Frame_Print((void*) fa->pedthr, (void*) buf_s, (int) sz, FRAME_PRINT_LISTS);
     }
 
     if (fa->list_fr_cnt > 0) {
@@ -602,7 +602,7 @@ int FemArray_SavePedThrList(FemArray *fa, void *buf) {
 /*******************************************************************************
  FemArray_ReceiveLoop
 *******************************************************************************/
-int FemArray_ReceiveLoop(FemArray *fa) {
+int FemArray_ReceiveLoop(FemArray* fa) {
     int err;
     struct timeval t_timeout;
     unsigned int mask;
@@ -675,8 +675,8 @@ int FemArray_ReceiveLoop(FemArray *fa) {
                         was_pnd = fa->fp[i].is_cmd_pending;
 
                         // Get a receive buffer for that FEM if we do not already have one
-                        if (fa->fp[i].buf_in == (unsigned char *) 0) {
-                            if ((err = BufPool_GiveBuffer(fa->bp, (void *) (&(fa->fp[i].buf_in)), AUTO_RETURNED)) < 0) {
+                        if (fa->fp[i].buf_in == (unsigned char*) 0) {
+                            if ((err = BufPool_GiveBuffer(fa->bp, (void*) (&(fa->fp[i].buf_in)), AUTO_RETURNED)) < 0) {
                                 printf("FemArray_ReceiveLoop: BufPool_GiveBuffer failed\n", err);
                                 return (err);
                             }
