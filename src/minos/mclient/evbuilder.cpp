@@ -437,6 +437,7 @@ Bool_t ReadFrame(void* fr, int fr_sz) {
             p++;
             si = 0;
 
+            cout << " + Card: " << cardNumber << " Chip: " << chipNumber << " Channel: " << daqChannel << endl;
             // sgnl.Initialize();
             // sgnl.SetSignalID(daqChannel);
 
@@ -484,6 +485,8 @@ Bool_t ReadFrame(void* fr, int fr_sz) {
 
             tmp = (((unsigned int) n1) << 16) | ((unsigned int) n0);
 
+            auto time = 0 + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8;
+            cout << " - Time: " << time << endl;
             // Some times the end of the frame contains the header of the next event.
             // Then, in the attempt to read the header of next event, we must avoid
             // that it overwrites the already assigned id. In that case (id != 0), we
