@@ -434,7 +434,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
                              (int) sz, 0x0, ShMem_DaqInfo,
                              ShMem_Buffer, timeStart, tcm);
 
-        cout << "        -- frame to shared memory" << endl;
+        // cout << "        -- frame to shared memory" << endl;
 
         // printf( "TIME START : %d\n", timeStart );
         //	printf( "Event time : %lf\n",

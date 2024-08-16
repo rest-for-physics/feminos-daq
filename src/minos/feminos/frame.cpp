@@ -30,6 +30,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <unistd.h>
 
 using namespace std;
 
@@ -441,7 +442,8 @@ void Frame_ToSharedMemory(void* fp, void* fr, int fr_sz, unsigned int vflg, daqI
                 fprintf((FILE*) fp, "-- Start of Event (Type %01d) --\n", r0);
             }
 
-            cout << " + Start of Event: " << dInfo->eventId << " at " << dInfo->timeStamp << endl;
+            auto process_id = getpid();
+            cout << " - " << process_id << " + Start of Event: " << dInfo->eventId << " at " << dInfo->timeStamp << endl;
 
             i++;
             p++;
@@ -514,7 +516,9 @@ void Frame_ToSharedMemory(void* fp, void* fr, int fr_sz, unsigned int vflg, daqI
                 fprintf((FILE*) fp, "----- End of Event ----- (size %d bytes)\n", tmp);
             }
 
-            cout << " - End of Event: " << dInfo->eventId << " at " << dInfo->timeStamp << endl;
+            // get process ID
+            auto process_id = getpid();
+            cout << " - " << process_id << " - End of Event: " << dInfo->eventId << " at " << dInfo->timeStamp << endl;
 
             /////////////////////////////// NEW ADDED
             if (!tcm && dInfo->dataReady == 1) {
