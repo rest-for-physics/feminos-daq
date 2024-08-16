@@ -12,14 +12,18 @@ add_definitions(-DJUMBO_POOL)
 # some warnings. TODO: fix them
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
+find_package(Threads REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS RIO Tree)
 
 include(FetchContent)
+
+option(ENABLE_TESTING "Enable testing of the Prometheus library" OFF)
 
 FetchContent_Declare(
     Prometheus
     GIT_REPOSITORY https://github.com/jupp0r/prometheus-cpp.git
     GIT_TAG v1.2.4)
+
 FetchContent_MakeAvailable(Prometheus)
 
 FetchContent_Declare(
