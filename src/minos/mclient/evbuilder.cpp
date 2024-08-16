@@ -691,10 +691,12 @@ int EventBuilder_EmitEventBoundary(EventBuilder* eb,
     if (bnd == 0) {
         buf[0] = 4; // size in bytes
         buf[1] = PFX_START_OF_BUILT_EVENT;
+        cout << "EventBuilder_EmitEventBoundary: start of built event" << endl;
         sz = 4;
     } else {
         buf[0] = 4; // size in bytes
         buf[1] = PFX_END_OF_BUILT_EVENT;
+        cout << "EventBuilder_EmitEventBoundary: end of built event" << endl;
         sz = 4;
 
         SemaphoreRed(SemaphoreId);
