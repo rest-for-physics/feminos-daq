@@ -11,6 +11,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: bash -l {0}
+
     steps:
       - name: Setup conda
         uses: conda-incubator/setup-miniconda@v3
@@ -26,6 +30,7 @@ jobs:
 
       - name: Print ROOT version
         run: |
+          conda init bash
           conda activate
           which root
           root-config --version
