@@ -434,6 +434,8 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
                              (int) sz, 0x0, ShMem_DaqInfo,
                              ShMem_Buffer, timeStart, tcm);
 
+        cout << "        -- frame to shared memory" << endl;
+
         // printf( "TIME START : %d\n", timeStart );
         //	printf( "Event time : %lf\n",
         // ShMem_DaqInfo->timeStamp );
@@ -441,7 +443,6 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         // timeStart + ShMem_DaqInfo->timeStamp; printf(
         // "Event time added : %lf\n",
         // ShMem_DaqInfo->timeStamp ); printf( "-----\n");
-
 
         /*
         auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();

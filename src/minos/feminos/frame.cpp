@@ -440,6 +440,9 @@ void Frame_ToSharedMemory(void* fp, void* fr, int fr_sz, unsigned int vflg, daqI
             if ((vflg & FRAME_PRINT_ALL) || (vflg & FRAME_PRINT_EVBND)) {
                 fprintf((FILE*) fp, "-- Start of Event (Type %01d) --\n", r0);
             }
+
+            cout << " + Start of Event: " << dInfo->eventId << " at " << dInfo->timeStamp << endl;
+
             i++;
             p++;
             sz_rd += 2;
@@ -495,8 +498,6 @@ void Frame_ToSharedMemory(void* fp, void* fr, int fr_sz, unsigned int vflg, daqI
                 dInfo->dataReady = 1;
                 dInfo->timeStamp = (double) tStart + tt;
                 dInfo->eventId = tmp;
-
-                cout << " + Start of Event: " << dInfo->eventId << " at " << dInfo->timeStamp << endl;
             }
             /////////////////////////////// NEW ADDED
 
@@ -514,7 +515,6 @@ void Frame_ToSharedMemory(void* fp, void* fr, int fr_sz, unsigned int vflg, daqI
             }
 
             cout << " - End of Event: " << dInfo->eventId << " at " << dInfo->timeStamp << endl;
-            dInfo->dataReady = 0; // Reset data ready flag TODO: is this correct? (I added this)
 
             /////////////////////////////// NEW ADDED
             if (!tcm && dInfo->dataReady == 1) {
