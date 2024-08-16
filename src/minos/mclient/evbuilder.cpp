@@ -441,12 +441,6 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         // timeStart + ShMem_DaqInfo->timeStamp; printf(
         // "Event time added : %lf\n",
         // ShMem_DaqInfo->timeStamp ); printf( "-----\n");
-        SemaphoreGreen(SemaphoreId);
-    }
-
-    // this should be called at the end of each event
-    {
-        /*
 
         auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();
         auto& storageManager = mclient_storage::StorageManager::Instance();
@@ -481,7 +475,8 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
             // Avoid drawing too often
             graphManager.DrawEvent(storageManager.event);
         }
-         */
+
+        SemaphoreGreen(SemaphoreId);
     }
 
     // Save data to file
