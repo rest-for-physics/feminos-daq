@@ -30,6 +30,7 @@
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
@@ -38,6 +39,8 @@
 #include "graph.h"
 #include "prometheus.h"
 #include "storage.h"
+
+using namespace std;
 
 /*******************************************************************************
  Constants types and global variables
@@ -256,11 +259,7 @@ void CleanSharedMemory(int s) {
     exit(1);
 }
 
-/*******************************************************************************
- Main
-*******************************************************************************/
 int main(int argc, char** argv) {
-
     // prometheus manager
     auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
     auto& storage_manager = mclient_storage::StorageManager::Instance();
