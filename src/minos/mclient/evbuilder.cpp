@@ -403,6 +403,157 @@ int EventBuilder_CheckBuffer(EventBuilder* eb, int src,
     return (err);
 }
 
+Bool_t ReadFrame(void* fr, int fr_sz) {
+    Bool_t endOfEvent = false;
+
+    unsigned short* p;
+    int done = 0;
+    unsigned short r0, r1, r2;
+    unsigned short n0, n1;
+    unsigned short cardNumber, chipNumber, daqChannel;
+    unsigned int tmp;
+    int tmp_i[10];
+    int si;
+
+    p = (unsigned short*) fr;
+
+    done = 0;
+    si = 0;
+
+    while (!done) {
+        // Is it a prefix for 14-bit content?
+        if ((*p & PFX_14_BIT_CONTENT_MASK) == PFX_CARD_CHIP_CHAN_HIT_IX) {
+            // if (sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints) {                fSignalEvent->AddSignal(sgnl);            }
+
+            cardNumber = GET_CARD_IX(*p);
+            chipNumber = GET_CHIP_IX(*p);
+            daqChannel = GET_CHAN_IX(*p);
+
+            if (daqChannel >= 0) {
+                daqChannel += cardNumber * 4 * 72 + chipNumber * 72;
+                // nChannels++;
+            }
+
+            p++;
+            si = 0;
+
+            // sgnl.Initialize();
+            // sgnl.SetSignalID(daqChannel);
+
+        }
+        // Is it a prefix for 12-bit content?
+        else if ((*p & PFX_12_BIT_CONTENT_MASK) == PFX_ADC_SAMPLE) {
+            r0 = GET_ADC_DATA(*p);
+            /*
+            if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
+                if (showSamples > 0) printf("ReadFrame: %03d 0x%04x (%4d)\n", si, r0, r0);
+                showSamples--;
+            }
+            if (sgnl.GetSignalID() >= 0) sgnl.AddPoint((Short_t)r0);
+             */
+            p++;
+            si++;
+        }
+        // Is it a prefix for 4-bit content?
+        else if ((*p & PFX_4_BIT_CONTENT_MASK) == PFX_START_OF_EVENT) {
+            cout << " + Start of event" << endl;
+            r0 = GET_EVENT_TYPE(*p);
+            p++;
+
+            // Time Stamp lower 16-bit
+            r0 = *p;
+            p++;
+
+            // Time Stamp middle 16-bit
+            r1 = *p;
+            p++;
+
+            // Time Stamp upper 16-bit
+            r2 = *p;
+            p++;
+
+            // Set timestamp and event ID
+
+            // Event Count lower 16-bit
+            n0 = *p;
+            p++;
+
+            // Event Count upper 16-bit
+            n1 = *p;
+            p++;
+
+            tmp = (((unsigned int) n1) << 16) | ((unsigned int) n0);
+
+            // Some times the end of the frame contains the header of the next event.
+            // Then, in the attempt to read the header of next event, we must avoid
+            // that it overwrites the already assigned id. In that case (id != 0), we
+            // do nothing, and we store the values at fLastXX variables, that we will
+            // use that for next event.
+
+            /*
+            if (fSignalEvent->GetID() == 0) {
+                if (fLastEventId == 0) {
+                    fSignalEvent->SetID(tmp);
+                    fSignalEvent->SetTime(tStart + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8);
+                } else {
+                    fSignalEvent->SetID(fLastEventId);
+                    fSignalEvent->SetTime(fLastTimeStamp);
+                }
+            }
+
+            fLastEventId = tmp;
+            fLastTimeStamp = tStart + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8;
+
+            // If it is the first event we use it to define the run start time
+            if (fCounter == 0) {
+                fRunInfo->SetStartTimeStamp(fLastTimeStamp);
+                fCounter++;
+            } else {
+                // and we keep updating the end run time
+                fRunInfo->SetEndTimeStamp(fLastTimeStamp);
+            }
+            */
+            // fSignalEvent->SetRunOrigin(fRunOrigin);
+            // fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
+        } else if ((*p & PFX_4_BIT_CONTENT_MASK) == PFX_END_OF_EVENT) {
+            tmp = ((unsigned int) GET_EOE_SIZE(*p)) << 16;
+            p++;
+            tmp = tmp + (unsigned int) *p;
+            p++;
+
+            // if (fElectronicsType == "SingleFeminos") endOfEvent = true;
+            cout << " - End of event" << endl;
+        }
+
+        // Is it a prefix for 0-bit content?
+        else if ((*p & PFX_0_BIT_CONTENT_MASK) == PFX_END_OF_FRAME) {
+            // if (sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints) { fSignalEvent->AddSignal(sgnl); }
+
+            p++;
+            done = 1;
+        } else if (*p == PFX_START_OF_BUILT_EVENT) {
+            p++;
+        } else if (*p == PFX_END_OF_BUILT_EVENT) {
+            p++;
+        } else if (*p == PFX_SOBE_SIZE) {
+            // Skip header
+            p++;
+
+            // Built Event Size lower 16-bit
+            r0 = *p;
+            p++;
+            // Built Event Size upper 16-bit
+            r1 = *p;
+            p++;
+            tmp_i[0] = (int) ((r1 << 16) | (r0));
+        } else {
+            p++;
+        }
+    }
+
+    return endOfEvent;
+}
+
 /*******************************************************************************
  EventBuilder_ProcessBuffer
 *******************************************************************************/
@@ -516,6 +667,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         // bytes to file\n", sz);
     }
 
+    ReadFrame((void*) bu_s, (int) sz);
     return (err);
 }
 
@@ -983,7 +1135,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
             anFiles = fopen(fileAnalysis, "wt");
             fclose(anFiles);
 
-            eb->fout = (FILE*) 0;
+            eb->fout = (FILE*) nullptr;
 
             if (eb->savedata == 1) {
                 printf("File closed\n");
