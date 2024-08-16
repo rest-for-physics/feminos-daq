@@ -7,14 +7,14 @@
 
 namespace fs = std::filesystem;
 
-double GetFreeDiskSpaceMegabytes(const std::string& path) {
+double GetFreeDiskSpaceGigabytes(const std::string& path) {
     std::error_code ec;
     fs::space_info space = fs::space(path, ec);
     if (ec) {
         // Handle error
         return -1;
     }
-    return static_cast<double>(space.free) / (1024 * 1024); // Convert bytes to megabytes
+    return static_cast<double>(space.free) / (1024 * 1024 * 1024);
 }
 
 mclient_prometheus::PrometheusManager::PrometheusManager() {
@@ -28,8 +28,8 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
                                   .Register(*registry);
 
     auto& free_disk_space_gauge = BuildGauge()
-                                          .Name("free_disk_space_mb")
-                                          .Help("Free disk space in megabytes")
+                                          .Name("free_disk_space_gb")
+                                          .Help("Free disk space in gigabytes")
                                           .Register(*registry);
 
     // Gauge to track free disk space
@@ -37,7 +37,7 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
 
     std::thread([this, &free_disk_space_metric]() {
         while (true) {
-            double free_disk_space = GetFreeDiskSpaceMegabytes("/");
+            double free_disk_space = GetFreeDiskSpaceGigabytes("/");
             if (free_disk_space >= 0) {
                 free_disk_space_metric.Set(free_disk_space);
             }
