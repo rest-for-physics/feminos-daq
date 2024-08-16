@@ -18,7 +18,8 @@
 
 #include "femproxy.h"
 #include "os_al.h"
-#include <stdio.h>
+
+#include <cstdio>
 #include <timerlib.h>
 
 /*******************************************************************************

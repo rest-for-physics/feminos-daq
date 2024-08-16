@@ -19,7 +19,7 @@
 
 #include "bufpool.h"
 #include "bufpool_err.h"
-#include <stdio.h>
+#include <cstdio>
 
 /*******************************************************************************
  BufPool_Init

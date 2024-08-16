@@ -30,7 +30,7 @@
 #include "feminos.h"
 #include "frame.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <string.h>
 
 #define HISTO_ALLOWED_SIZE 1400

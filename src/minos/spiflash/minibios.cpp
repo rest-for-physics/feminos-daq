@@ -32,7 +32,7 @@
 #include "platform_spec.h"
 #include "spiflash.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 
 extern int read_stdin(char*, int);

@@ -32,7 +32,7 @@
 #include "MarsI2C.h"
 #include "i2c.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #define FRAME_FORMAT_VERSION 0
 

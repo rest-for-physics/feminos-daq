@@ -44,7 +44,7 @@
 #include "i2c.h"
 #include "periodmeter.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <string.h>
 
 ////////////////////////////////////////////////

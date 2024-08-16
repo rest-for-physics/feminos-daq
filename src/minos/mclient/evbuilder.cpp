@@ -28,8 +28,8 @@ and timestamps depending on event builder mode
 #include "femarray.h"
 #include "frame.h"
 #include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <time.h>
 #include <unistd.h>
 

@@ -25,7 +25,7 @@
 #include "platform_spec.h"
 #include "sock_util.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 
 // For shared memory

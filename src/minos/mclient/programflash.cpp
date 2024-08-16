@@ -13,6 +13,7 @@
    October 2011 : created
 
 *******************************************************************************/
+
 #include "programflash.h"
 #include "evbuilder.h"
 #include "femarray.h"
@@ -20,7 +21,7 @@
 
 extern int verbose;
 
-#include <stdio.h>
+#include <cstdio>
 
 #define MAX_LINE_SIZE 120
 #define FLASH_PAGE_SIZE 256

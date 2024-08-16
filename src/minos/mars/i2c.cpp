@@ -22,7 +22,7 @@
 #include "interrupt.h"
 #include "platform_spec.h"
 #include "spiflash.h"
-#include <stdio.h>
+#include <cstdio>
 
 /* Conversion table for months in numeral to short string */
 static char monthnum2monthstr[13][4] = {

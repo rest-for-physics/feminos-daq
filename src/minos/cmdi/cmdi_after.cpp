@@ -22,7 +22,7 @@
 #include "cmdi.h"
 #include "error_codes.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <string.h>
 
 /*******************************************************************************

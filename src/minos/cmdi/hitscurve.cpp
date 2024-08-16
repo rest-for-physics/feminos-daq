@@ -21,7 +21,7 @@
 #include "hitscurve.h"
 #include "error_codes.h"
 #include "frame.h"
-#include <stdio.h>
+#include <cstdio>
 
 /*******************************************************************************
  FeminosShisto_Clear

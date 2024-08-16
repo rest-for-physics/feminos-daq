@@ -18,7 +18,8 @@
 #include "bufpool.h"
 #include "ethernet.h"
 #include "platform_spec.h"
-#include <stdio.h>
+
+#include <cstdio>
 
 #include "xbasic_types.h"
 #include "xparameters.h"

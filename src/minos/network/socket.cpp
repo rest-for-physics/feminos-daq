@@ -17,7 +17,7 @@
 
 #include "platform_spec.h"
 #include "socket_ui.h"
-#include <stdio.h>
+#include <cstdio>
 
 /*******************************************************************************
 Socket_CtrlBlockClear

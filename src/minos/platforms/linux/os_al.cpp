@@ -23,7 +23,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <sys/ipc.h>
 #include <sys/mman.h>

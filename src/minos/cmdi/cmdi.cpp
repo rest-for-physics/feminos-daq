@@ -79,7 +79,7 @@
 #include "pedestal.h"
 #include "pulser.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <string.h>
 
 #define TEST_DATA_TABLE_SZ 4096

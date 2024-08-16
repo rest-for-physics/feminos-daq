@@ -34,7 +34,7 @@
 #include "platform_spec.h"
 #include "socket_ui.h"
 #include "spiflash.h"
-#include <stdio.h>
+#include <cstdio>
 
 #include "cmdi.h"
 #include "feminos.h"

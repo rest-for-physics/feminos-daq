@@ -18,7 +18,8 @@
 #include "ethernet.h"
 #include "platform_spec.h"
 #include "socket_ui.h"
-#include <stdio.h>
+
+#include <cstdio>
 
 #include "xbasic_types.h"
 #include "xparameters.h"

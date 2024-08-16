@@ -26,7 +26,6 @@ void mclient_prometheus::PrometheusManager::ExposeMetrics() {
 }
 
 mclient_prometheus::PrometheusManager::PrometheusManager() {
-    cout << "PrometheusManager constructor" << endl;
     exposer = std::make_unique<Exposer>("localhost:8080");
 
     registry = std::make_shared<Registry>();
@@ -44,7 +43,6 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
     // Gauge to track free disk space
     auto &free_disk_space_metric = free_disk_space_gauge.Add({{"path", "/"}});
 
-    // Start a thread to update the free disk space metric every 10 seconds
     std::thread([this, &free_disk_space_metric]() {
         while (true) {
             double free_disk_space = GetFreeDiskSpaceMegabytes("/");

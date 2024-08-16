@@ -19,7 +19,7 @@
 #include "platform_spec.h"
 #include "xiic.h"
 #include "xspi.h"
-#include <stdio.h>
+#include <cstdio>
 
 /*
  * Global variable

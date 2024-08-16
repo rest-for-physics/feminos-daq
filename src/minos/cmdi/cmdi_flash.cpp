@@ -20,7 +20,7 @@
 #include "error_codes.h"
 #include "spiflash.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <string.h>
 
 static char hex2ascii[17] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};

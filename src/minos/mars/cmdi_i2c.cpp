@@ -18,7 +18,7 @@
 #include "cmdi_i2c.h"
 #include "error_codes.h"
 #include "i2c.h"
-#include <stdio.h>
+#include <cstdio>
 
 /*******************************************************************************
  Cmdi_I2CCommands

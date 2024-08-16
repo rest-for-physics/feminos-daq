@@ -18,7 +18,7 @@
 #include "histo.h"
 #include "platform_spec.h"
 #include <math.h>
-#include <stdio.h>
+#include <cstdio>
 
 /*******************************************************************************
  Histo_Clear()

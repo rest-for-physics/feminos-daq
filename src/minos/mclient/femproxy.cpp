@@ -27,7 +27,7 @@
 
 extern int verbose;
 
-#include <stdio.h>
+#include <cstdio>
 
 /*******************************************************************************
  FemProxy_Clear()

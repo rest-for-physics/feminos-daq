@@ -20,7 +20,8 @@
 *******************************************************************************/
 
 #include "lmk03200.h"
-#include <stdio.h>
+
+#include <cstdio>
 
 #define MAX_LOCK_WAIT_CNT 100
 

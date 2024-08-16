@@ -30,7 +30,7 @@ as 4th or 5th argument in any command
 
 extern int verbose;
 
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 
 ////////////////////////////////////////////////
@@ -106,9 +106,9 @@ void CmdFetcher_Init(CmdFetcher *cf) {
     cf->cur_fem_cnt = 0;
     cf->fem_ix_min = 0;
     cf->fem_ix_max = 0;
-    cf->fa = (void *) 0;
-    cf->eb = (void *) 0;
-    cf->sem_cur_cmd_done = (void *) 0;
+    cf->fa = (void *) nullptr;
+    cf->eb = (void *) nullptr;
+    cf->sem_cur_cmd_done = (void *) nullptr;
 }
 
 /*******************************************************************************

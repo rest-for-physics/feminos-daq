@@ -30,7 +30,7 @@
 #include "error_codes.h"
 #include "interrupt.h"
 #include "platform_spec.h"
-#include <stdio.h>
+#include <cstdio>
 
 /*
  * Byte Positions.

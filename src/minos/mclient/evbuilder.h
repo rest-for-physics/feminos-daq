@@ -18,7 +18,8 @@
 
 #include "os_al.h"
 #include "platform_spec.h"
-#include <stdio.h>
+
+#include <cstdio>
 
 /*******************************************************************************
  Constants types and global variables

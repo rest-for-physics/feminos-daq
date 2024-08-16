@@ -17,7 +17,7 @@
 #ifndef HEX_READER_H
 #define HEX_READER_H
 
-#include <stdio.h>
+#include <cstdio>
 
 #define HEX_FILE_REC_TYPE_DATA 00
 #define HEX_FILE_REC_TYPE_EOF 01

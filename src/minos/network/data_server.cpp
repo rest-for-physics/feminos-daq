@@ -62,7 +62,7 @@
 
 #include "ethernet.h"
 #include "platform_spec.h"
-#include <stdio.h>
+#include <cstdio>
 
 // Macros for reply header
 #define FRAME_HDR_V2 0x4000

@@ -16,7 +16,7 @@
 #include "pulser.h"
 #include "error_codes.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <string.h>
 
 #define MAX_SC_REQ_RETRY 100

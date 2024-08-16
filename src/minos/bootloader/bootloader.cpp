@@ -43,7 +43,7 @@
 #include "portab.h"
 #include "spiflash_polled.h"
 #include "srec.h"
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <string.h>
 

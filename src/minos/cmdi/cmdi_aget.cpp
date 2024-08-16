@@ -27,7 +27,7 @@
 #include "error_codes.h"
 #include "hitscurve.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <string.h>
 
 /*******************************************************************************
