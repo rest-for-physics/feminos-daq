@@ -27,11 +27,18 @@ public:
 
     void DrawEvent(const mclient_storage::Event& event);
 
+    double GetSecondsSinceLastDraw() {
+        auto duration = std::chrono::system_clock::now() - lastDrawTime;
+        return std::chrono::duration<double>(duration).count();
+    }
+
 private:
     std::unique_ptr<TCanvas> canvas;
     std::vector<TGraph> graphs;
     std::unique_ptr<TMultiGraph> multiGraph;
     std::unique_ptr<TApplication> app;
+
+    std::chrono::time_point<std::chrono::system_clock> lastDrawTime = std::chrono::system_clock::now() - std::chrono::hours(1);
 };
 
 } // namespace mclient_graph

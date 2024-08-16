@@ -37,6 +37,7 @@ and timestamps depending on event builder mode
 #include <sys/sem.h>
 #include <sys/shm.h>
 
+#include "graph.h"
 #include "prometheus.h"
 #include "storage.h"
 
@@ -435,11 +436,14 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
 
         auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();
         auto& storageManager = mclient_storage::StorageManager::Instance();
+        auto& graphManager = mclient_graph::GraphManager::Instance();
 
         prometheusManager.SetEventId(ShMem_DaqInfo->eventId);
         prometheusManager.SetNumberOfSignalsInEvent(ShMem_DaqInfo->nSignals);
 
         storageManager.event = mclient_storage::Event{};
+
+        storageManager.event.id = ShMem_DaqInfo->eventId;
         storageManager.event.timestamp = ShMem_DaqInfo->timeStamp; // TODO: check if this is the correct timestamp
 
         // AFAIK the first number is the signal id and the rest is the signal data
@@ -455,6 +459,11 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         storageManager.tree->Fill();
         // checkpoint the file
         storageManager.file->Write("", TObject::kOverwrite);
+
+        if (graphManager.GetSecondsSinceLastDraw() > 1) {
+            // Avoid drawing too often
+            graphManager.DrawEvent(storageManager.event);
+        }
 
         // printf( "TIME START : %d\n", timeStart );
         //	printf( "Event time : %lf\n",
