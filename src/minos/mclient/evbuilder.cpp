@@ -403,9 +403,7 @@ int EventBuilder_CheckBuffer(EventBuilder* eb, int src,
     return (err);
 }
 
-Bool_t ReadFrame(void* fr, int fr_sz) {
-    Bool_t endOfEvent = false;
-
+void ReadFrame(void* fr, int fr_sz, mclient_storage::Event& event) {
     unsigned short* p;
     int done = 0;
     unsigned short r0, r1, r2;
@@ -420,10 +418,17 @@ Bool_t ReadFrame(void* fr, int fr_sz) {
     done = 0;
     si = 0;
 
+    unsigned int signal_id = 0;
+    std::array<unsigned short, 512> signal_data = {};
+
     while (!done) {
         // Is it a prefix for 14-bit content?
         if ((*p & PFX_14_BIT_CONTENT_MASK) == PFX_CARD_CHIP_CHAN_HIT_IX) {
             // if (sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints) {                fSignalEvent->AddSignal(sgnl);            }
+
+            if (si > 0) {
+                event.add_signal(signal_id, signal_data);
+            }
 
             cardNumber = GET_CARD_IX(*p);
             chipNumber = GET_CHIP_IX(*p);
@@ -431,27 +436,19 @@ Bool_t ReadFrame(void* fr, int fr_sz) {
 
             if (daqChannel >= 0) {
                 daqChannel += cardNumber * 4 * 72 + chipNumber * 72;
-                // nChannels++;
             }
 
             p++;
             si = 0;
 
-            // cout << " + Card: " << cardNumber << " Chip: " << chipNumber << " Channel: " << daqChannel << endl;
-            // sgnl.Initialize();
-            // sgnl.SetSignalID(daqChannel);
-
+            signal_id = daqChannel;
         }
         // Is it a prefix for 12-bit content?
         else if ((*p & PFX_12_BIT_CONTENT_MASK) == PFX_ADC_SAMPLE) {
             r0 = GET_ADC_DATA(*p);
-            /*
-            if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
-                if (showSamples > 0) printf("ReadFrame: %03d 0x%04x (%4d)\n", si, r0, r0);
-                showSamples--;
-            }
-            if (sgnl.GetSignalID() >= 0) sgnl.AddPoint((Short_t)r0);
-             */
+
+            signal_data[si] = r0;
+
             p++;
             si++;
         }
@@ -531,14 +528,15 @@ Bool_t ReadFrame(void* fr, int fr_sz) {
         // Is it a prefix for 0-bit content?
         else if ((*p & PFX_0_BIT_CONTENT_MASK) == PFX_END_OF_FRAME) {
             // if (sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints) { fSignalEvent->AddSignal(sgnl); }
+            if (si > 0) {
+                event.add_signal(signal_id, signal_data);
+            }
 
             p++;
             done = 1;
         } else if (*p == PFX_START_OF_BUILT_EVENT) {
-            cout << "!+ Start of built event" << endl;
             p++;
         } else if (*p == PFX_END_OF_BUILT_EVENT) {
-            cout << "!- End of built event" << endl;
             p++;
         } else if (*p == PFX_SOBE_SIZE) {
             // Skip header
@@ -555,8 +553,6 @@ Bool_t ReadFrame(void* fr, int fr_sz) {
             p++;
         }
     }
-
-    return endOfEvent;
 }
 
 /*******************************************************************************
@@ -673,7 +669,9 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         // bytes to file\n", sz);
     }
 
-    ReadFrame((void*) bu_s, (int) sz);
+    auto& storageManager = mclient_storage::StorageManager::Instance();
+
+    ReadFrame((void*) bu_s, (int) sz, storageManager.event);
 
     return (err);
 }
@@ -691,12 +689,12 @@ int EventBuilder_EmitEventBoundary(EventBuilder* eb,
     if (bnd == 0) {
         buf[0] = 4; // size in bytes
         buf[1] = PFX_START_OF_BUILT_EVENT;
-        cout << "EventBuilder_EmitEventBoundary: start of built event" << endl;
+        // cout << "EventBuilder_EmitEventBoundary: start of built event" << endl;
         sz = 4;
     } else {
         buf[0] = 4; // size in bytes
         buf[1] = PFX_END_OF_BUILT_EVENT;
-        cout << "EventBuilder_EmitEventBoundary: end of built event" << endl;
+        // cout << "EventBuilder_EmitEventBoundary: end of built event" << endl;
         sz = 4;
 
         SemaphoreRed(SemaphoreId);
@@ -931,8 +929,23 @@ int EventBuilder_Loop(EventBuilder* eb) {
                     // built\n");
                     eb->had_sobe = 0;
 
-                    // event is finished
+                    auto& storageManager = mclient_storage::StorageManager::Instance();
 
+                    unsigned long long check = 0;
+
+                    for (int i = 0; i < storageManager.event.size(); ++i) {
+                        auto [signal_id, waveform] = storageManager.event.get_signal_id_data_pair(i);
+                        for (const auto& point: waveform) {
+                            check += point;
+                        }
+                    }
+
+                    cout << "End of build event - Event ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals with check: " << check << endl;
+
+                    storageManager.Clear();
+
+                    // end of build event
+                    /*
                     SemaphoreRed(SemaphoreId);
 
                     auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();
@@ -973,6 +986,7 @@ int EventBuilder_Loop(EventBuilder* eb) {
                     }
 
                     SemaphoreGreen(SemaphoreId);
+                     */
                 }
 
                 // Next event does not have any Start of
@@ -1124,7 +1138,7 @@ int EventBuilder_PutBufferToProcess(EventBuilder* eb,
 int EventBuilder_GetBufferToRecycle(EventBuilder* eb,
                                     void** bufo, int* src) {
     if (eb->q_buf_o_rd == eb->q_buf_o_wr) {
-        *bufo = (void*) 0;
+        *bufo = (void*) nullptr;
         *src = -1;
         return (0);
     } else {
