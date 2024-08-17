@@ -1276,6 +1276,9 @@ int EventBuilder_FileAction(EventBuilder* eb,
 
     sprintf(&(eb->file_path[0]), "%s", getenv("RAWDATA_PATH"));
 
+    char* filename_root = nullptr;
+    sprintf(filename_root, "%s/%s.%s", &(eb->file_path[0]),
+            &(eb->run_str[0]), "root");
     sprintf(name, "%s/%s-%03d.%s", &(eb->file_path[0]),
             &(eb->run_str[0]), eb->subrun_ix, str_ext);
     sprintf(fileNameNow, "%s-%03d.%s", &(eb->run_str[0]),
@@ -1298,15 +1301,8 @@ int EventBuilder_FileAction(EventBuilder* eb,
 
     printf("Opening file : %s\n", name);
 
-    std::string root_file_name = std::string(name);
-    // if present replace the .aqs termination to .root
-    size_t pos = root_file_name.find(".aqs");
-    if (pos != std::string::npos) {
-        root_file_name.replace(pos, 4, ".root");
-    }
-
     auto& storageManager = mclient_storage::StorageManager::Instance();
-    storageManager.Initialize(root_file_name);
+    storageManager.Initialize(filename_root);
 
     // in ASCII format add a carriage return
     if (format == 1) {
