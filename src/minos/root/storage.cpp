@@ -39,7 +39,7 @@ void StorageManager::Initialize(const string& filename) {
 
     file = std::make_unique<TFile>(filename.c_str(), "RECREATE");
     file->SetCompressionAlgorithm(ROOT::kLZMA); // biggest compression ratio but slowest
-    // file->SetCompressionLevel(9);               // max compression level
+    file->SetCompressionLevel(9);               // max compression level
 
     cout << "ROOT file will be saved to " << file->GetName() << endl;
 
@@ -56,10 +56,10 @@ void StorageManager::Initialize(const string& filename) {
     run_tree->Branch("timestamp", &run_time_start, "timestamp/L");
     run_tree->Branch("detector", &run_detector_name);
     run_tree->Branch("tag", &run_tag);
-    run_tree->Branch("comments", &run_comments);
     run_tree->Branch("drift_field_V_cm_bar", &run_drift_field_V_cm_bar, "drift_field_V_cm_bar/F");
     run_tree->Branch("mesh_voltage_V", &run_mesh_voltage_V, "mesh_voltage_V/F");
     run_tree->Branch("detector_pressure_bar", &run_detector_pressure_bar, "detector_pressure_bar/F");
+    run_tree->Branch("comments", &run_comments);
 
     // millis since epoch
     run_time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
