@@ -1276,7 +1276,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
 
     sprintf(&(eb->file_path[0]), "%s", getenv("RAWDATA_PATH"));
 
-    char* filename_root = nullptr;
+    char filename_root[120] = {};
     sprintf(filename_root, "%s/%s.%s", &(eb->file_path[0]),
             &(eb->run_str[0]), "root");
     cout << "Root file name : " << filename_root << endl;
