@@ -454,7 +454,7 @@ void ReadFrame(void* fr, int fr_sz, mclient_storage::Event& event) {
         }
         // Is it a prefix for 4-bit content?
         else if ((*p & PFX_4_BIT_CONTENT_MASK) == PFX_START_OF_EVENT) {
-            cout << " + Start of event" << endl;
+            // cout << " + Start of event" << endl;
             r0 = GET_EVENT_TYPE(*p);
             p++;
 
@@ -482,8 +482,16 @@ void ReadFrame(void* fr, int fr_sz, mclient_storage::Event& event) {
 
             tmp = (((unsigned int) n1) << 16) | ((unsigned int) n0);
 
-            auto time = 0 + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8;
-            cout << " - Time: " << time << endl;
+            // auto time = 0 + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8;
+
+            // milliseconds unix time
+
+            if (event.timestamp == 0) {
+                auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                event.timestamp = milliseconds;
+            }
+
+            // cout << " - Time: " << time << endl;
             // Some times the end of the frame contains the header of the next event.
             // Then, in the attempt to read the header of next event, we must avoid
             // that it overwrites the already assigned id. In that case (id != 0), we
@@ -522,7 +530,7 @@ void ReadFrame(void* fr, int fr_sz, mclient_storage::Event& event) {
             p++;
 
             // if (fElectronicsType == "SingleFeminos") endOfEvent = true;
-            cout << " - End of event" << endl;
+            // cout << " - End of event" << endl;
         }
 
         // Is it a prefix for 0-bit content?
@@ -925,41 +933,33 @@ int EventBuilder_Loop(EventBuilder* eb) {
                             err);
                     return (err);
                 } else {
-                    // printf("EventBuilder_Loop: event
-                    // built\n");
                     eb->had_sobe = 0;
 
+                    auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();
                     auto& storageManager = mclient_storage::StorageManager::Instance();
+                    auto& graphManager = mclient_graph::GraphManager::Instance();
 
                     storageManager.event.id = storageManager.tree->GetEntries();
 
-                    unsigned long long check = 0;
+                    prometheusManager.SetEventId(storageManager.event.id);
+                    prometheusManager.SetNumberOfSignalsInEvent(storageManager.event.size());
 
-                    for (int i = 0; i < storageManager.event.size(); ++i) {
-                        auto [signal_id, waveform] = storageManager.event.get_signal_id_data_pair(i);
-                        for (const auto& point: waveform) {
-                            check += point;
-                        }
-                    }
-
-                    cout << "End of build event - Event ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals with check: " << check << endl;
+                    cout << "End of build event - Event ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals" << endl;
 
                     storageManager.tree->Fill();
 
-                    storageManager.file->Write("", TObject::kOverwrite);
+                    storageManager.Checkpoint();
+
+                    if (graphManager.GetSecondsSinceLastDraw() > 10) {
+                        // Avoid drawing too often
+                        graphManager.DrawEvent(storageManager.event);
+                    }
 
                     storageManager.Clear();
 
                     // end of build event
                     /*
                     SemaphoreRed(SemaphoreId);
-
-                    auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();
-                    auto& storageManager = mclient_storage::StorageManager::Instance();
-                    auto& graphManager = mclient_graph::GraphManager::Instance();
-
-                    prometheusManager.SetEventId(ShMem_DaqInfo->eventId);
-                    prometheusManager.SetNumberOfSignalsInEvent(ShMem_DaqInfo->nSignals);
 
                     storageManager.event = mclient_storage::Event{};
 

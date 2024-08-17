@@ -63,9 +63,20 @@ public:
         event = {};
     }
 
+    void Checkpoint(bool force = false) {
+        constexpr auto time_interval = std::chrono::seconds(10);
+        auto now = std::chrono::system_clock::now();
+        if (now - lastDrawTime > time_interval) {
+            lastDrawTime = now;
+            file->Write("", TObject::kOverwrite);
+        }
+    }
+
     std::unique_ptr<TFile> file;
     std::unique_ptr<TTree> tree;
     Event event;
+
+    std::chrono::time_point<std::chrono::system_clock> lastDrawTime = std::chrono::system_clock::now();
 };
 
 } // namespace mclient_storage
