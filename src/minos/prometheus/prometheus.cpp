@@ -9,28 +9,32 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
 
     registry = std::make_shared<Registry>();
 
+    auto& free_disk_space_gauge = BuildGauge()
+                                          .Name("free_disk_space_gb")
+                                          .Help("Free disk space in gigabytes")
+                                          .Register(*registry);
+
     // Gauge to track free disk space
-    auto free_disk_space_metric = &BuildGauge()
-                                           .Name("daq_speed_mb_per_sec")
-                                           .Help("DAQ speed in megabytes per second")
-                                           .Register(*registry)
-                                           .Add({{"path", "/"}});
+    auto& free_disk_space_metric = free_disk_space_gauge.Add({{"path", "/"}});
 
     std::thread([this, &free_disk_space_metric]() {
         while (true) {
             double free_disk_space = GetFreeDiskSpaceGigabytes("/");
             if (free_disk_space >= 0) {
-                free_disk_space_metric->Set(free_disk_space);
+                free_disk_space_metric.Set(free_disk_space);
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }).detach();
 
-    daq_speed_mb_per_s = &BuildGauge()
-                                  .Name("daq_speed_mb_per_sec")
-                                  .Help("DAQ speed in megabytes per second")
-                                  .Register(*registry)
-                                  .Add({});
+    {
+        auto& gauge = BuildGauge()
+                              .Name("daq_speed_mb_per_sec")
+                              .Help("DAQ speed in megabytes per second")
+                              .Register(*registry);
+
+        daq_speed_mb_per_s = &gauge.Add({});
+    }
 
     daq_speed_events_per_s = &BuildGauge()
                                       .Name("daq_speed_events_per_sec")
