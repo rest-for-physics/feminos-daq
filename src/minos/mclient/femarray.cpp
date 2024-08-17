@@ -313,7 +313,12 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
             const auto speed_events_per_second = mclient_storage::StorageManager::Instance().GetSpeedEventsPerSecond();
             const auto number_of_events = mclient_storage::StorageManager::Instance().GetNumberOfEvents();
 
-            cout << "⚙️ Processed " << daq_norm << " " << daq_u << "B | # Events stored: " << number_of_events << " | 🚀 Speed: " << speed_events_per_second << " events/s (" << daq_speed << " MB/s)" << endl;
+            time_t now_time = time(nullptr);
+            tm* now_tm = gmtime(&now_time);
+            char time_str[80];
+            strftime(time_str, 80, "[%Y-%m-%d %H:%M:%S UTC]", now_tm);
+
+            cout << time_str << " | ⚙️ Processed " << daq_norm << " " << daq_u << "B | # Entries: " << number_of_events << " | 🏃🏻‍♂️ Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s)" << endl;
 
             auto& manager = mclient_prometheus::PrometheusManager::Instance();
 
