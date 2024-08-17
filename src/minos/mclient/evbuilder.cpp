@@ -1318,9 +1318,9 @@ int EventBuilder_FileAction(EventBuilder* eb,
     cout << "Run name : " << storageManager.run_name << endl;
     cout << "Run tag : " << storageManager.run_tag << endl;
     cout << "Run comments : " << storageManager.run_comments << endl;
-    cout << "Run drift field : " << storageManager.run_drift_field_V_cm_bar << endl;
-    cout << "Run mesh voltage : " << storageManager.run_mesh_voltage_V << endl;
-    cout << "Run detector pressure : " << storageManager.run_detector_pressure_bar << endl;
+    cout << "Run drift field : " << driftFieldStr << endl;
+    cout << "Run mesh voltage : " << meshVoltageStr << endl;
+    cout << "Run detector pressure : " << detectorPressureStr << endl;
 
     storageManager.run_tree->Fill();
 
