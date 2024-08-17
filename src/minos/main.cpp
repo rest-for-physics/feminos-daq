@@ -64,9 +64,9 @@ EventBuilder eventbuilder;
 /*******************************************************************************
  * Variables associated to shared memory buffer
  *******************************************************************************/
-bool shareBuffer = false;
-bool readOnly = false;
-bool tcm = false;
+int shareBuffer = 0;
+int readOnly = 0;
+int tcm = 0;
 
 int ShMem_Buffer_ID;
 int ShMem_DaqInfo_ID;
