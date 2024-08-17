@@ -52,11 +52,16 @@ public:
 
     StorageManager();
 
+    void Initialize(const std::string& filename);
+
     void Clear() {
         event = {};
     }
 
-    Long64_t GetNumberOfEvents() const {
+    Long64_t GetNumberOfEntries() const {
+        if (!event_tree) {
+            return 0;
+        }
         return event_tree->GetEntries();
     }
 
@@ -75,6 +80,10 @@ public:
     unsigned long long millisSinceEpochForSpeedCalculation = 0;
 
     double GetSpeedEventsPerSecond() const;
+
+    bool IsInitialized() const {
+        return file != nullptr;
+    }
 
 private:
     std::chrono::time_point<std::chrono::system_clock> lastCheckpointTime = std::chrono::system_clock::now();

@@ -311,7 +311,7 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
              */
             // const auto space_left_gb = mclient_prometheus::GetFreeDiskSpaceGigabytes("/");
             const auto speed_events_per_second = mclient_storage::StorageManager::Instance().GetSpeedEventsPerSecond();
-            const auto number_of_events = mclient_storage::StorageManager::Instance().GetNumberOfEvents();
+            const auto number_of_events = mclient_storage::StorageManager::Instance().GetNumberOfEntries();
 
             time_t now_time = time(nullptr);
             tm* now_tm = gmtime(&now_time);

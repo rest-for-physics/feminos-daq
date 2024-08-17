@@ -31,6 +31,7 @@ and timestamps depending on event builder mode
 #include <cstdlib>
 #include <ctime>
 #include <fcntl.h>
+#include <filesystem>
 #include <unistd.h>
 
 #include <sys/ipc.h>
@@ -644,7 +645,9 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
 
     auto& storageManager = mclient_storage::StorageManager::Instance();
 
-    ReadFrame((void*) bu_s, (int) sz, storageManager.event);
+    if (storageManager.IsInitialized()) {
+        ReadFrame((void*) bu_s, (int) sz, storageManager.event);
+    }
 
     return (err);
 }
@@ -902,32 +905,35 @@ int EventBuilder_Loop(EventBuilder* eb) {
 
                     auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();
                     auto& storageManager = mclient_storage::StorageManager::Instance();
-                    auto& graphManager = mclient_graph::GraphManager::Instance();
+                    // auto& graphManager = mclient_graph::GraphManager::Instance();
 
-                    if (storageManager.event_tree->GetEntries() == 0) {
-                        storageManager.millisSinceEpochForSpeedCalculation = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                    if (storageManager.IsInitialized()) {
+
+                        if (storageManager.GetNumberOfEntries() == 0) {
+                            storageManager.millisSinceEpochForSpeedCalculation = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                        }
+
+                        storageManager.event.id = storageManager.event_tree->GetEntries();
+
+                        // cout << "End of build event - Event ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals" << endl;
+
+                        storageManager.event_tree->Fill();
+
+                        prometheusManager.SetEventId(storageManager.event.id);
+                        prometheusManager.SetNumberOfSignalsInEvent(storageManager.event.size());
+                        prometheusManager.SetNumberOfEvents(storageManager.event_tree->GetEntries());
+
+                        storageManager.Checkpoint();
+
+                        /*
+                        if (graphManager.GetSecondsSinceLastDraw() > 10) {
+                            // Avoid drawing too often
+                            graphManager.DrawEvent(storageManager.event);
+                        }
+                         */
+
+                        storageManager.Clear();
                     }
-
-                    storageManager.event.id = storageManager.event_tree->GetEntries();
-
-                    // cout << "End of build event - Event ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals" << endl;
-
-                    storageManager.event_tree->Fill();
-
-                    prometheusManager.SetEventId(storageManager.event.id);
-                    prometheusManager.SetNumberOfSignalsInEvent(storageManager.event.size());
-                    prometheusManager.SetNumberOfEvents(storageManager.event_tree->GetEntries());
-
-                    storageManager.Checkpoint();
-
-                    /*
-                    if (graphManager.GetSecondsSinceLastDraw() > 10) {
-                        // Avoid drawing too often
-                        graphManager.DrawEvent(storageManager.event);
-                    }
-                     */
-
-                    storageManager.Clear();
                 }
 
                 // Next event does not have any Start of Event received yet
@@ -1268,7 +1274,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
         eb->subrun_ix++;
     }
 
-    sprintf(&(eb->file_path[0]), getenv("RAWDATA_PATH"));
+    sprintf(&(eb->file_path[0]), "%s", getenv("RAWDATA_PATH"));
 
     sprintf(name, "%s/%s-%03d.%s", &(eb->file_path[0]),
             &(eb->run_str[0]), eb->subrun_ix, str_ext);
@@ -1291,6 +1297,16 @@ int EventBuilder_FileAction(EventBuilder* eb,
     }
 
     printf("Opening file : %s\n", name);
+
+    std::string root_file_name = std::string(name);
+    // if present replace the .aqs termination to .root
+    size_t pos = root_file_name.find(".aqs");
+    if (pos != std::string::npos) {
+        root_file_name.replace(pos, 4, ".root");
+    }
+
+    auto& storageManager = mclient_storage::StorageManager::Instance();
+    storageManager.Initialize(root_file_name);
 
     // in ASCII format add a carriage return
     if (format == 1) {

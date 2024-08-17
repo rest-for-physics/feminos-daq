@@ -7,6 +7,10 @@ using namespace std;
 using namespace mclient_storage;
 
 void mclient_storage::StorageManager::Checkpoint(bool force) {
+    if (!file) {
+        return;
+    }
+
     constexpr auto time_interval = std::chrono::seconds(10);
     auto now = std::chrono::system_clock::now();
     if (force || now - lastCheckpointTime > time_interval) {
@@ -17,9 +21,27 @@ void mclient_storage::StorageManager::Checkpoint(bool force) {
 }
 
 StorageManager::StorageManager() {
-    file = std::make_unique<TFile>("events.root", "RECREATE");
+}
+
+double StorageManager::GetSpeedEventsPerSecond() const {
+    const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - millisSinceEpochForSpeedCalculation;
+    if (millis <= 0) {
+        return 0.0;
+    }
+    return 1000.0 * GetNumberOfEntries() / millis;
+}
+
+void StorageManager::Initialize(const string& filename) {
+    if (file != nullptr) {
+        cerr << "StorageManager already initialized" << endl;
+        throw std::runtime_error("StorageManager already initialized");
+    }
+
+    file = std::make_unique<TFile>(filename.c_str(), "RECREATE");
     file->SetCompressionAlgorithm(ROOT::kLZMA); // biggest compression ratio but slowest
     // file->SetCompressionLevel(9);               // max compression level
+
+    cout << "ROOT file will be saved to " << file->GetName() << endl;
 
     event_tree = std::make_unique<TTree>("events", "Signal events. Each entry is an event which contains multiple signals");
 
@@ -41,12 +63,4 @@ StorageManager::StorageManager() {
     run_name = "Run " + std::to_string(run_number);
 
     run_tree->Fill();
-}
-
-double StorageManager::GetSpeedEventsPerSecond() const {
-    const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - millisSinceEpochForSpeedCalculation;
-    if (millis <= 0) {
-        return 0.0;
-    }
-    return 1000.0 * event_tree->GetEntries() / millis;
 }
