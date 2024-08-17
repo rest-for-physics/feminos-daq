@@ -187,10 +187,10 @@ int main(int argc, char** argv) {
         cmdfetcher.use_stdin = 0;
     }
 
-    int err;
-    if ((err = socket_init()) < 0) {
-        cout << "socket_init failed: " << err << endl;
-        return (err);
+    int err = socket_init();
+    if (err < 0) {
+        std::cout << "socket_init failed: " << err << std::endl;
+        return err;
     }
 
     auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
