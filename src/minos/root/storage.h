@@ -56,6 +56,10 @@ public:
         event = {};
     }
 
+    Long64_t GetNumberOfEvents() const {
+        return event_tree->GetEntries();
+    }
+
     void Checkpoint(bool force = false);
 
     std::unique_ptr<TFile> file;
@@ -64,10 +68,15 @@ public:
     Event event;
 
     unsigned long long run_number = 0;
-    unsigned long long timestamp = 0;
+    unsigned long long run_time_start = 0;
     std::string run_name;
     std::string comments;
 
+    unsigned long long millisSinceEpochForSpeedCalculation = 0;
+
+    double GetSpeedEventsPerSecond() const;
+
+private:
     std::chrono::time_point<std::chrono::system_clock> lastCheckpointTime = std::chrono::system_clock::now();
 };
 

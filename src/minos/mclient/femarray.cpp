@@ -43,6 +43,7 @@
 #include <ctime>
 
 #include "prometheus.h"
+#include "storage.h"
 
 /*******************************************************************************
  FemArray_Clear
@@ -308,8 +309,11 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
 
 #endif
              */
-            const auto space_left_gb = mclient_prometheus::GetFreeDiskSpaceGigabytes("/");
-            cout << "Collected " << daq_norm << " " << daq_u << "B - Free disk space: " << space_left_gb << " GB - Speed: " << daq_speed << " MB/s" << endl;
+            // const auto space_left_gb = mclient_prometheus::GetFreeDiskSpaceGigabytes("/");
+            const auto speed_events_per_second = mclient_storage::StorageManager::Instance().GetSpeedEventsPerSecond();
+            const auto number_of_events = mclient_storage::StorageManager::Instance().GetNumberOfEvents();
+
+            cout << "⚙️ Processed " << daq_norm << " " << daq_u << "B | # Events stored: " << number_of_events << " | 🚀 Speed: " << speed_events_per_second << " events/s (" << daq_speed << " MB/s)" << endl;
 
             auto& manager = mclient_prometheus::PrometheusManager::Instance();
 
@@ -319,7 +323,8 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
             fa->daq_last_time = now;
             fa->daq_size_lst = daq_size_rcv;
         }
-        return (0);
+
+        return 0;
     }
 
     // Get mutex to send over the network

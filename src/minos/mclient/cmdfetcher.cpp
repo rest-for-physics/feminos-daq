@@ -23,15 +23,19 @@ March 2014: (version 1.3) modified code so that $loop variable can be used
 as 4th or 5th argument in any command
 
  *******************************************************************************/
+
 #include "cmdfetcher.h"
 #include "evbuilder.h"
 #include "femarray.h"
 #include "programflash.h"
+#include <iostream>
 
 extern int verbose;
 
 #include <cstdio>
 #include <cstdlib>
+
+using namespace std;
 
 ////////////////////////////////////////////////
 // Manage Major/Minor version numbering manually
@@ -270,7 +274,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
         if (cf->use_stdin) {
             cmd_stdin_done = 0;
             while (!cmd_stdin_done) {
-                printf("(%d) >", cf->cmd_index);
+                printf("[%d]: ", cf->cmd_index);
                 if (fgets(&cmd_stdin[0], 80, stdin) == nullptr) {
                     printf("failed to get input from stdin\n");
                     return (-1);

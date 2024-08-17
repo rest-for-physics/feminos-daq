@@ -939,6 +939,10 @@ int EventBuilder_Loop(EventBuilder* eb) {
                     auto& storageManager = mclient_storage::StorageManager::Instance();
                     auto& graphManager = mclient_graph::GraphManager::Instance();
 
+                    if (storageManager.event_tree->GetEntries() == 0) {
+                        storageManager.millisSinceEpochForSpeedCalculation = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                    }
+
                     storageManager.event.id = storageManager.event_tree->GetEntries();
 
                     // cout << "End of build event - Event ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals" << endl;

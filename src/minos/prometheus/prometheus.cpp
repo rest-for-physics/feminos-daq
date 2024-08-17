@@ -23,15 +23,16 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
             if (free_disk_space >= 0) {
                 free_disk_space_metric.Set(free_disk_space);
             }
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            // cout << "Free disk space: " << free_disk_space << " GB" << endl;
+            std::this_thread::sleep_for(std::chrono::seconds(5));
         }
     }).detach();
 
     daq_speed_mb_per_s = &BuildGauge()
-                                      .Name("daq_speed_mb_per_sec")
-                                      .Help("DAQ speed in megabytes per second")
-                                      .Register(*registry)
-                                      .Add({});
+                                  .Name("daq_speed_mb_per_sec")
+                                  .Help("DAQ speed in megabytes per second")
+                                  .Register(*registry)
+                                  .Add({});
 
     daq_speed_events_per_s = &BuildGauge()
                                       .Name("daq_speed_events_per_sec")
@@ -82,24 +83,18 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
 mclient_prometheus::PrometheusManager::~PrometheusManager() = default;
 
 void mclient_prometheus::PrometheusManager::SetDaqSpeed(double speed) {
-    lock_guard<mutex> lock(mutex_);
-
     if (daq_speed_mb_per_s) {
         daq_speed_mb_per_s->Set(speed);
     }
 }
 
 void mclient_prometheus::PrometheusManager::SetEventId(unsigned int id) {
-    lock_guard<mutex> lock(mutex_);
-
     if (event_id) {
         event_id->Set(id);
     }
 }
 
 void mclient_prometheus::PrometheusManager::SetNumberOfSignalsInEvent(unsigned int number) {
-    lock_guard<mutex> lock(mutex_);
-
     if (number_of_signals_in_event) {
         number_of_signals_in_event->Set(number);
     }
@@ -110,16 +105,12 @@ void mclient_prometheus::PrometheusManager::SetNumberOfSignalsInEvent(unsigned i
 }
 
 void mclient_prometheus::PrometheusManager::SetNumberOfEvents(unsigned int id) {
-    lock_guard<mutex> lock(mutex_);
-
     if (number_of_events) {
         number_of_events->Set(id);
     }
 }
 
 void mclient_prometheus::PrometheusManager::SetRunNumber(unsigned int id) {
-    lock_guard<mutex> lock(mutex_);
-
     if (run_number) {
         run_number->Set(id);
     }
