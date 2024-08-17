@@ -39,7 +39,7 @@ void StorageManager::Initialize(const string& filename) {
 
     file = std::make_unique<TFile>(filename.c_str(), "RECREATE");
     file->SetCompressionAlgorithm(ROOT::kLZMA); // biggest compression ratio but slowest
-    file->SetCompressionLevel(9);               // max compression level
+    // file->SetCompressionLevel(9);               // max compression level, but it's very slow, probably not worth it
 
     cout << "ROOT file will be saved to " << file->GetName() << endl;
 
