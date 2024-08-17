@@ -299,6 +299,7 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
                 daq_u = 'T';
             }
 
+            /*
 #ifdef WIN32
             printf("0 DAQ: collected %I64d %cB (%I64d bytes %I64d bytes left) speed: %.2f MB/s\n", daq_norm, daq_u, daq_size_rcv, daq_size_left, daq_speed);
 #else
@@ -306,6 +307,9 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
                    daq_size_rcv, daq_size_left, daq_speed);
 
 #endif
+             */
+            const auto space_left_gb = mclient_prometheus::GetFreeDiskSpaceGigabytes("/");
+            cout << "Collected " << daq_norm << " " << daq_u << "B - Free disk space: " << space_left_gb << " GB - Speed: " << daq_speed << " MB/s" << endl;
 
             auto& manager = mclient_prometheus::PrometheusManager::Instance();
 

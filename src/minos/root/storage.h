@@ -68,7 +68,7 @@ public:
     std::string run_name;
     std::string comments;
 
-    std::chrono::time_point<std::chrono::system_clock> lastDrawTime = std::chrono::system_clock::now();
+    std::chrono::time_point<std::chrono::system_clock> lastCheckpointTime = std::chrono::system_clock::now();
 };
 
 } // namespace mclient_storage

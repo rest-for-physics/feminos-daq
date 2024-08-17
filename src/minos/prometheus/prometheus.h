@@ -9,8 +9,10 @@
 #include <prometheus/counter.h>
 #include <prometheus/exposer.h>
 #include <prometheus/gauge.h>
+#include <prometheus/histogram.h>
 #include <prometheus/registry.h>
 
+#include <filesystem>
 #include <iostream>
 #include <mutex>
 
@@ -18,6 +20,8 @@ using namespace prometheus;
 using namespace std;
 
 namespace mclient_prometheus {
+
+double GetFreeDiskSpaceGigabytes(const std::string& path = "/");
 
 class PrometheusManager {
 public:
@@ -36,6 +40,10 @@ public:
 
     void SetEventId(unsigned int id);
 
+    void SetNumberOfEvents(unsigned int id);
+
+    void SetRunNumber(unsigned int id);
+
     void SetNumberOfSignalsInEvent(unsigned int number);
 
 private:
@@ -49,9 +57,13 @@ private:
     std::unique_ptr<Exposer> exposer;
     std::shared_ptr<Registry> registry;
 
-    Gauge* daq_speed = nullptr;
+    Gauge* number_of_events = nullptr;
+    Gauge* daq_speed_mb_per_s = nullptr;
+    Gauge* daq_speed_events_per_s = nullptr;
     Gauge* event_id = nullptr;
-    Gauge* number_of_signals_in_event = nullptr; // TODO: histogram
+    Gauge* run_number = nullptr;
+    Gauge* number_of_signals_in_event = nullptr;
+    Histogram* number_of_signals_in_event_histogram = nullptr;
 };
 } // namespace mclient_prometheus
 

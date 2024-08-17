@@ -9,8 +9,8 @@ using namespace mclient_storage;
 void mclient_storage::StorageManager::Checkpoint(bool force) {
     constexpr auto time_interval = std::chrono::seconds(10);
     auto now = std::chrono::system_clock::now();
-    if (force || now - lastDrawTime > time_interval) {
-        lastDrawTime = now;
+    if (force || now - lastCheckpointTime > time_interval) {
+        lastCheckpointTime = now;
         cout << "Events (N=" << event_tree->GetEntries() << ") have been saved to " << file->GetName() << endl;
         file->Write("", TObject::kOverwrite);
     }
@@ -18,7 +18,7 @@ void mclient_storage::StorageManager::Checkpoint(bool force) {
 
 StorageManager::StorageManager() {
     file = std::make_unique<TFile>("events.root", "RECREATE");
-    // file->SetCompressionAlgorithm(ROOT::kLZMA); // biggest compression ratio but slowest
+    file->SetCompressionAlgorithm(ROOT::kLZMA); // biggest compression ratio but slowest
     // file->SetCompressionLevel(9);               // max compression level
 
     event_tree = std::make_unique<TTree>("events", "Signal events. Each entry is an event which contains multiple signals");
