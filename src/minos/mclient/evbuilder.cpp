@@ -942,6 +942,10 @@ int EventBuilder_Loop(EventBuilder* eb) {
 
                     cout << "End of build event - Event ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals with check: " << check << endl;
 
+                    storageManager.tree->Fill();
+
+                    storageManager.file->Write("", TObject::kOverwrite);
+
                     storageManager.Clear();
 
                     // end of build event
