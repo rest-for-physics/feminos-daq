@@ -19,11 +19,15 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
 
     std::thread([this, &free_disk_space_metric]() {
         while (true) {
-            double free_disk_space = GetFreeDiskSpaceGigabytes("/");
-            if (free_disk_space >= 0) {
-                free_disk_space_metric.Set(free_disk_space);
+            double free_disk_space_in_gb = GetFreeDiskSpaceGigabytes("/");
+            if (free_disk_space_in_gb >= 0) {
+                free_disk_space_metric.Set(free_disk_space_in_gb);
             }
             // cout << "Free disk space: " << free_disk_space << " GB" << endl;
+            if (free_disk_space_in_gb <= 90.0) {
+                std::cerr << "Free disk space is too low: " << free_disk_space_in_gb << " GB" << std::endl;
+                throw std::runtime_error("Free disk space is too low");
+            }
             std::this_thread::sleep_for(std::chrono::seconds(5));
         }
     }).detach();
