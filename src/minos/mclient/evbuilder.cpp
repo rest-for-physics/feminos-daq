@@ -1303,27 +1303,31 @@ int EventBuilder_FileAction(EventBuilder* eb,
     printf("Opening file : %s\n", name);
 
     auto& storageManager = mclient_storage::StorageManager::Instance();
-    storageManager.Initialize(filename_root);
 
-    storageManager.run_number = runNumber;
-    storageManager.run_name = eb->run_str;
-    storageManager.run_tag = runTagStr;
-    storageManager.run_comments = runComments;
-    storageManager.run_tag = runTagStr;
+    // This loop is entered for every subrun, so we need to make sure this is only initialized once
+    if (!storageManager.IsInitialized()) {
+        storageManager.Initialize(filename_root);
 
-    try {
-        storageManager.run_drift_field_V_cm_bar = atof(driftFieldStr);
-        storageManager.run_mesh_voltage_V = atof(meshVoltageStr);
-        storageManager.run_detector_pressure_bar = atof(detectorPressureStr);
-    } catch (std::exception& e) {
-        cout << e.what() << endl;
-        cout << "Error parsing run parameters. Some of these parameters couldn't be converted into float." << endl;
-        cout << "Drift field: " << driftFieldStr << endl;
-        cout << "Mesh voltage: " << meshVoltageStr << endl;
-        cout << "Detector pressure: " << detectorPressureStr << endl;
+        storageManager.run_number = runNumber;
+        storageManager.run_name = eb->run_str;
+        storageManager.run_tag = runTagStr;
+        storageManager.run_comments = runComments;
+        storageManager.run_tag = runTagStr;
+
+        try {
+            storageManager.run_drift_field_V_cm_bar = atof(driftFieldStr);
+            storageManager.run_mesh_voltage_V = atof(meshVoltageStr);
+            storageManager.run_detector_pressure_bar = atof(detectorPressureStr);
+        } catch (std::exception& e) {
+            cout << e.what() << endl;
+            cout << "Error parsing run parameters. Some of these parameters couldn't be converted into float." << endl;
+            cout << "Drift field: " << driftFieldStr << endl;
+            cout << "Mesh voltage: " << meshVoltageStr << endl;
+            cout << "Detector pressure: " << detectorPressureStr << endl;
+        }
+
+        storageManager.run_tree->Fill();
     }
-
-    storageManager.run_tree->Fill();
 
     // in ASCII format add a carriage return
     if (format == 1) {
