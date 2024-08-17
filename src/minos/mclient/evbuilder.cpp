@@ -1175,7 +1175,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
             anFiles = fopen(fileAnalysis, "wt");
             fclose(anFiles);
 
-            eb->fout = (FILE*) 0;
+            eb->fout = (FILE*) nullptr;
         }
     }
 
@@ -1195,7 +1195,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
         time(&start_time);
         now = localtime(&start_time);
 
-        tt = (int) time(NULL);
+        tt = (int) time(nullptr);
         timeStart = tt;
         printf("Starting timestamp : %d\n", tt);
 
@@ -1303,6 +1303,17 @@ int EventBuilder_FileAction(EventBuilder* eb,
 
     auto& storageManager = mclient_storage::StorageManager::Instance();
     storageManager.Initialize(filename_root);
+
+    storageManager.run_number = runNumber;
+    storageManager.run_name = eb->run_str;
+    storageManager.run_tag = runTagStr;
+    storageManager.run_comments = runComments;
+    storageManager.run_tag = runTagStr;
+    storageManager.run_drift_field_V_cm_bar = atof(driftFieldStr);
+    storageManager.run_mesh_voltage_V = atof(meshVoltageStr);
+    storageManager.run_detector_pressure_bar = atof(detectorPressureStr);
+
+    storageManager.run_tree->Fill();
 
     // in ASCII format add a carriage return
     if (format == 1) {

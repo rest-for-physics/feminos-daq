@@ -46,21 +46,23 @@ void StorageManager::Initialize(const string& filename) {
     event_tree = std::make_unique<TTree>("events", "Signal events. Each entry is an event which contains multiple signals");
 
     event_tree->Branch("timestamp", &event.timestamp, "timestamp/L");
-    // tree->Branch("event_id", &event.id, "event_id/i"); It's redundant to store this since it's the same as the entry number
     event_tree->Branch("signal_ids", &event.signal_ids);
     event_tree->Branch("signal_data", &event.signal_data);
 
     run_tree = std::make_unique<TTree>("run", "Run metadata");
 
     run_tree->Branch("number", &run_number, "run_number/L");
-    run_tree->Branch("timestamp", &run_time_start, "timestamp/L");
     run_tree->Branch("name", &run_name);
-    run_tree->Branch("comments", &comments);
+    run_tree->Branch("timestamp", &run_time_start, "timestamp/L");
+    run_tree->Branch("detector", &run_detector_name);
+    run_tree->Branch("tag", &run_tag);
+    run_tree->Branch("comments", &run_comments);
+    run_tree->Branch("drift_field_V_cm_bar", &run_drift_field_V_cm_bar, "drift_field_V_cm_bar/F");
+    run_tree->Branch("mesh_voltage_V", &run_mesh_voltage_V, "mesh_voltage_V/F");
+    run_tree->Branch("detector_pressure_bar", &run_detector_pressure_bar, "detector_pressure_bar/F");
 
     // millis since epoch
     run_time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
-    run_name = "Run " + std::to_string(run_number);
 
     run_tree->Fill();
 }

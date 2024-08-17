@@ -74,8 +74,15 @@ public:
 
     unsigned long long run_number = 0;
     unsigned long long run_time_start = 0;
+
     std::string run_name;
-    std::string comments;
+    std::string run_tag;
+    std::string run_detector_name;
+    std::string run_comments;
+
+    float run_drift_field_V_cm_bar = 0.0;
+    float run_mesh_voltage_V = 0.0;
+    float run_detector_pressure_bar = 0.0;
 
     unsigned long long millisSinceEpochForSpeedCalculation = 0;
 
