@@ -931,6 +931,8 @@ int EventBuilder_Loop(EventBuilder* eb) {
 
                     auto& storageManager = mclient_storage::StorageManager::Instance();
 
+                    storageManager.event.id = storageManager.tree->GetEntries();
+
                     unsigned long long check = 0;
 
                     for (int i = 0; i < storageManager.event.size(); ++i) {
