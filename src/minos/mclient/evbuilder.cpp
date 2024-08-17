@@ -950,57 +950,20 @@ int EventBuilder_Loop(EventBuilder* eb) {
 
                     storageManager.Checkpoint();
 
+                    /*
                     if (graphManager.GetSecondsSinceLastDraw() > 10) {
                         // Avoid drawing too often
                         graphManager.DrawEvent(storageManager.event);
                     }
+                     */
 
                     storageManager.Clear();
-
-                    // end of build event
-                    /*
-                    SemaphoreRed(SemaphoreId);
-
-                    storageManager.event = mclient_storage::Event{};
-
-                    storageManager.event.id = storageManager.tree->GetEntries();
-                    // storageManager.event.id = ShMem_DaqInfo->eventId; // TODO: Why not working?
-                    // storageManager.event.timestamp = ShMem_DaqInfo->timeStamp; // TODO: Check if this is the correct timestamp
-
-                    // AFAIK the first number is the signal id and the rest is the signal data
-                    unsigned long long check = 0;
-                    std::array<unsigned short, 512> waveform;
-                    for (int i = 0; i < ShMem_DaqInfo->nSignals; ++i) {
-                        unsigned short signal_id = ShMem_Buffer[0 + i * 512];
-                        for (int j = 0; j < 512; ++j) {
-                            waveform[j] = ShMem_Buffer[1 + j + i * 512];
-                            check += waveform[j];
-                        }
-                        storageManager.event.add_signal(signal_id, waveform);
-                    }
-
-                    storageManager.tree->Fill();
-
-                    cout << "Event with ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals and check: " << check << endl;
-
-                    // checkpoint the file
-                    storageManager.file->Write("", TObject::kOverwrite);
-
-                    if (graphManager.GetSecondsSinceLastDraw() > 2) {
-                        // Avoid drawing too often
-                        // graphManager.DrawEvent(storageManager.event);
-                    }
-
-                    SemaphoreGreen(SemaphoreId);
-                     */
                 }
 
-                // Next event does not have any Start of
-                // Event received yet
+                // Next event does not have any Start of Event received yet
                 eb->src_had_soe = 0;
             } else {
-                // printf("EventBuilder_Loop: pending source
-                // pattern 0x%x\n", eb->pnd_src);
+                // printf("EventBuilder_Loop: pending source pattern 0x%x\n", eb->pnd_src);
             }
         }
 

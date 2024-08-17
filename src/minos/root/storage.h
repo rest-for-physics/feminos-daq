@@ -66,7 +66,7 @@ public:
     void Checkpoint(bool force = false) {
         constexpr auto time_interval = std::chrono::seconds(10);
         auto now = std::chrono::system_clock::now();
-        if (now - lastDrawTime > time_interval) {
+        if (force || now - lastDrawTime > time_interval) {
             lastDrawTime = now;
             file->Write("", TObject::kOverwrite);
         }
