@@ -27,14 +27,11 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
         }
     }).detach();
 
-    {
-        auto& gauge = BuildGauge()
-                              .Name("daq_speed_mb_per_sec")
-                              .Help("DAQ speed in megabytes per second")
-                              .Register(*registry);
-
-        daq_speed_mb_per_s = &gauge.Add({});
-    }
+    daq_speed_mb_per_s = &BuildGauge()
+                                      .Name("daq_speed_mb_per_sec")
+                                      .Help("DAQ speed in megabytes per second")
+                                      .Register(*registry)
+                                      .Add({});
 
     daq_speed_events_per_s = &BuildGauge()
                                       .Name("daq_speed_events_per_sec")
