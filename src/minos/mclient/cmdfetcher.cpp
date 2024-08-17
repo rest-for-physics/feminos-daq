@@ -27,7 +27,7 @@ as 4th or 5th argument in any command
 #include "cmdfetcher.h"
 #include "evbuilder.h"
 #include "femarray.h"
-#include "programflash.h"
+
 #include <iostream>
 
 extern int verbose;
@@ -686,39 +686,6 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             }
             printf("%s.rep(?): Sending credit will be delayded by %d ms\n", fem_tar_str, fa->delay_a_credit);
             post_cmd = 0;
-        }
-        // Re-program Feminos Flash with new firmware
-        else if (strncmp(cmd, "program flash", 13) == 0) {
-            err = 0;
-            // Get file name
-            if (sscanf(cmd, "program flash %s", cf->cmd_file) != 1) {
-                printf("%s.rep(?): missing argument after %s", fem_tar_str, cmd);
-                err = -1;
-                cf->no_echo_this = 1;
-            }
-            // Check that file name extension is .mcs
-            if (strncmp(&cf->cmd_file[strlen(cf->cmd_file) - 4], ".mcs", 4) != 0) {
-                printf("%s.rep(?): file format must be \".mcs\" not \"%s\"\n", fem_tar_str,
-                       &cf->cmd_file[strlen(cf->cmd_file) - 4]);
-                err = -1;
-                cf->no_echo_this = 1;
-            }
-            // Check that the command applies only to one FEM
-            if (cf->cur_multi_fem != 0) {
-                printf("%s.rep(?): command cannot be applied to multiple Feminos.\n", fem_tar_str);
-                err = -1;
-                cf->no_echo_this = 1;
-            }
-            if (err == 0) {
-                // Program flash
-                if ((err = CmdFetcher_ProgramFlash(cf)) < 0) {
-                    printf("%s.rep(?): CmdFetcher_ProgramFlash failed with error code: %d.\n", fem_tar_str, err);
-                } else {
-                    printf("%s.rep(?): CmdFetcher_ProgramFlash completed.\n", fem_tar_str);
-                }
-            }
-            post_cmd = 0;
-        } else {
         }
 
         // Echo the command to console

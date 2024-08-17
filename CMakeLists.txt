@@ -37,18 +37,11 @@ add_executable(mclient src/minos/main.cpp)
 target_include_directories(
     mclient
     PRIVATE ${ROOT_INCLUDE_DIRS}
-            src/minos/bootloader
             src/minos/bufmgr
-            src/minos/cmdi
-            src/minos/common
             src/minos/feminos
-            src/minos/mars
             src/minos/mclient
-            src/minos/network
             src/minos/platforms
             src/minos/platforms/linux
-            src/minos/spiflash
-            src/minos/tcm
             src/minos/util
             src/minos/util/linux
             src/minos/prometheus
@@ -61,8 +54,6 @@ file(
     src/minos/mclient/evbuilder.cpp
     src/minos/mclient/femarray.cpp
     src/minos/mclient/cmdfetcher.cpp
-    src/minos/mclient/programflash.cpp
-    src/minos/spiflash/hexreader.cpp
     src/minos/bufmgr/bufpool.cpp
     src/minos/feminos/frame.cpp
     src/minos/platforms/linux/os_al.cpp
