@@ -26,7 +26,6 @@
 #include "platform_spec.h"
 #include "sock_util.h"
 
-#include <chrono>
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
@@ -75,8 +74,8 @@ daqInfo* ShMem_DaqInfo;
 unsigned short int* ShMem_Buffer;
 int SemaphoreId;
 
-const int MAX_SIGNALS = 1152; // To cover up to 4 Feminos boards 72 * 4 * 4
-const int MAX_POINTS = 512;
+constexpr int MAX_SIGNALS = 1152; // To cover up to 4 Feminos boards 72 * 4 * 4
+constexpr int MAX_POINTS = 512;
 
 template<typename T>
 void stringIpToArray(const std::string& ip, T* ip_array) {
@@ -128,7 +127,6 @@ int main(int argc, char** argv) {
     std::string local_ip;
     std::string input_file;
     std::string output_file;
-
     int verbose_level = -1;
 
     CLI::App app{"mclient"};
@@ -139,7 +137,7 @@ int main(int argc, char** argv) {
     app.add_option("-p,--port", femarray.rem_port, "Remote UDP target port")
             ->group("Connection Options")
             ->check(CLI::Range(1, 65535));
-    app.add_option("-S,--server_set", femarray.fem_proxy_set, "Hexadecimal pattern to tell which server(s) to connect to (e.g 0xC)")
+    app.add_option("-S,--servers", femarray.fem_proxy_set, "Hexadecimal pattern to tell which server(s) to connect to (e.g 0xC)")
             ->group("Connection Options")
             ->check(CLI::Number);
     app.add_option("-c,--client", local_ip, "IP address of the local interface in dotted decimal")
