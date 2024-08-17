@@ -34,39 +34,46 @@ class GraphApp:
         self.root = _root
         self.root.title("Event Viewer")
 
+        self.label = tk.Label(self.root, text="Select a ROOT file to plot signals from")
+        self.label.pack(padx=20, pady=5)
+
         self.file_menu_frame = tk.Frame(self.root, bd=2)
-        self.file_menu_frame.pack(pady=10)
+        self.file_menu_frame.pack(pady=5)
 
         self.open_button = tk.Button(self.file_menu_frame, text="Open File", command=self.open_file)
-        self.open_button.pack(side=tk.LEFT, padx=20, pady=20)
-
-        self.label = tk.Label(self.file_menu_frame, text="Select a ROOT file to plot signals from")
-        self.label.pack(side=tk.LEFT, padx=20, pady=20)
+        self.open_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.reload_file_button = tk.Button(self.file_menu_frame, text="Reload", command=self.load_file)
-        self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=20)
+        self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
+
+        self.reload_file_button = tk.Button(self.file_menu_frame, text="Attach", command=self.load_file)
+        self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.button_frame = tk.Frame(self.root, bd=2)
-        self.button_frame.pack(pady=10)
+        self.button_frame.pack(pady=5)
 
         self.prev_button = tk.Button(self.button_frame, text="Previous Event", command=self.prev_event)
-        self.prev_button.pack(side=tk.LEFT, padx=20, pady=20)
+        self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.entry_textbox = tk.Entry(self.button_frame, width=10)
-        self.entry_textbox.pack(side=tk.LEFT, padx=20, pady=20)
+        self.entry_textbox.pack(side=tk.LEFT, padx=20, pady=5)
         self.entry_textbox.insert(0, "0")
 
         self.next_button = tk.Button(self.button_frame, text="Next Event", command=self.next_event)
-        self.next_button.pack(side=tk.RIGHT, padx=20, pady=20)
+        self.next_button.pack(side=tk.RIGHT, padx=20, pady=5)
 
         # Initialize the plot area
-        self.figure = plt.Figure(figsize=(10, 4), dpi=200)
+        self.figure = plt.Figure(figsize=(8, 4), dpi=200)
         self.ax = self.figure.add_subplot(111)
 
         self.ax.set_xlabel("Time bins")
         self.ax.set_ylabel("ADC")
 
         self.ax.set_xlim(0, 512)
+        self.ax.set_xlim(0, 512)
+        self.ax.set_xticks(range(0, 512 + 1, 64))
+        self.ax.set_xticks(range(0, 512 + 1, 16), minor=True)
+
         self.ax.set_ylim(0, 4096)
 
         self.canvas = FigureCanvasTkAgg(self.figure, self.root)
@@ -94,7 +101,14 @@ class GraphApp:
             messagebox.showerror("Error", f"The file does not contain the 'run' tree. file keys are {self.file.keys()}")
             return
 
-        self.label.config(text=f"{self.filepath} - {self.event_tree.num_entries} entries")
+        filename_text = self.filepath
+        max_file_length = 50
+        if len(filename_text) > max_file_length:
+            filename_text = filename_text.split("/")[-1]
+        if len(filename_text) > max_file_length:
+            filename_text = filename_text[:max_file_length] + "..."
+
+        self.label.config(text=f"{filename_text} - {self.event_tree.num_entries} entries")
 
         self.plot_graph()
 
@@ -130,9 +144,7 @@ class GraphApp:
             self.ax.set_title(f"Event {entry} - Number of signals: {len(event.signals.id)}")
 
             self.ax.set_xlim(0, 512)
-            # customize ticks in multiples of 64
             self.ax.set_xticks(range(0, 512 + 1, 64))
-            # small ticks in between
             self.ax.set_xticks(range(0, 512 + 1, 16), minor=True)
 
             if n_signals_showing <= 10:
