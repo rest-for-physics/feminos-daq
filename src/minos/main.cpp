@@ -253,7 +253,7 @@ int main(int argc, char** argv) {
     eventbuilder.fa = (void*) &femarray;
 
     // Create FEM Array thread
-    femarray.thread.routine = (void*) FemArray_ReceiveLoop;
+    femarray.thread.routine = reinterpret_cast<void (*)()>(FemArray_ReceiveLoop);
     femarray.thread.param = (void*) &femarray;
     femarray.state = 1;
     if ((err = Thread_Create(&femarray.thread)) < 0) {
@@ -263,7 +263,7 @@ int main(int argc, char** argv) {
     // printf("femarray Thread_Create done\n" );
 
     // Create Event Builder thread
-    eventbuilder.thread.routine = (void*) EventBuilder_Loop;
+    eventbuilder.thread.routine = reinterpret_cast<void (*)()>(EventBuilder_Loop);
     eventbuilder.thread.param = (void*) &eventbuilder;
     eventbuilder.state = 1;
     if ((err = Thread_Create(&eventbuilder.thread)) < 0) {
