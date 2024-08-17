@@ -18,10 +18,6 @@ public:
     std::vector<unsigned short> signal_ids;
     std::vector<unsigned short> signal_data; // all data points from all signals concatenated (same order as signal_ids)
 
-    // run level
-    unsigned int run_number = 0;
-    std::string run_name;
-
     size_t size() const {
         return signal_ids.size();
     }
@@ -54,18 +50,7 @@ public:
 
     StorageManager& operator=(const StorageManager&) = delete;
 
-    StorageManager() {
-        file = std::make_unique<TFile>("events.root", "RECREATE");
-        tree = std::make_unique<TTree>("events", "Tree of DAQ signal events");
-
-        tree->Branch("timestamp", &event.timestamp, "timestamp/L");
-        // tree->Branch("event_id", &event.id, "event_id/i"); It's redundant to store this since it's the same as the entry number
-        tree->Branch("signal_ids", &event.signal_ids);
-        tree->Branch("signal_data", &event.signal_data);
-
-        tree->Branch("run_number", &event.run_number, "run_number/i");
-        tree->Branch("run_name", &event.run_name);
-    }
+    StorageManager();
 
     void Clear() {
         event = {};
@@ -74,8 +59,14 @@ public:
     void Checkpoint(bool force = false);
 
     std::unique_ptr<TFile> file;
-    std::unique_ptr<TTree> tree;
+    std::unique_ptr<TTree> event_tree;
+    std::unique_ptr<TTree> run_tree;
     Event event;
+
+    unsigned long long run_number = 0;
+    unsigned long long timestamp = 0;
+    std::string run_name;
+    std::string comments;
 
     std::chrono::time_point<std::chrono::system_clock> lastDrawTime = std::chrono::system_clock::now();
 };

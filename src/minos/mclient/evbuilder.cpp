@@ -939,14 +939,14 @@ int EventBuilder_Loop(EventBuilder* eb) {
                     auto& storageManager = mclient_storage::StorageManager::Instance();
                     auto& graphManager = mclient_graph::GraphManager::Instance();
 
-                    storageManager.event.id = storageManager.tree->GetEntries();
+                    storageManager.event.id = storageManager.event_tree->GetEntries();
 
                     prometheusManager.SetEventId(storageManager.event.id);
                     prometheusManager.SetNumberOfSignalsInEvent(storageManager.event.size());
 
-                    cout << "End of build event - Event ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals" << endl;
+                    // cout << "End of build event - Event ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals" << endl;
 
-                    storageManager.tree->Fill();
+                    storageManager.event_tree->Fill();
 
                     storageManager.Checkpoint();
 
@@ -958,9 +958,6 @@ int EventBuilder_Loop(EventBuilder* eb) {
                      */
 
                     storageManager.Clear();
-
-                    storageManager.event.run_number = 0;
-                    storageManager.event.run_name = "this is a very long name for the test run to see how much data it can hold";
                 }
 
                 // Next event does not have any Start of Event received yet
