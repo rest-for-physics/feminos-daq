@@ -18,8 +18,8 @@ void mclient_storage::StorageManager::Checkpoint(bool force) {
 
 StorageManager::StorageManager() {
     file = std::make_unique<TFile>("events.root", "RECREATE");
-    file->SetCompressionAlgorithm(ROOT::kLZMA); // biggest compression ratio but slowest
-    file->SetCompressionLevel(9);               // max compression level
+    // file->SetCompressionAlgorithm(ROOT::kLZMA); // biggest compression ratio but slowest
+    // file->SetCompressionLevel(9);               // max compression level
 
     event_tree = std::make_unique<TTree>("events", "Signal events. Each entry is an event which contains multiple signals");
 
@@ -28,7 +28,7 @@ StorageManager::StorageManager() {
     event_tree->Branch("signal_ids", &event.signal_ids);
     event_tree->Branch("signal_data", &event.signal_data);
 
-    run_tree = std::make_unique<TTree>("runs", "Run metadata");
+    run_tree = std::make_unique<TTree>("run", "Run metadata");
 
     run_tree->Branch("number", &run_number, "run_number/L");
     run_tree->Branch("timestamp", &timestamp, "timestamp/L");
