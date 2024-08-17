@@ -63,6 +63,4 @@ void StorageManager::Initialize(const string& filename) {
 
     // millis since epoch
     run_time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
-    run_tree->Fill();
 }

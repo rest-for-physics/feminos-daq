@@ -1279,6 +1279,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
     char* filename_root = nullptr;
     sprintf(filename_root, "%s/%s.%s", &(eb->file_path[0]),
             &(eb->run_str[0]), "root");
+    cout << "Root file name : " << filename_root << endl;
     sprintf(name, "%s/%s-%03d.%s", &(eb->file_path[0]),
             &(eb->run_str[0]), eb->subrun_ix, str_ext);
     sprintf(fileNameNow, "%s-%03d.%s", &(eb->run_str[0]),
@@ -1309,9 +1310,17 @@ int EventBuilder_FileAction(EventBuilder* eb,
     storageManager.run_tag = runTagStr;
     storageManager.run_comments = runComments;
     storageManager.run_tag = runTagStr;
-    storageManager.run_drift_field_V_cm_bar = atof(driftFieldStr);
-    storageManager.run_mesh_voltage_V = atof(meshVoltageStr);
-    storageManager.run_detector_pressure_bar = atof(detectorPressureStr);
+    // storageManager.run_drift_field_V_cm_bar = atof(driftFieldStr);
+    // storageManager.run_mesh_voltage_V = atof(meshVoltageStr);
+    // storageManager.run_detector_pressure_bar = atof(detectorPressureStr);
+
+    cout << "Run number : " << storageManager.run_number << endl;
+    cout << "Run name : " << storageManager.run_name << endl;
+    cout << "Run tag : " << storageManager.run_tag << endl;
+    cout << "Run comments : " << storageManager.run_comments << endl;
+    cout << "Run drift field : " << storageManager.run_drift_field_V_cm_bar << endl;
+    cout << "Run mesh voltage : " << storageManager.run_mesh_voltage_V << endl;
+    cout << "Run detector pressure : " << storageManager.run_detector_pressure_bar << endl;
 
     storageManager.run_tree->Fill();
 
