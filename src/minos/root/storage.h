@@ -18,6 +18,10 @@ public:
     std::vector<unsigned short> signal_ids;
     std::vector<unsigned short> signal_data; // all data points from all signals concatenated (same order as signal_ids)
 
+    // run level
+    unsigned int run_number = 0;
+    std::string run_name;
+
     size_t size() const {
         return signal_ids.size();
     }
@@ -52,25 +56,22 @@ public:
 
     StorageManager() {
         file = std::make_unique<TFile>("events.root", "RECREATE");
-        tree = std::make_unique<TTree>("EventTree", "Tree of DAQ signal events");
+        tree = std::make_unique<TTree>("events", "Tree of DAQ signal events");
+
         tree->Branch("timestamp", &event.timestamp, "timestamp/L");
-        tree->Branch("event_id", &event.id, "event_id/i");
-        tree->Branch("signals.id", &event.signal_ids);
-        tree->Branch("signals.data", &event.signal_data);
+        // tree->Branch("event_id", &event.id, "event_id/i"); It's redundant to store this since it's the same as the entry number
+        tree->Branch("signal_ids", &event.signal_ids);
+        tree->Branch("signal_data", &event.signal_data);
+
+        tree->Branch("run_number", &event.run_number, "run_number/i");
+        tree->Branch("run_name", &event.run_name);
     }
 
     void Clear() {
         event = {};
     }
 
-    void Checkpoint(bool force = false) {
-        constexpr auto time_interval = std::chrono::seconds(10);
-        auto now = std::chrono::system_clock::now();
-        if (force || now - lastDrawTime > time_interval) {
-            lastDrawTime = now;
-            file->Write("", TObject::kOverwrite);
-        }
-    }
+    void Checkpoint(bool force = false);
 
     std::unique_ptr<TFile> file;
     std::unique_ptr<TTree> tree;

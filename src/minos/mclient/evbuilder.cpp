@@ -958,6 +958,9 @@ int EventBuilder_Loop(EventBuilder* eb) {
                      */
 
                     storageManager.Clear();
+
+                    storageManager.event.run_number = 0;
+                    storageManager.event.run_name = "this is a very long name for the test run to see how much data it can hold";
                 }
 
                 // Next event does not have any Start of Event received yet
