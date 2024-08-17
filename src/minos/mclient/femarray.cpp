@@ -318,7 +318,7 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
             char time_str[80];
             strftime(time_str, 80, "[%Y-%m-%dT%H:%M:%SZ]", now_tm);
 
-            cout << time_str << " | ⚙️ Processed " << daq_norm << " " << daq_u << "B | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s)" << endl;
+            cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s)" << endl;
 
             auto& manager = mclient_prometheus::PrometheusManager::Instance();
 
