@@ -605,41 +605,6 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         // "Event time added : %lf\n",
         // ShMem_DaqInfo->timeStamp ); printf( "-----\n");
 
-        /*
-
-        auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();
-        auto& storageManager = mclient_storage::StorageManager::Instance();
-        auto& graphManager = mclient_graph::GraphManager::Instance();
-
-        prometheusManager.SetEventId(ShMem_DaqInfo->eventId);
-        prometheusManager.SetNumberOfSignalsInEvent(ShMem_DaqInfo->nSignals);
-
-        storageManager.event = mclient_storage::Event{};
-
-        storageManager.event.id = ShMem_DaqInfo->eventId;
-        storageManager.event.timestamp = ShMem_DaqInfo->timeStamp; // TODO: check if this is the correct timestamp
-
-        cout << "Event ID: " << storageManager.event.id << endl;
-
-        // AFAIK the first number is the signal id and the rest is the signal data
-        std::array<unsigned short, 512> waveform;
-        for (int i = 0; i < ShMem_DaqInfo->nSignals; ++i) {
-            unsigned short signal_id = ShMem_Buffer[0 + i * 512];
-            for (int j = 0; j < 512; ++j) {
-                waveform[j] = ShMem_Buffer[1 + j + i * 512];
-            }
-            storageManager.event.add_signal(signal_id, waveform);
-        }
-
-        storageManager.tree->Fill();
-        // checkpoint the file
-        storageManager.file->Write("", TObject::kOverwrite);
-
-        if (graphManager.GetSecondsSinceLastDraw() > 1) {
-            // Avoid drawing too often
-            graphManager.DrawEvent(storageManager.event);
-        }
-        */
         SemaphoreGreen(SemaphoreId);
     }
 
@@ -769,7 +734,7 @@ int EventBuilder_Loop(EventBuilder* eb) {
     unsigned int mask;
     int done2;
 
-    printf("EventBuilder_Loop: started.\n");
+    // printf("EventBuilder_Loop: started.\n");
 
     fa = (FemArray*) eb->fa;
 

@@ -82,7 +82,7 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
 
 mclient_prometheus::PrometheusManager::~PrometheusManager() = default;
 
-void mclient_prometheus::PrometheusManager::SetDaqSpeed(double speed) {
+void mclient_prometheus::PrometheusManager::SetDaqSpeedMB(double speed) {
     if (daq_speed_mb_per_s) {
         daq_speed_mb_per_s->Set(speed);
     }
@@ -113,6 +113,12 @@ void mclient_prometheus::PrometheusManager::SetNumberOfEvents(unsigned int id) {
 void mclient_prometheus::PrometheusManager::SetRunNumber(unsigned int id) {
     if (run_number) {
         run_number->Set(id);
+    }
+}
+
+void mclient_prometheus::PrometheusManager::SetDaqSpeedEvents(double speed) {
+    if (daq_speed_events_per_s) {
+        daq_speed_events_per_s->Set(speed);
     }
 }
 

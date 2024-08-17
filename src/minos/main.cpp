@@ -40,6 +40,8 @@
 #include "prometheus.h"
 #include "storage.h"
 
+#include <CLI/CLI.hpp>
+
 using namespace std;
 
 /*******************************************************************************
@@ -76,176 +78,33 @@ int SemaphoreId;
 const int MAX_SIGNALS = 1152; // To cover up to 4 Feminos boards 72 * 4 * 4
 const int MAX_POINTS = 512;
 
-/*******************************************************************************
- help() to display usage
-*******************************************************************************/
-void help() {
-    printf("clientUDP <options>\n");
-    printf("   -h               : print this message help\n");
-    printf("   -s <xx.yy.zz.ww> : base IP address of remote server(s) in dotted decimal\n");
-    printf("   -p <port>        : remote UDP target port\n");
-    printf("   -S <0xServer_set>: hexadecimal pattern to tell which server(s) to connect to\n");
-    printf("   -c <xx.yy.zz.ww> : IP address of the local interface in dotted decimal\n");
-    printf("   -f <file>        : read commands from file specified\n");
-    printf("   -o <file>        : save results in file specified\n");
-    printf("   -v <level>       : verbose\n");
-}
-
-/*******************************************************************************
- parse_cmd_args() to parse command line arguments
-*******************************************************************************/
-int parse_cmd_args(int argc, char** argv) {
-    int i;
-    int match;
-    int err = 0;
-
-    for (i = 1; i < argc; i++) {
-        match = 0;
-        // remote host IP address
-        if (strncmp(argv[i], "-s", 2) == 0) {
-            match = 1;
-            if ((i + 1) < argc) {
-                i++;
-                if (sscanf(argv[i], "%d.%d.%d.%d", &(femarray.rem_ip_beg)[0], &(femarray.rem_ip_beg[1]),
-                           &(femarray.rem_ip_beg[2]), &(femarray.rem_ip_beg[3])) == 4) {
-                } else {
-                    printf("illegal argument %s\n", argv[i]);
-                    return (-1);
-                }
-            } else {
-                printf("missing argument after %s\n", argv[i]);
-                return (-1);
-            }
-        }
-        // remote port number
-        else if (strncmp(argv[i], "-p", 2) == 0) {
-            match = 1;
-            if ((i + 1) < argc) {
-                i++;
-                if (sscanf(argv[i], "%d", &femarray.rem_port) == 1) {
-
-                } else {
-                    printf("illegal argument %s\n", argv[i]);
-                    return (-1);
-                }
-            } else {
-                printf("missing argument after %s\n", argv[i]);
-                return (-1);
-            }
-        }
-        // Server pattern
-        else if (strncmp(argv[i], "-S", 2) == 0) {
-            match = 1;
-            if ((i + 1) < argc) {
-                i++;
-                if (sscanf(argv[i], "0x%x", &femarray.fem_proxy_set) == 1) {
-                    femarray.fem_proxy_set &= 0xFFFFFFFF;
-                } else {
-                    printf("illegal argument %s\n", argv[i]);
-                    return (-1);
-                }
-            } else {
-                printf("missing argument after %s\n", argv[i]);
-                return (-1);
-            }
-        }
-        // local IP address of the interface
-        if (strncmp(argv[i], "-c", 2) == 0) {
-            match = 1;
-            if ((i + 1) < argc) {
-                i++;
-                if (sscanf(argv[i], "%d.%d.%d.%d", &(femarray.loc_ip[0]), &(femarray.loc_ip[1]), &(femarray.loc_ip[2]),
-                           &(femarray.loc_ip[3])) == 4) {
-
-                } else {
-                    printf("illegal argument %s\n", argv[i]);
-                    return (-1);
-                }
-            } else {
-                printf("missing argument after %s\n", argv[i]);
-                return (-1);
-            }
-        }
-        // get file name for commands
-        else if (strncmp(argv[i], "-f", 2) == 0) {
-            match = 1;
-            if ((i + 1) < argc) {
-                i++;
-                strcpy(&(cmdfetcher.cmd_file[0]), argv[i]);
-                cmdfetcher.use_stdin = 0;
-            } else {
-                printf("missing argument after %s\n", argv[i]);
-                return (-1);
-            }
-        }
-        // result file name
-        else if (strncmp(argv[i], "-o", 2) == 0) {
-            match = 1;
-            if ((i + 1) < argc) {
-                i++;
-                strcpy(res_file, argv[i]);
-                save_res = 1;
-            } else {
-                printf("missing argument after %s\n", argv[i]);
-                return (-1);
-            }
-        }
-        // format for saving data
-        else if (strncmp(argv[i], "-F", 2) == 0) {
-            match = 1;
-            if ((i + 1) < argc) {
-                if (sscanf(argv[i + 1], "%d", &format_ver) == 1) {
-                    i++;
-                } else {
-                    format_ver = 2;
-                }
-            } else {
-                format_ver = 2;
-            }
-        }
-        // verbose
-        else if (strncmp(argv[i], "-v", 2) == 0) {
-            match = 1;
-            if ((i + 1) < argc) {
-                if (sscanf(argv[i + 1], "%d", &(cmdfetcher.verbose)) == 1) {
-                    i++;
-                } else {
-                    cmdfetcher.verbose = 1;
-                }
-            } else {
-                cmdfetcher.verbose = 1;
-            }
-            femarray.verbose = cmdfetcher.verbose;
-
-        } else if (strncmp(argv[i], "-h", 2) == 0) {
-            match = 1;
-            help();
-            return (-1); // force an error to exit
-        } else if (strncmp(argv[i], "shareBuffer", 11) == 0) {
-            match = 1;
-            shareBuffer = 1;
-        } else if (strncmp(argv[i], "readOnly", 8) == 0) {
-            match = 1;
-            readOnly = 1;
-        } else if (strncmp(argv[i], "tcm", 3) == 0) {
-            match = 1;
-            tcm = 1;
-        } else if (strncmp(argv[i], "RST", 3) == 0) {
-            match = 1;
-            tcm = 1;
-            shareBuffer = 1;
-            readOnly = 1;
-        } else if (strncmp(argv[i], "ST", 3) == 0) {
-            match = 1;
-            tcm = 1;
-            shareBuffer = 1;
-        }
-        // unmatched options
-        if (match == 0) {
-            printf("Warning: unsupported option %s\n", argv[i]);
-        }
+template<typename T>
+void stringIpToArray(const std::string& ip, T* ip_array) {
+    // we assume ip is a valid IP (this has to be checked beforehand)
+    if (ip.empty()) {
+        return;
     }
-    return (0);
+
+    std::vector<std::string> ip_parts;
+    std::string delimiter = ".";
+    std::string part;
+    std::istringstream ip_stream(ip);
+
+    // Split the IP address by the '.' delimiter
+    while (std::getline(ip_stream, part, '.')) {
+        ip_parts.push_back(part);
+    }
+
+    // Ensure we have exactly 4 parts
+    if (ip_parts.size() != 4) {
+        std::cerr << "Invalid IP address format" << std::endl;
+        return;
+    }
+
+    // Convert the string parts to integers and store them in the array
+    for (int i = 0; i < 4; i++) {
+        ip_array[i] = std::stoi(ip_parts[i]);
+    }
 }
 
 void CleanSharedMemory(int s) {
@@ -260,64 +119,83 @@ void CleanSharedMemory(int s) {
 }
 
 int main(int argc, char** argv) {
-    // prometheus manager
-    auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
-    auto& storage_manager = mclient_storage::StorageManager::Instance();
-    auto& graph_manager = mclient_graph::GraphManager::Instance();
 
-    /*
-    int eventId = 0;
-    while (true) {
-        storage_manager.Clear();
-        auto& event = storage_manager.event;
-        event.id = eventId++;
-
-        // random between 1 and 5
-        int nSignals = rand() % 5 + 1;
-        for (int i = 0; i < nSignals; i++) {
-            unsigned short id = rand() % 1000;
-            std::array<unsigned short, mclient_storage::Event::SIGNAL_SIZE> data{};
-            for (int j = 0; j < mclient_storage::Event::SIGNAL_SIZE; j++) {
-                data[j] = rand() % 4096;
-            }
-            event.add_signal(id, data);
-        }
-
-        cout << "Event ID: " << storage_manager.event.id << endl;
-
-        graph_manager.DrawEvent(event);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds{100});
-    }
-    */
-
-    int err;
-
-    // Initialize Command Fetcher
     CmdFetcher_Init(&cmdfetcher);
-    cmdfetcher.verbose = verbose;
-
-    // Initialize FEM array
     FemArray_Clear(&femarray);
-
-    // Initialize Event Builder
     EventBuilder_Clear(&eventbuilder);
 
-    // Initialize socket library
+    std::string server_ip;
+    std::string local_ip;
+    std::string input_file;
+    std::string output_file;
+
+    int verbose_level = -1;
+
+    CLI::App app{"mclient"};
+
+    app.add_option("-s,--server", server_ip, "Base IP address of remote server(s) in dotted decimal")
+            ->group("Connection Options")
+            ->check(CLI::ValidIPV4);
+    app.add_option("-p,--port", femarray.rem_port, "Remote UDP target port")
+            ->group("Connection Options")
+            ->check(CLI::Range(1, 65535));
+    app.add_option("-S,--server_set", femarray.fem_proxy_set, "Hexadecimal pattern to tell which server(s) to connect to (e.g 0xC)")
+            ->group("Connection Options")
+            ->check(CLI::Number);
+    app.add_option("-c,--client", local_ip, "IP address of the local interface in dotted decimal")
+            ->group("Connection Options")
+            ->check(CLI::ValidIPV4);
+    app.add_option("-i,--input", input_file, "Read commands from file specified")
+            ->group("File Options");
+    app.add_option("-o,--output", output_file, "Save results in file specified")
+            ->group("File Options");
+    app.add_option("-v,--verbose", verbose_level, "Verbose level")
+            ->group("General")
+            ->check(CLI::Range(0, 4));
+    app.add_flag("--read-only", readOnly, "Read-only mode")
+            ->group("General");
+    // format option, defaults to "root", can be any value of "root", "aqs", "ascii" or multiple
+
+    CLI11_PARSE(app, argc, argv);
+
+    if (verbose_level <= 0) {
+        // not explicitly set, use default value (we need to put level 4 for initialization)
+        verbose = 1;
+    }
+
+    femarray.verbose = verbose;
+    cmdfetcher.verbose = verbose;
+
+    stringIpToArray(server_ip, femarray.rem_ip_beg);
+    stringIpToArray(local_ip, femarray.loc_ip);
+
+    if (!output_file.empty()) {
+        if (output_file.length() > 80) {
+            std::cerr << "Output file name is too long" << std::endl;
+            return 1;
+        }
+        strcpy(res_file, output_file.c_str());
+        save_res = 1;
+    }
+
+    if (!input_file.empty()) {
+        if (input_file.length() > 80) {
+            std::cerr << "Input file name is too long" << std::endl;
+            return 1;
+        }
+        strcpy(cmdfetcher.cmd_file, input_file.c_str());
+        cmdfetcher.use_stdin = 0;
+    }
+
+    int err;
     if ((err = socket_init()) < 0) {
-        printf("sock_init failed: %d\n", err);
+        cout << "socket_init failed: " << err << endl;
         return (err);
     }
 
-    // Parse command line arguments
-    if (parse_cmd_args(argc, argv) < 0) {
-        printf("parse_cmd_args failed: %d\n", err);
-        return (-1);
-    }
+    auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
+    auto& storage_manager = mclient_storage::StorageManager::Instance();
 
-    ////////////////////////////////////////////////
-
-    /* Creating shared memory to dump event data */
     if (shareBuffer) {
 
         key_t MemKey = ftok("/bin/ls", 3);

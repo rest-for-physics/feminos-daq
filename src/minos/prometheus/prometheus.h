@@ -36,7 +36,9 @@ public:
 
     PrometheusManager& operator=(const PrometheusManager&) = delete;
 
-    void SetDaqSpeed(double speed);
+    void SetDaqSpeedMB(double speed);
+
+    void SetDaqSpeedEvents(double speed);
 
     void SetEventId(unsigned int id);
 

@@ -322,7 +322,8 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
 
             auto& manager = mclient_prometheus::PrometheusManager::Instance();
 
-            manager.SetDaqSpeed(daq_speed);
+            manager.SetDaqSpeedMB(daq_speed);
+            manager.SetDaqSpeedEvents(speed_events_per_second);
 
             // Update the new time and size of received data
             fa->daq_last_time = now;
@@ -629,7 +630,7 @@ int FemArray_ReceiveLoop(FemArray* fa) {
     int signal_cmd;
     int was_event_data;
 
-    printf("FemArray_ReceiveLoop: started\n");
+    // printf("FemArray_ReceiveLoop: started\n");
 
     // Build the socket descriptor set from which we want to read
     FD_ZERO(&readfds);

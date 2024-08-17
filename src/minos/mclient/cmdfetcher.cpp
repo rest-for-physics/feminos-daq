@@ -29,11 +29,10 @@ as 4th or 5th argument in any command
 #include "femarray.h"
 
 #include <iostream>
-
-extern int verbose;
-
 #include <cstdio>
 #include <cstdlib>
+
+extern int verbose;
 
 using namespace std;
 
@@ -176,7 +175,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
 
     FILE* fRunInfo;
 
-    printf("CmdFetcher_Main: started\n");
+    // printf("CmdFetcher_Main: started\n");
 
     fa = (FemArray*) cf->fa;
     eb = (EventBuilder*) fa->eb;
