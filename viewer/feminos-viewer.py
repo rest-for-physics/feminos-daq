@@ -72,6 +72,9 @@ class EventViewer:
         self.button_frame = tk.Frame(self.root, bd=2)
         self.button_frame.pack(pady=5)
 
+        self.prev_button = tk.Button(self.button_frame, text="First Event", command=self.first_event)
+        self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
+
         self.prev_button = tk.Button(self.button_frame, text="Previous Event", command=self.prev_event)
         self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
@@ -80,7 +83,10 @@ class EventViewer:
         self.entry_textbox.insert(0, "0")
 
         self.next_button = tk.Button(self.button_frame, text="Next Event", command=self.next_event)
-        self.next_button.pack(side=tk.RIGHT, padx=20, pady=5)
+        self.next_button.pack(side=tk.LEFT, padx=20, pady=5)
+
+        self.prev_button = tk.Button(self.button_frame, text="Last Event", command=self.last_event)
+        self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         # bindings
         self.root.bind("<Left>", lambda _: self.prev_event())
@@ -201,6 +207,9 @@ class EventViewer:
             messagebox.showerror("Error", f"An error occurred while plotting: {str(e)}")
 
     def prev_event(self):
+        if not self.event_tree:
+            return
+
         if self.current_entry > 0:
             self.current_entry -= 1
             self.entry_textbox.delete(0, tk.END)
@@ -208,6 +217,9 @@ class EventViewer:
             self.plot_graph()
 
     def next_event(self):
+        if not self.event_tree:
+            return
+
         if self.current_entry == self.event_tree.num_entries - 1:
             self.load_file()
 
@@ -216,6 +228,25 @@ class EventViewer:
             self.entry_textbox.delete(0, tk.END)
             self.entry_textbox.insert(0, str(self.current_entry))
             self.plot_graph()
+
+    def first_event(self):
+        if not self.event_tree:
+            return
+
+        self.current_entry = 0
+        self.entry_textbox.delete(0, tk.END)
+        self.entry_textbox.insert(0, str(self.current_entry))
+        self.plot_graph()
+
+    def last_event(self):
+        if not self.event_tree:
+            return
+        
+        self.load_file()  # Reload the file in case it's been updated
+        self.current_entry = self.event_tree.num_entries - 1
+        self.entry_textbox.delete(0, tk.END)
+        self.entry_textbox.insert(0, str(self.current_entry))
+        self.plot_graph()
 
 
 if __name__ == "__main__":
