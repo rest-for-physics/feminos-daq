@@ -88,6 +88,7 @@ class EventViewer:
         self.root.bind("r", lambda _: self.load_file())
         self.root.bind("a", lambda _: self.attach())
         self.root.bind("o", lambda _: self.open_file())
+        self.entry_textbox.bind("<Return>", lambda _: self.plot_graph())
 
         # Initialize the plot area
         self.figure = plt.Figure(figsize=(8, 4), dpi=200)
