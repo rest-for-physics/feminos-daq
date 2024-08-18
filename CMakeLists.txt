@@ -1,15 +1,14 @@
 cmake_minimum_required(VERSION 3.17)
 
-project(feminos-daq LANGUAGES CXX)
+project(
+    feminos-daq
+    LANGUAGES CXX
+    VERSION 2.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions(-DLINUX)
-add_definitions(-DJUMBO_POOL)
-
-# we converted C files into C++ files with minimal changes. We need to suppress
-# some warnings. TODO: fix them
+# we converted C files into C++ files with minimal changes. We need to suppress some warnings. TODO: fix them
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
 find_package(Threads REQUIRED)
@@ -33,6 +32,14 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(CLI11)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
+
+target_compile_definitions(
+    ${PROJECT_NAME}
+    PRIVATE FEMINOS_DAQ_VERSION_MAJOR=${feminos-daq_VERSION_MAJOR}
+            FEMINOS_DAQ_VERSION_MINOR=${feminos-daq_VERSION_MINOR}
+            FEMINOS_DAQ_VERSION_PATCH=${feminos-daq_VERSION_PATCH}
+            LINUX
+            JUMBO_POOL)
 
 target_include_directories(
     ${PROJECT_NAME}
@@ -61,9 +68,8 @@ file(
     src/root/storage.cpp)
 
 target_link_libraries(
-    ${PROJECT_NAME}
-    PRIVATE CLI11::CLI11 prometheus-cpp::core prometheus-cpp::pull
-            prometheus-cpp::push ${ROOT_LIBRARIES})
+    ${PROJECT_NAME} PRIVATE CLI11::CLI11 prometheus-cpp::core prometheus-cpp::pull
+                        prometheus-cpp::push ${ROOT_LIBRARIES})
 
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
 

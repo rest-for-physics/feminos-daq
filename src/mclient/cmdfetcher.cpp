@@ -37,13 +37,8 @@ extern int verbose;
 
 using namespace std;
 
-////////////////////////////////////////////////
-// Manage Major/Minor version numbering manually
-#define CLIENT_VERSION_MAJOR 1
-#define CLIENT_VERSION_MINOR 4
 char client_date[] = __DATE__;
 char client_time[] = __TIME__;
-////////////////////////////////////////////////
 
 int savePed = 0;
 char driftFieldStr[64];
@@ -193,7 +188,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
     // Print setup
     if (cf->verbose) {
         printf("---------------------------------\n");
-        printf("Client version    : %d.%d\n", CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR);
+        printf("Client version    : %d.%d\n", FEMINOS_DAQ_VERSION_MAJOR, FEMINOS_DAQ_VERSION_MINOR);
         printf("Compiled          : %s at %s\n", client_date, client_time);
         if (cf->use_stdin) {
             printf("Commands          : from stdin\n");
@@ -462,7 +457,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
             alldone = 1;
             post_cmd = 0;
         } else if (strncmp(cmd, "version", 7) == 0) {
-            printf("Client Version %d.%d Compiled %s at %s\n", CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, client_date,
+            printf("Client Version %d.%d Compiled %s at %s\n", FEMINOS_DAQ_VERSION_MAJOR, FEMINOS_DAQ_VERSION_MINOR, client_date,
                    client_time);
             post_cmd = 1;
         } else if (strncmp(cmd, "sleep", 5) == 0) {
