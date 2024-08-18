@@ -1,0 +1,4 @@
+uproot
+matplotlib
+tk
+requests
