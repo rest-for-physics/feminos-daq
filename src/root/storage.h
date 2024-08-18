@@ -18,24 +18,24 @@ public:
     unsigned long long timestamp = 0;
     unsigned int id = 0;
     std::vector<unsigned short> signal_ids;
-    std::vector<unsigned short> signal_data; // all data points from all signals concatenated (same order as signal_ids)
+    std::vector<unsigned short> signal_values; // all data points from all signals concatenated (same order as signal_ids)
 
     Event() {
         // reserve space for the maximum number of signals and points
         signal_ids.reserve(MAX_SIGNALS);
-        signal_data.reserve(MAX_POINTS * MAX_POINTS);
+        signal_values.reserve(MAX_POINTS * MAX_POINTS);
     }
 
     void clear() {
         timestamp = 0;
         id = 0;
         signal_ids.clear();
-        signal_data.clear();
+        signal_values.clear();
     }
 
     void shrink_to_fit() {
         signal_ids.shrink_to_fit();
-        signal_data.shrink_to_fit();
+        signal_values.shrink_to_fit();
     }
 
     size_t size() const {

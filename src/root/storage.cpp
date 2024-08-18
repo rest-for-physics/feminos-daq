@@ -54,7 +54,7 @@ void StorageManager::Initialize(const string& filename) {
 
     event_tree->Branch("timestamp", &event.timestamp);
     event_tree->Branch("signal_ids", &event.signal_ids);
-    event_tree->Branch("signal_data", &event.signal_data);
+    event_tree->Branch("signal_values", &event.signal_values);
 
     run_tree = std::make_unique<TTree>("run", "Run metadata");
 
@@ -109,12 +109,12 @@ std::pair<unsigned short, std::array<unsigned short, MAX_POINTS>> Event::get_sig
     unsigned short channel = signal_ids[index];
     std::array<unsigned short, MAX_POINTS> data{};
     for (size_t i = 0; i < MAX_POINTS; ++i) {
-        data[i] = signal_data[index * 512 + i];
+        data[i] = signal_values[index * 512 + i];
     }
     return {channel, data};
 }
 
 void Event::add_signal(unsigned short id, const array<unsigned short, MAX_POINTS>& data) {
     signal_ids.push_back(id);
-    signal_data.insert(signal_data.end(), data.begin(), data.end());
+    signal_values.insert(signal_values.end(), data.begin(), data.end());
 }

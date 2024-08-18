@@ -33,13 +33,13 @@ def get_event(tree: uproot.TTree, entry: int):
         raise ValueError(f"Entry {entry} is out of bounds. Tree has {tree.num_entries} entries.")
 
     events = tree.arrays(entry_start=entry, entry_stop=entry + 1)
-    events["signal_data"] = ak.unflatten(events["signal_data"], 512, axis=1)
+    events["signal_values"] = ak.unflatten(events["signal_values"], 512, axis=1)
 
-    signals = ak.Array({"id": events["signal_ids"], "data": events["signal_data"]}, with_name="Signals")
+    signals = ak.Array({"id": events["signal_ids"], "data": events["signal_values"]}, with_name="Signals")
     events["signals"] = signals
 
     events = ak.without_field(events, "signal_ids")
-    events = ak.without_field(events, "signal_data")
+    events = ak.without_field(events, "signal_values")
 
     return events[0]
 
