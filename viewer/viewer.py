@@ -82,6 +82,13 @@ class EventViewer:
         self.next_button = tk.Button(self.button_frame, text="Next Event", command=self.next_event)
         self.next_button.pack(side=tk.RIGHT, padx=20, pady=5)
 
+        # bindings
+        self.root.bind("<Left>", lambda _: self.prev_event())
+        self.root.bind("<Right>", lambda _: self.next_event())
+        self.root.bind("r", lambda _: self.load_file())
+        self.root.bind("a", lambda _: self.attach())
+        self.root.bind("o", lambda _: self.open_file())
+
         # Initialize the plot area
         self.figure = plt.Figure(figsize=(8, 4), dpi=200)
         self.ax = self.figure.add_subplot(111)
@@ -115,7 +122,7 @@ class EventViewer:
 
     def load_file(self):
         if self.filepath is None:
-            messagebox.showwarning("No File", "You must select a file first!")
+            messagebox.showwarning("No File", "You must select a file first")
             return
 
         self.file = uproot.open(self.filepath)
@@ -200,6 +207,9 @@ class EventViewer:
             self.plot_graph()
 
     def next_event(self):
+        if self.current_entry == self.event_tree.num_entries - 1:
+            self.load_file()
+
         if self.event_tree and self.current_entry < self.event_tree.num_entries - 1:
             self.current_entry += 1
             self.entry_textbox.delete(0, tk.END)
