@@ -100,7 +100,6 @@ class EventViewer:
         self.entry_textbox.bind("<Return>", lambda _: self.plot_graph())
 
         # Initialize the plot area
-        # self.figure = plt.Figure(figsize=(8, 4), dpi=200)
         self.figure = plt.Figure()
         self.ax = self.figure.add_subplot(111)
 
@@ -127,7 +126,6 @@ class EventViewer:
             messagebox.showerror("Error", "No filename found to attach")
             return
 
-        print(f"Found filename to attach: {filename}")
         self.filepath = filename
         self.load_file()
 
