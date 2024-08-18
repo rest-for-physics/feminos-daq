@@ -1,7 +1,5 @@
 /*******************************************************************************
 
- File:        mclientUDP.c
-
  Description: A simple UDP client application for testing data acquisition
  of Feminos cards over Fast/Gigabit Ethernet.
 
@@ -73,8 +71,8 @@ daqInfo* ShMem_DaqInfo;
 unsigned short int* ShMem_Buffer;
 int SemaphoreId;
 
-constexpr int MAX_SIGNALS = mclient_storage::MAX_SIGNALS;
-constexpr int MAX_POINTS = mclient_storage::MAX_POINTS;
+constexpr int MAX_SIGNALS = feminos_daq_storage::MAX_SIGNALS;
+constexpr int MAX_POINTS = feminos_daq_storage::MAX_POINTS;
 
 template<typename T>
 void stringIpToArray(const std::string& ip, T* ip_array) {
@@ -122,8 +120,8 @@ int main(int argc, char** argv) {
     FemArray_Clear(&femarray);
     EventBuilder_Clear(&eventbuilder);
 
-    auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
-    auto& storage_manager = mclient_storage::StorageManager::Instance();
+    auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
+    auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     std::string server_ip;
     std::string local_ip;

@@ -403,7 +403,7 @@ int EventBuilder_CheckBuffer(EventBuilder* eb, int src,
     return (err);
 }
 
-void ReadFrame(void* fr, int fr_sz, mclient_storage::Event& event) {
+void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
     unsigned short* p;
     int done = 0;
     unsigned short r0, r1, r2;
@@ -642,7 +642,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         // bytes to file\n", sz);
     }
 
-    auto& storage_manager = mclient_storage::StorageManager::Instance();
+    auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     if (storage_manager.IsInitialized()) {
         ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
@@ -902,8 +902,8 @@ int EventBuilder_Loop(EventBuilder* eb) {
                 } else {
                     eb->had_sobe = 0;
 
-                    auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
-                    auto& storage_manager = mclient_storage::StorageManager::Instance();
+                    auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
+                    auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
                     if (storage_manager.IsInitialized()) {
 
@@ -1264,7 +1264,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
         eb->subrun_ix++;
     }
 
-    const auto output_directory = mclient_storage::StorageManager::Instance().GetOutputDirectory();
+    const auto output_directory = feminos_daq_storage::StorageManager::Instance().GetOutputDirectory();
     sprintf(&(eb->file_path[0]), "%s", output_directory.c_str());
 
     char filename_root[120] = {};
@@ -1293,7 +1293,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
 
     printf("Opening file : %s\n", name);
 
-    auto& storage_manager = mclient_storage::StorageManager::Instance();
+    auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     // This loop is entered for every subrun, so we need to make sure this is only initialized once
     if (!storage_manager.IsInitialized()) {
@@ -1319,7 +1319,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
 
         storage_manager.run_tree->Fill();
 
-        mclient_prometheus::PrometheusManager::Instance().SetRunNumber(runNumber);
+        feminos_daq_prometheus::PrometheusManager::Instance().SetRunNumber(runNumber);
     }
 
     // in ASCII format add a carriage return

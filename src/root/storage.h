@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace mclient_storage {
+namespace feminos_daq_storage {
 
 constexpr int MAX_SIGNALS = 1152; // To cover up to 4 Feminos boards 72 * 4 * 4
 constexpr int MAX_POINTS = 512;
@@ -116,6 +116,6 @@ private:
     std::string output_directory;
 };
 
-} // namespace mclient_storage
+} // namespace feminos_daq_storage
 
 #endif // MCLIENT_STORAGE_H

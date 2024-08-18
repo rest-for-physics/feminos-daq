@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <thread>
 
-mclient_prometheus::PrometheusManager::PrometheusManager() {
+feminos_daq_prometheus::PrometheusManager::PrometheusManager() {
     exposer = std::make_unique<Exposer>("localhost:8080");
 
     registry = std::make_shared<Registry>();
@@ -136,9 +136,9 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
     exposer->RegisterCollectable(registry);
 }
 
-mclient_prometheus::PrometheusManager::~PrometheusManager() = default;
+feminos_daq_prometheus::PrometheusManager::~PrometheusManager() = default;
 
-void mclient_prometheus::PrometheusManager::SetDaqSpeedMB(double speed) {
+void feminos_daq_prometheus::PrometheusManager::SetDaqSpeedMB(double speed) {
     if (daq_speed_mb_per_s_now) {
         daq_speed_mb_per_s_now->Set(speed);
     }
@@ -148,7 +148,7 @@ void mclient_prometheus::PrometheusManager::SetDaqSpeedMB(double speed) {
     }
 }
 
-void mclient_prometheus::PrometheusManager::SetNumberOfSignalsInEvent(unsigned int number) {
+void feminos_daq_prometheus::PrometheusManager::SetNumberOfSignalsInEvent(unsigned int number) {
     if (number_of_signals_in_last_event) {
         number_of_signals_in_last_event->Set(number);
     }
@@ -158,19 +158,19 @@ void mclient_prometheus::PrometheusManager::SetNumberOfSignalsInEvent(unsigned i
     }
 }
 
-void mclient_prometheus::PrometheusManager::SetNumberOfEvents(unsigned int id) {
+void feminos_daq_prometheus::PrometheusManager::SetNumberOfEvents(unsigned int id) {
     if (number_of_events) {
         number_of_events->Set(id);
     }
 }
 
-void mclient_prometheus::PrometheusManager::SetRunNumber(unsigned int id) {
+void feminos_daq_prometheus::PrometheusManager::SetRunNumber(unsigned int id) {
     if (run_number) {
         run_number->Set(id);
     }
 }
 
-void mclient_prometheus::PrometheusManager::SetDaqSpeedEvents(double speed) {
+void feminos_daq_prometheus::PrometheusManager::SetDaqSpeedEvents(double speed) {
     if (daq_speed_events_per_s_now) {
         daq_speed_events_per_s_now->Set(speed);
     }
@@ -180,7 +180,7 @@ void mclient_prometheus::PrometheusManager::SetDaqSpeedEvents(double speed) {
     }
 }
 
-void mclient_prometheus::PrometheusManager::ExposeRootOutputFilename(const string& filename) {
+void feminos_daq_prometheus::PrometheusManager::ExposeRootOutputFilename(const string& filename) {
     // check file exists and get absolute path
     if (!std::filesystem::exists(filename)) {
         throw std::runtime_error("File does not exist: " + filename);
@@ -196,7 +196,7 @@ void mclient_prometheus::PrometheusManager::ExposeRootOutputFilename(const strin
                                      .Add({{"filename", output_root_filename}});
 }
 
-void mclient_prometheus::PrometheusManager::UpdateOutputRootFileSize() {
+void feminos_daq_prometheus::PrometheusManager::UpdateOutputRootFileSize() {
     if (output_root_file_size) {
         // check file exists and get size in mb using filesystem
         if (!std::filesystem::exists(output_root_filename)) {
@@ -208,7 +208,7 @@ void mclient_prometheus::PrometheusManager::UpdateOutputRootFileSize() {
     }
 }
 
-double mclient_prometheus::GetFreeDiskSpaceGigabytes(const std::string& path) {
+double feminos_daq_prometheus::GetFreeDiskSpaceGigabytes(const std::string& path) {
     std::error_code ec;
     std::filesystem::space_info space = std::filesystem::space(path, ec);
     if (ec) {

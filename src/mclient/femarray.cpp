@@ -309,9 +309,9 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
 
 #endif
              */
-            // const auto space_left_gb = mclient_prometheus::GetFreeDiskSpaceGigabytes("/");
-            const auto speed_events_per_second = mclient_storage::StorageManager::Instance().GetSpeedEventsPerSecond();
-            const auto number_of_events = mclient_storage::StorageManager::Instance().GetNumberOfEntries();
+            // const auto space_left_gb = feminos_daq_prometheus::GetFreeDiskSpaceGigabytes("/");
+            const auto speed_events_per_second = feminos_daq_storage::StorageManager::Instance().GetSpeedEventsPerSecond();
+            const auto number_of_events = feminos_daq_storage::StorageManager::Instance().GetNumberOfEntries();
 
             time_t now_time = time(nullptr);
             tm* now_tm = gmtime(&now_time);
@@ -320,7 +320,7 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
 
             cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s)" << endl;
 
-            auto& manager = mclient_prometheus::PrometheusManager::Instance();
+            auto& manager = feminos_daq_prometheus::PrometheusManager::Instance();
 
             manager.SetDaqSpeedMB(daq_speed);
             manager.SetDaqSpeedEvents(speed_events_per_second);

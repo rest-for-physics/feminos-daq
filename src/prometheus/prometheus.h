@@ -20,7 +20,7 @@
 using namespace prometheus;
 using namespace std;
 
-namespace mclient_prometheus {
+namespace feminos_daq_prometheus {
 
 double GetFreeDiskSpaceGigabytes(const std::string& path = "/");
 
@@ -73,6 +73,6 @@ private:
     Summary* daq_speed_events_per_s = nullptr;
     Gauge* output_root_file_size = nullptr;
 };
-} // namespace mclient_prometheus
+} // namespace feminos_daq_prometheus
 
 #endif // MCLIENT_PROMETHEUS_H

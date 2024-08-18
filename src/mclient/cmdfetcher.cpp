@@ -366,7 +366,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             fprintf(fRunInfo, "%s\n", detectorStr);
                             fclose(fRunInfo);
 
-                            const auto output_directory = mclient_storage::StorageManager::Instance().GetOutputDirectory();
+                            const auto output_directory = feminos_daq_storage::StorageManager::Instance().GetOutputDirectory();
                             if (savePed) {
                                 sprintf(tmpStr, "cp ped %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.ped",
                                         output_directory.c_str(), runNumber, runTagStr, meshVoltageStr, driftFieldStr,

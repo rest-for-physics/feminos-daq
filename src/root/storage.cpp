@@ -4,9 +4,9 @@
 #include <iostream>
 
 using namespace std;
-using namespace mclient_storage;
+using namespace feminos_daq_storage;
 
-void mclient_storage::StorageManager::Checkpoint(bool force) {
+void feminos_daq_storage::StorageManager::Checkpoint(bool force) {
     if (!file) {
         return;
     }
@@ -72,7 +72,7 @@ void StorageManager::Initialize(const string& filename) {
     // millis since epoch
     run_time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
-    auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
+    auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
     prometheus_manager.ExposeRootOutputFilename(filename);
 
     prometheus_manager.UpdateOutputRootFileSize();
