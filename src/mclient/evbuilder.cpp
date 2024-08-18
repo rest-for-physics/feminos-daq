@@ -643,10 +643,10 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         // bytes to file\n", sz);
     }
 
-    auto& storageManager = mclient_storage::StorageManager::Instance();
+    auto& storage_manager = mclient_storage::StorageManager::Instance();
 
-    if (storageManager.IsInitialized()) {
-        ReadFrame((void*) bu_s, (int) sz, storageManager.event);
+    if (storage_manager.IsInitialized()) {
+        ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
     }
 
     return (err);
@@ -904,36 +904,35 @@ int EventBuilder_Loop(EventBuilder* eb) {
                     eb->had_sobe = 0;
 
                     auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
-                    auto& storageManager = mclient_storage::StorageManager::Instance();
+                    auto& storage_manager = mclient_storage::StorageManager::Instance();
                     // auto& graphManager = mclient_graph::GraphManager::Instance();
 
-                    if (storageManager.IsInitialized()) {
+                    if (storage_manager.IsInitialized()) {
 
-                        if (storageManager.GetNumberOfEntries() == 0) {
-                            storageManager.millisSinceEpochForSpeedCalculation = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                        if (storage_manager.GetNumberOfEntries() == 0) {
+                            storage_manager.millisSinceEpochForSpeedCalculation = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         }
 
-                        storageManager.event.id = storageManager.event_tree->GetEntries();
+                        storage_manager.event.id = storage_manager.event_tree->GetEntries();
 
-                        // cout << "End of build event - Event ID: " << storageManager.event.id << " has " << storageManager.event.size() << " signals" << endl;
+                        // cout << "End of build event - Event ID: " << storage_manager.event.id << " has " << storage_manager.event.size() << " signals" << endl;
 
-                        storageManager.event_tree->Fill();
+                        storage_manager.event_tree->Fill();
 
-                        prometheus_manager.SetEventId(storageManager.event.id);
-                        prometheus_manager.SetNumberOfSignalsInEvent(storageManager.event.size());
-                        prometheus_manager.SetNumberOfEvents(storageManager.event_tree->GetEntries());
+                        prometheus_manager.SetNumberOfSignalsInEvent(storage_manager.event.size());
+                        prometheus_manager.SetNumberOfEvents(storage_manager.event_tree->GetEntries());
 
-                        storageManager.Checkpoint();
+                        storage_manager.Checkpoint();
 
                         prometheus_manager.UpdateOutputRootFileSize();
                         /*
                         if (graphManager.GetSecondsSinceLastDraw() > 10) {
                             // Avoid drawing too often
-                            graphManager.DrawEvent(storageManager.event);
+                            graphManager.DrawEvent(storage_manager.event);
                         }
                          */
 
-                        storageManager.Clear();
+                        storage_manager.Clear();
                     }
                 }
 
@@ -1303,22 +1302,22 @@ int EventBuilder_FileAction(EventBuilder* eb,
 
     printf("Opening file : %s\n", name);
 
-    auto& storageManager = mclient_storage::StorageManager::Instance();
+    auto& storage_manager = mclient_storage::StorageManager::Instance();
 
     // This loop is entered for every subrun, so we need to make sure this is only initialized once
-    if (!storageManager.IsInitialized()) {
-        storageManager.Initialize(filename_root);
+    if (!storage_manager.IsInitialized()) {
+        storage_manager.Initialize(filename_root);
 
-        storageManager.run_number = runNumber;
-        storageManager.run_name = eb->run_str;
-        storageManager.run_tag = runTagStr;
-        storageManager.run_comments = runComments;
-        storageManager.run_tag = runTagStr;
+        storage_manager.run_number = runNumber;
+        storage_manager.run_name = eb->run_str;
+        storage_manager.run_tag = runTagStr;
+        storage_manager.run_comments = runComments;
+        storage_manager.run_tag = runTagStr;
 
         try {
-            storageManager.run_drift_field_V_cm_bar = atof(driftFieldStr);
-            storageManager.run_mesh_voltage_V = atof(meshVoltageStr);
-            storageManager.run_detector_pressure_bar = atof(detectorPressureStr);
+            storage_manager.run_drift_field_V_cm_bar = atof(driftFieldStr);
+            storage_manager.run_mesh_voltage_V = atof(meshVoltageStr);
+            storage_manager.run_detector_pressure_bar = atof(detectorPressureStr);
         } catch (std::exception& e) {
             cout << e.what() << endl;
             cout << "Error parsing run parameters. Some of these parameters couldn't be converted into float." << endl;
@@ -1327,7 +1326,9 @@ int EventBuilder_FileAction(EventBuilder* eb,
             cout << "Detector pressure: " << detectorPressureStr << endl;
         }
 
-        storageManager.run_tree->Fill();
+        storage_manager.run_tree->Fill();
+
+        mclient_prometheus::PrometheusManager::Instance().SetRunNumber(runNumber);
     }
 
     // in ASCII format add a carriage return

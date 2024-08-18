@@ -10,6 +10,7 @@
 #include <prometheus/exposer.h>
 #include <prometheus/gauge.h>
 #include <prometheus/histogram.h>
+#include <prometheus/summary.h>
 #include <prometheus/registry.h>
 
 #include <filesystem>
@@ -40,8 +41,6 @@ public:
 
     void SetDaqSpeedEvents(double speed);
 
-    void SetEventId(unsigned int id);
-
     void SetNumberOfEvents(unsigned int id);
 
     void SetRunNumber(unsigned int id);
@@ -60,15 +59,18 @@ private:
     std::unique_ptr<Exposer> exposer;
     std::shared_ptr<Registry> registry;
 
-    Gauge* number_of_events = nullptr;
-    Gauge* daq_speed_mb_per_s = nullptr;
-    Gauge* daq_speed_events_per_s = nullptr;
-    Gauge* event_id = nullptr;
-    Gauge* run_number = nullptr;
-    Gauge* number_of_signals_in_event = nullptr;
-    Histogram* number_of_signals_in_event_histogram = nullptr;
-    Gauge* output_root_file_size = nullptr;
+    // We cannot expose a string value as a metric directly, so we use a workaround to expose it as a label
     std::string output_root_filename;
+
+    Gauge* number_of_events = nullptr;
+    Gauge* daq_speed_mb_per_s_now = nullptr;
+    Gauge* daq_speed_events_per_s_now = nullptr;
+    Gauge* run_number = nullptr;
+    Gauge* number_of_signals_in_last_event = nullptr;
+    Summary* number_of_signals_in_event = nullptr;
+    Summary* daq_speed_mb_per_s = nullptr;
+    Summary* daq_speed_events_per_s = nullptr;
+    Gauge* output_root_file_size = nullptr;
 };
 } // namespace mclient_prometheus
 

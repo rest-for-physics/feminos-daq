@@ -36,23 +36,45 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
         }
     }).detach();
 
-    daq_speed_mb_per_s = &BuildGauge()
-                                  .Name("daq_speed_mb_per_sec")
-                                  .Help("DAQ speed in megabytes per second")
-                                  .Register(*registry)
-                                  .Add({});
-
-    daq_speed_events_per_s = &BuildGauge()
-                                      .Name("daq_speed_events_per_sec")
-                                      .Help("DAQ speed in events per second")
+    daq_speed_mb_per_s_now = &BuildGauge()
+                                      .Name("daq_speed_mb_per_sec_now")
+                                      .Help("DAQ speed in megabytes per second")
                                       .Register(*registry)
                                       .Add({});
 
-    event_id = &BuildGauge()
-                        .Name("event_id")
-                        .Help("Event ID of last event")
-                        .Register(*registry)
-                        .Add({});
+    daq_speed_mb_per_s = &BuildSummary()
+                                      .Name("daq_speed_mb_per_sec")
+                                      .Help("DAQ speed in megabytes per second")
+                                      .Register(*registry)
+                                      .Add({}, Summary::Quantiles{
+                                                       {0.01, 0.02},
+                                                       {0.1, 0.02},
+                                                       {0.25, 0.02},
+                                                       {0.5, 0.02},
+                                                       {0.75, 0.02},
+                                                       {0.9, 0.02},
+                                                       {0.99, 0.02},
+                                               });
+
+    daq_speed_events_per_s_now = &BuildGauge()
+                                          .Name("daq_speed_events_per_sec_now")
+                                          .Help("DAQ speed in events per second")
+                                          .Register(*registry)
+                                          .Add({});
+
+    daq_speed_events_per_s = &BuildSummary()
+                                      .Name("daq_speed_events_per_sec")
+                                      .Help("DAQ speed in events per second")
+                                      .Register(*registry)
+                                      .Add({}, Summary::Quantiles{
+                                                       {0.01, 0.02},
+                                                       {0.1, 0.02},
+                                                       {0.25, 0.02},
+                                                       {0.5, 0.02},
+                                                       {0.75, 0.02},
+                                                       {0.9, 0.02},
+                                                       {0.99, 0.02},
+                                               });
 
     run_number = &BuildGauge()
                           .Name("run_number")
@@ -66,49 +88,63 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
                                 .Register(*registry)
                                 .Add({});
 
-    number_of_signals_in_event = &BuildGauge()
-                                          .Name("number_of_signals_in_last_event")
-                                          .Help("Number of signals in last event")
-                                          .Register(*registry)
-                                          .Add({});
+    number_of_signals_in_last_event = &BuildGauge()
+                                               .Name("number_of_signals_in_last_event")
+                                               .Help("Number of signals in last event")
+                                               .Register(*registry)
+                                               .Add({});
 
+    number_of_signals_in_event = &BuildSummary()
+                                          .Name("number_of_signals_in_event")
+                                          .Help("Summary of number of signals per event")
+                                          .Register(*registry)
+                                          .Add({}, Summary::Quantiles{
+                                                           {0.01, 0.02},
+                                                           {0.1, 0.02},
+                                                           {0.25, 0.02},
+                                                           {0.5, 0.02},
+                                                           {0.75, 0.02},
+                                                           {0.9, 0.02},
+                                                           {0.99, 0.02},
+                                                   });
+
+    /*
+     * Leave this code in case we need a histogram in the future
     {
         auto number_of_signals_in_event_histogram_bucket_boundaries = Histogram::BucketBoundaries{};
         for (int i = 0; i <= 500; i += 25) {
             number_of_signals_in_event_histogram_bucket_boundaries.push_back(i);
         }
 
-        number_of_signals_in_event_histogram = &BuildHistogram()
+        number_of_signals_in_event = &BuildHistogram()
                                                         .Name("number_of_signals_in_event")
                                                         .Help("Histogram of number of signals per event")
                                                         .Register(*registry)
                                                         .Add({}, number_of_signals_in_event_histogram_bucket_boundaries);
     }
-
+    */
     exposer->RegisterCollectable(registry);
 }
 
 mclient_prometheus::PrometheusManager::~PrometheusManager() = default;
 
 void mclient_prometheus::PrometheusManager::SetDaqSpeedMB(double speed) {
-    if (daq_speed_mb_per_s) {
-        daq_speed_mb_per_s->Set(speed);
+    if (daq_speed_mb_per_s_now) {
+        daq_speed_mb_per_s_now->Set(speed);
     }
-}
 
-void mclient_prometheus::PrometheusManager::SetEventId(unsigned int id) {
-    if (event_id) {
-        event_id->Set(id);
+    if (daq_speed_mb_per_s) {
+        daq_speed_mb_per_s->Observe(speed);
     }
 }
 
 void mclient_prometheus::PrometheusManager::SetNumberOfSignalsInEvent(unsigned int number) {
-    if (number_of_signals_in_event) {
-        number_of_signals_in_event->Set(number);
+    if (number_of_signals_in_last_event) {
+        number_of_signals_in_last_event->Set(number);
     }
 
-    if (number_of_signals_in_event_histogram) {
-        number_of_signals_in_event_histogram->Observe(number);
+    if (number_of_signals_in_event) {
+        number_of_signals_in_event->Observe(number);
     }
 }
 
@@ -125,8 +161,12 @@ void mclient_prometheus::PrometheusManager::SetRunNumber(unsigned int id) {
 }
 
 void mclient_prometheus::PrometheusManager::SetDaqSpeedEvents(double speed) {
+    if (daq_speed_events_per_s_now) {
+        daq_speed_events_per_s_now->Set(speed);
+    }
+
     if (daq_speed_events_per_s) {
-        daq_speed_events_per_s->Set(speed);
+        daq_speed_events_per_s->Observe(speed);
     }
 }
 
