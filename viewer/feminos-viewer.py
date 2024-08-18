@@ -88,6 +88,9 @@ class EventViewer:
         self.prev_button = tk.Button(self.button_frame, text="Last Event", command=self.last_event)
         self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
+        self.graph_frame = tk.Frame(self.root)
+        self.graph_frame.pack(fill='both', expand=True)
+
         # bindings
         self.root.bind("<Left>", lambda _: self.prev_event())
         self.root.bind("<Right>", lambda _: self.next_event())
@@ -97,7 +100,8 @@ class EventViewer:
         self.entry_textbox.bind("<Return>", lambda _: self.plot_graph())
 
         # Initialize the plot area
-        self.figure = plt.Figure(figsize=(8, 4), dpi=200)
+        # self.figure = plt.Figure(figsize=(8, 4), dpi=200)
+        self.figure = plt.Figure()
         self.ax = self.figure.add_subplot(111)
 
         self.ax.set_xlabel("Time bins")
@@ -110,8 +114,8 @@ class EventViewer:
 
         self.ax.set_ylim(0, 4096)
 
-        self.canvas = FigureCanvasTkAgg(self.figure, self.root)
-        self.canvas.get_tk_widget().pack()
+        self.canvas = FigureCanvasTkAgg(self.figure, self.graph_frame)
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         self.canvas.draw()
 
         self.filepath = None
@@ -241,7 +245,7 @@ class EventViewer:
     def last_event(self):
         if not self.event_tree:
             return
-        
+
         self.load_file()  # Reload the file in case it's been updated
         self.current_entry = self.event_tree.num_entries - 1
         self.entry_textbox.delete(0, tk.END)
