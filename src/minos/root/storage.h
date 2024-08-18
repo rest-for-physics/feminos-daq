@@ -79,6 +79,7 @@ public:
     std::string run_tag;
     std::string run_detector_name;
     std::string run_comments;
+    std::string run_commands;
 
     float run_drift_field_V_cm_bar = 0.0;
     float run_mesh_voltage_V = 0.0;

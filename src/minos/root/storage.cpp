@@ -1,6 +1,6 @@
 
 #include "storage.h"
-
+#include "prometheus.h"
 #include <iostream>
 
 using namespace std;
@@ -60,7 +60,13 @@ void StorageManager::Initialize(const string& filename) {
     run_tree->Branch("mesh_voltage_V", &run_mesh_voltage_V, "mesh_voltage_V/F");
     run_tree->Branch("detector_pressure_bar", &run_detector_pressure_bar, "detector_pressure_bar/F");
     run_tree->Branch("comments", &run_comments);
+    run_tree->Branch("commands", &run_commands);
 
     // millis since epoch
     run_time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
+    prometheus_manager.ExposeRootOutputFilename(filename);
+
+    prometheus_manager.UpdateOutputRootFileSize();
 }

@@ -903,7 +903,7 @@ int EventBuilder_Loop(EventBuilder* eb) {
                 } else {
                     eb->had_sobe = 0;
 
-                    auto& prometheusManager = mclient_prometheus::PrometheusManager::Instance();
+                    auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
                     auto& storageManager = mclient_storage::StorageManager::Instance();
                     // auto& graphManager = mclient_graph::GraphManager::Instance();
 
@@ -919,12 +919,13 @@ int EventBuilder_Loop(EventBuilder* eb) {
 
                         storageManager.event_tree->Fill();
 
-                        prometheusManager.SetEventId(storageManager.event.id);
-                        prometheusManager.SetNumberOfSignalsInEvent(storageManager.event.size());
-                        prometheusManager.SetNumberOfEvents(storageManager.event_tree->GetEntries());
+                        prometheus_manager.SetEventId(storageManager.event.id);
+                        prometheus_manager.SetNumberOfSignalsInEvent(storageManager.event.size());
+                        prometheus_manager.SetNumberOfEvents(storageManager.event_tree->GetEntries());
 
                         storageManager.Checkpoint();
 
+                        prometheus_manager.UpdateOutputRootFileSize();
                         /*
                         if (graphManager.GetSecondsSinceLastDraw() > 10) {
                             // Avoid drawing too often

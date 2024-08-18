@@ -2,6 +2,7 @@
 #include "prometheus.h"
 
 #include <chrono>
+#include <filesystem>
 #include <thread>
 
 mclient_prometheus::PrometheusManager::PrometheusManager() {
@@ -126,6 +127,34 @@ void mclient_prometheus::PrometheusManager::SetRunNumber(unsigned int id) {
 void mclient_prometheus::PrometheusManager::SetDaqSpeedEvents(double speed) {
     if (daq_speed_events_per_s) {
         daq_speed_events_per_s->Set(speed);
+    }
+}
+
+void mclient_prometheus::PrometheusManager::ExposeRootOutputFilename(const string& filename) {
+    // check file exists and get absolute path
+    if (!std::filesystem::exists(filename)) {
+        throw std::runtime_error("File does not exist: " + filename);
+    }
+
+    auto absolute_path = std::filesystem::absolute(filename).string();
+
+    output_root_filename = absolute_path;
+    output_root_file_size = &BuildGauge()
+                                     .Name("output_root_file_size_mb")
+                                     .Help("Size of the output ROOT file in MB")
+                                     .Register(*registry)
+                                     .Add({{"filename", output_root_filename}});
+}
+
+void mclient_prometheus::PrometheusManager::UpdateOutputRootFileSize() {
+    if (output_root_file_size) {
+        // check file exists and get size in mb using filesystem
+        if (!std::filesystem::exists(output_root_filename)) {
+            throw std::runtime_error("File does not exist: " + output_root_filename);
+        }
+
+        auto size = std::filesystem::file_size(output_root_filename);
+        output_root_file_size->Set(double(size) / (1024 * 1024));
     }
 }
 

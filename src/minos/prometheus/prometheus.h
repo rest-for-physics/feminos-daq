@@ -48,6 +48,10 @@ public:
 
     void SetNumberOfSignalsInEvent(unsigned int number);
 
+    void ExposeRootOutputFilename(const std::string& filename);
+
+    void UpdateOutputRootFileSize();
+
 private:
     PrometheusManager();
 
@@ -63,6 +67,8 @@ private:
     Gauge* run_number = nullptr;
     Gauge* number_of_signals_in_event = nullptr;
     Histogram* number_of_signals_in_event_histogram = nullptr;
+    Gauge* output_root_file_size = nullptr;
+    std::string output_root_filename;
 };
 } // namespace mclient_prometheus
 
