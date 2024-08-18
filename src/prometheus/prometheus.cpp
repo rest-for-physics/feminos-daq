@@ -10,6 +10,12 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
 
     registry = std::make_shared<Registry>();
 
+    uptime_seconds = &BuildGauge()
+                              .Name("uptime_seconds")
+                              .Help("Uptime in seconds (since the start of the program)")
+                              .Register(*registry)
+                              .Add({});
+
     auto& free_disk_space_gauge = BuildGauge()
                                           .Name("free_disk_space_gb")
                                           .Help("Free disk space in gigabytes")
@@ -19,6 +25,7 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
     auto& free_disk_space_metric = free_disk_space_gauge.Add({{"path", "/"}});
 
     std::thread([this, &free_disk_space_metric]() {
+        const auto time_start = std::chrono::steady_clock::now();
         while (true) {
             double free_disk_space_in_gb = GetFreeDiskSpaceGigabytes("/");
             if (free_disk_space_in_gb >= 0) {
@@ -32,6 +39,9 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
                 }
             }
 
+            const auto millis_uptime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - time_start).count();
+            uptime_seconds->Set(double(millis_uptime) / 1000.0);
+
             std::this_thread::sleep_for(std::chrono::seconds(5));
         }
     }).detach();
@@ -43,18 +53,18 @@ mclient_prometheus::PrometheusManager::PrometheusManager() {
                                       .Add({});
 
     daq_speed_mb_per_s = &BuildSummary()
-                                      .Name("daq_speed_mb_per_sec")
-                                      .Help("DAQ speed in megabytes per second")
-                                      .Register(*registry)
-                                      .Add({}, Summary::Quantiles{
-                                                       {0.01, 0.02},
-                                                       {0.1, 0.02},
-                                                       {0.25, 0.02},
-                                                       {0.5, 0.02},
-                                                       {0.75, 0.02},
-                                                       {0.9, 0.02},
-                                                       {0.99, 0.02},
-                                               });
+                                  .Name("daq_speed_mb_per_sec")
+                                  .Help("DAQ speed in megabytes per second")
+                                  .Register(*registry)
+                                  .Add({}, Summary::Quantiles{
+                                                   {0.01, 0.02},
+                                                   {0.1, 0.02},
+                                                   {0.25, 0.02},
+                                                   {0.5, 0.02},
+                                                   {0.75, 0.02},
+                                                   {0.9, 0.02},
+                                                   {0.99, 0.02},
+                                           });
 
     daq_speed_events_per_s_now = &BuildGauge()
                                           .Name("daq_speed_events_per_sec_now")

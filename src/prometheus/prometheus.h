@@ -10,8 +10,8 @@
 #include <prometheus/exposer.h>
 #include <prometheus/gauge.h>
 #include <prometheus/histogram.h>
-#include <prometheus/summary.h>
 #include <prometheus/registry.h>
+#include <prometheus/summary.h>
 
 #include <filesystem>
 #include <iostream>
@@ -62,6 +62,7 @@ private:
     // We cannot expose a string value as a metric directly, so we use a workaround to expose it as a label
     std::string output_root_filename;
 
+    Gauge* uptime_seconds = nullptr;
     Gauge* number_of_events = nullptr;
     Gauge* daq_speed_mb_per_s_now = nullptr;
     Gauge* daq_speed_events_per_s_now = nullptr;
