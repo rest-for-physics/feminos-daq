@@ -10,33 +10,29 @@
 
 namespace mclient_storage {
 
+constexpr int MAX_SIGNALS = 1152; // To cover up to 4 Feminos boards 72 * 4 * 4
+constexpr int MAX_POINTS = 512;
+
 class Event {
 public:
-    constexpr static size_t SIGNAL_SIZE = 512;
     unsigned long long timestamp = 0;
     unsigned int id = 0;
     std::vector<unsigned short> signal_ids;
     std::vector<unsigned short> signal_data; // all data points from all signals concatenated (same order as signal_ids)
 
+    Event() {
+        // reserve space for the maximum number of signals and points
+        signal_ids.reserve(MAX_SIGNALS);
+        signal_data.reserve(MAX_POINTS * MAX_POINTS);
+    }
+
     size_t size() const {
         return signal_ids.size();
     }
 
-    std::pair<unsigned short, std::array<unsigned short, SIGNAL_SIZE>> get_signal_id_data_pair(size_t index) const {
-        unsigned short channel = signal_ids[index];
-        std::array<unsigned short, SIGNAL_SIZE> data{};
-        for (size_t i = 0; i < SIGNAL_SIZE; ++i) {
-            data[i] = signal_data[index * 512 + i];
-        }
-        return {channel, data};
-    }
+    std::pair<unsigned short, std::array<unsigned short, MAX_POINTS>> get_signal_id_data_pair(size_t index) const;
 
-    void add_signal(unsigned short id, const std::array<unsigned short, SIGNAL_SIZE>& data) {
-        signal_ids.push_back(id);
-        for (size_t i = 0; i < SIGNAL_SIZE; ++i) {
-            signal_data.push_back(data[i]);
-        }
-    }
+    void add_signal(unsigned short id, const std::array<unsigned short, MAX_POINTS>& data);
 };
 
 class StorageManager {
@@ -55,7 +51,10 @@ public:
     void Initialize(const std::string& filename);
 
     void Clear() {
-        event = {};
+        event.timestamp = 0;
+        event.id = 0;
+        event.signal_ids.clear();
+        event.signal_data.clear();
     }
 
     Long64_t GetNumberOfEntries() const {

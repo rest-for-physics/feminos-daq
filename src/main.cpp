@@ -74,8 +74,8 @@ daqInfo* ShMem_DaqInfo;
 unsigned short int* ShMem_Buffer;
 int SemaphoreId;
 
-constexpr int MAX_SIGNALS = 1152; // To cover up to 4 Feminos boards 72 * 4 * 4
-constexpr int MAX_POINTS = 512;
+constexpr int MAX_SIGNALS = mclient_storage::MAX_SIGNALS;
+constexpr int MAX_POINTS = mclient_storage::MAX_POINTS;
 
 template<typename T>
 void stringIpToArray(const std::string& ip, T* ip_array) {

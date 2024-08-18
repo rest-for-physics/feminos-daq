@@ -20,8 +20,7 @@ void mclient_storage::StorageManager::Checkpoint(bool force) {
     }
 }
 
-StorageManager::StorageManager() {
-}
+StorageManager::StorageManager() = default;
 
 double StorageManager::GetSpeedEventsPerSecond() const {
     const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - millisSinceEpochForSpeedCalculation;
@@ -69,4 +68,18 @@ void StorageManager::Initialize(const string& filename) {
     prometheus_manager.ExposeRootOutputFilename(filename);
 
     prometheus_manager.UpdateOutputRootFileSize();
+}
+
+std::pair<unsigned short, std::array<unsigned short, MAX_POINTS>> Event::get_signal_id_data_pair(size_t index) const {
+    unsigned short channel = signal_ids[index];
+    std::array<unsigned short, MAX_POINTS> data{};
+    for (size_t i = 0; i < MAX_POINTS; ++i) {
+        data[i] = signal_data[index * 512 + i];
+    }
+    return {channel, data};
+}
+
+void Event::add_signal(unsigned short id, const array<unsigned short, MAX_POINTS>& data) {
+    signal_ids.push_back(id);
+    signal_data.insert(signal_data.end(), data.begin(), data.end());
 }

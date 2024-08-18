@@ -50,8 +50,8 @@ void GraphManager::DrawEvent(const mclient_storage::Event& event) {
     multiGraph->GetXaxis()->SetTitle("Time bin");
     multiGraph->GetYaxis()->SetTitle("ADC value");
 
-    multiGraph->GetXaxis()->SetRangeUser(0, mclient_storage::Event::SIGNAL_SIZE);
-    multiGraph->GetXaxis()->SetNdivisions(mclient_storage::Event::SIGNAL_SIZE / 64, 5, 0);
+    multiGraph->GetXaxis()->SetRangeUser(0, mclient_storage::MAX_POINTS);
+    multiGraph->GetXaxis()->SetNdivisions(mclient_storage::MAX_POINTS / 64, 5, 0);
 
     canvas->cd();
 
