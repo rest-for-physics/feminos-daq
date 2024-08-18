@@ -35,7 +35,6 @@
 #include <sys/shm.h>
 #include <thread>
 
-#include "graph.h"
 #include "prometheus.h"
 #include "storage.h"
 

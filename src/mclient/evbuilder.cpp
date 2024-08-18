@@ -38,7 +38,6 @@ and timestamps depending on event builder mode
 #include <sys/sem.h>
 #include <sys/shm.h>
 
-#include "graph.h"
 #include "prometheus.h"
 #include "storage.h"
 
@@ -905,7 +904,6 @@ int EventBuilder_Loop(EventBuilder* eb) {
 
                     auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
                     auto& storage_manager = mclient_storage::StorageManager::Instance();
-                    // auto& graphManager = mclient_graph::GraphManager::Instance();
 
                     if (storage_manager.IsInitialized()) {
 
@@ -925,12 +923,6 @@ int EventBuilder_Loop(EventBuilder* eb) {
                         storage_manager.Checkpoint();
 
                         prometheus_manager.UpdateOutputRootFileSize();
-                        /*
-                        if (graphManager.GetSecondsSinceLastDraw() > 10) {
-                            // Avoid drawing too often
-                            graphManager.DrawEvent(storage_manager.event);
-                        }
-                         */
 
                         storage_manager.Clear();
                     }

@@ -58,8 +58,7 @@ file(
     src/feminos/frame.cpp
     src/platforms/linux/os_al.cpp
     src/prometheus/prometheus.cpp
-    src/root/storage.cpp
-    src/root/graph.cpp)
+    src/root/storage.cpp)
 
 target_link_libraries(
     ${PROJECT_NAME}
