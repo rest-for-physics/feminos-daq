@@ -128,6 +128,7 @@ int main(int argc, char** argv) {
     std::string input_file;
     std::string output_file;
     int verbose_level = -1;
+    std::string root_compression_algorithm = "LZMA";
 
     CLI::App app{"mclient"};
 
@@ -152,7 +153,10 @@ int main(int argc, char** argv) {
             ->check(CLI::Range(0, 4));
     app.add_flag("--read-only", readOnly, "Read-only mode")
             ->group("General");
-    // format option, defaults to "root", can be any value of "root", "aqs", "ascii" or multiple
+    app.add_flag("--share-buffer", shareBuffer, "Share buffer")->group("General");
+    app.add_option("--root-compression-algorithm", root_compression_algorithm, "Root compression algorithm (default: LZMA)")
+            ->group("File Options")
+            ->check(CLI::IsMember({"ZLIB", "LZMA", "LZ4"}));
 
     CLI11_PARSE(app, argc, argv);
 
@@ -160,6 +164,8 @@ int main(int argc, char** argv) {
         // not explicitly set, use default value (we need to put level 4 for initialization)
         verbose = 1;
     }
+
+    mclient_storage::StorageManager::Instance().compression_algorithm = root_compression_algorithm;
 
     femarray.verbose = verbose;
     cmdfetcher.verbose = verbose;
