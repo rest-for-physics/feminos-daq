@@ -1264,7 +1264,8 @@ int EventBuilder_FileAction(EventBuilder* eb,
         eb->subrun_ix++;
     }
 
-    sprintf(&(eb->file_path[0]), "%s", getenv("RAWDATA_PATH"));
+    const auto output_directory = mclient_storage::StorageManager::Instance().GetOutputDirectory();
+    sprintf(&(eb->file_path[0]), "%s", output_directory.c_str());
 
     char filename_root[120] = {};
     sprintf(filename_root, "%s/%s.%s", &(eb->file_path[0]),

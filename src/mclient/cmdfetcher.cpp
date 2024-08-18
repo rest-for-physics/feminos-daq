@@ -27,6 +27,7 @@ as 4th or 5th argument in any command
 #include "cmdfetcher.h"
 #include "evbuilder.h"
 #include "femarray.h"
+#include "storage.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -365,9 +366,10 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             fprintf(fRunInfo, "%s\n", detectorStr);
                             fclose(fRunInfo);
 
+                            const auto output_directory = mclient_storage::StorageManager::Instance().GetOutputDirectory();
                             if (savePed) {
                                 sprintf(tmpStr, "cp ped %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.ped",
-                                        getenv("RAWDATA_PATH"), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
+                                        output_directory.c_str(), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
                                         detectorPressureStr, gainStr, shapingStr, clockStr);
                                 system(tmpStr);
                                 savePed = 0;
@@ -375,7 +377,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
 
                             sprintf(tmpStr, "cp %s %s/R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s.run",
                                     cf->cmd_file,
-                                    getenv("RAWDATA_PATH"), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
+                                    output_directory.c_str(), runNumber, runTagStr, meshVoltageStr, driftFieldStr,
                                     detectorPressureStr, gainStr, shapingStr, clockStr);
                             system(tmpStr);
                             savePed = 0;

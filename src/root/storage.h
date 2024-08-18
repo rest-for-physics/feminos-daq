@@ -105,6 +105,9 @@ public:
     }
 
     void SetOutputDirectory(const std::string& directory);
+    std::string GetOutputDirectory() const {
+        return output_directory;
+    }
 
 private:
     // make it a point in the past to force a checkpoint on the first event
