@@ -1,4 +1,4 @@
-uproot
 matplotlib
-tk
 requests
+tk
+uproot

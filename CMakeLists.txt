@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-project(mclient LANGUAGES CXX)
+project(feminos-daq LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -32,37 +32,49 @@ FetchContent_Declare(
     GIT_TAG v2.4.2)
 FetchContent_MakeAvailable(CLI11)
 
-add_executable(mclient src/minos/main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp)
 
 target_include_directories(
-    mclient
+    ${PROJECT_NAME}
     PRIVATE ${ROOT_INCLUDE_DIRS}
-            src/minos/bufmgr
-            src/minos/feminos
-            src/minos/mclient
-            src/minos/platforms
-            src/minos/platforms/linux
-            src/minos/util
-            src/minos/util/linux
-            src/minos/prometheus
-            src/minos/root)
+            src/bufmgr
+            src/feminos
+            src/mclient
+            src/platforms
+            src/platforms/linux
+            src/util
+            src/util/linux
+            src/prometheus
+            src/root)
 
 file(
     GLOB_RECURSE
     SOURCE_FILES
-    src/minos/mclient/femproxy.cpp
-    src/minos/mclient/evbuilder.cpp
-    src/minos/mclient/femarray.cpp
-    src/minos/mclient/cmdfetcher.cpp
-    src/minos/bufmgr/bufpool.cpp
-    src/minos/feminos/frame.cpp
-    src/minos/platforms/linux/os_al.cpp
-    src/minos/prometheus/prometheus.cpp
-    src/minos/root/storage.cpp
-    src/minos/root/graph.cpp)
+    src/mclient/femproxy.cpp
+    src/mclient/evbuilder.cpp
+    src/mclient/femarray.cpp
+    src/mclient/cmdfetcher.cpp
+    src/bufmgr/bufpool.cpp
+    src/feminos/frame.cpp
+    src/platforms/linux/os_al.cpp
+    src/prometheus/prometheus.cpp
+    src/root/storage.cpp
+    src/root/graph.cpp)
 
 target_link_libraries(
-    mclient PRIVATE CLI11::CLI11 prometheus-cpp::core prometheus-cpp::pull
-                    prometheus-cpp::push ${ROOT_LIBRARIES})
+    ${PROJECT_NAME}
+    PRIVATE CLI11::CLI11 prometheus-cpp::core prometheus-cpp::pull
+            prometheus-cpp::push ${ROOT_LIBRARIES})
 
-target_sources(mclient PRIVATE ${SOURCE_FILES})
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
+
+# Install the binary and the viewer script
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+install(
+    FILES viewer/feminos-viewer.py
+    DESTINATION bin
+    RENAME feminos-viewer)
+
+# Uninstall
+add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P
+                                    ${CMAKE_SOURCE_DIR}/cmake/uninstall.cmake)
