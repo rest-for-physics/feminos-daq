@@ -78,6 +78,33 @@ void StorageManager::Initialize(const string& filename) {
     prometheus_manager.UpdateOutputRootFileSize();
 }
 
+void StorageManager::SetOutputDirectory(const string& directory) {
+    // check it's a valid path, create it if it doesn't exist
+    // if not specified, get it from env variable FEMINOS_DAQ_OUTPUT_DIRECTORY, then RAWDATA_PATH, otherwise use current directory
+
+    if (directory.empty()) {
+        const char* env = std::getenv("FEMINOS_DAQ_OUTPUT_DIRECTORY");
+        if (env) {
+            output_directory = env;
+        } else {
+            env = std::getenv("RAWDATA_PATH");
+            if (env) {
+                output_directory = env;
+            }
+        }
+    } else {
+        output_directory = directory;
+    }
+
+    if (output_directory.empty()) {
+        output_directory = ".";
+    }
+
+    if (!std::filesystem::exists(output_directory)) {
+        std::filesystem::create_directories(output_directory);
+    }
+}
+
 std::pair<unsigned short, std::array<unsigned short, MAX_POINTS>> Event::get_signal_id_data_pair(size_t index) const {
     unsigned short channel = signal_ids[index];
     std::array<unsigned short, MAX_POINTS> data{};

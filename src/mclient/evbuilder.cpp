@@ -54,7 +54,7 @@ extern double *ShMem_timeStamp;
 extern int SemaphoreId;
 
 extern int
-        shareBuffer; // it must be set to 1 (in mclientUDP.c)
+        sharedBuffer; // it must be set to 1 (in mclientUDP.c)
 // if we want to share the resource
 extern int
         readOnly; // it must be set to 1 (in mclientUDP.c) if
@@ -586,7 +586,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
                     eb->vflags);
     }
 
-    if (shareBuffer) {
+    if (sharedBuffer) {
         SemaphoreRed(SemaphoreId);
 
         //	printf( "Event time BEFORE : %lf\n",

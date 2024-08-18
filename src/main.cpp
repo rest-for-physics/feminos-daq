@@ -63,7 +63,7 @@ EventBuilder eventbuilder;
 /*******************************************************************************
  * Variables associated to shared memory buffer
  *******************************************************************************/
-int shareBuffer = 0;
+int sharedBuffer = 0;
 int readOnly = 0;
 int tcm = 0;
 
@@ -122,14 +122,17 @@ int main(int argc, char** argv) {
     FemArray_Clear(&femarray);
     EventBuilder_Clear(&eventbuilder);
 
+    auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
+    auto& storage_manager = mclient_storage::StorageManager::Instance();
+
     std::string server_ip;
     std::string local_ip;
     std::string input_file;
     std::string output_file;
     int verbose_level = -1;
-    std::string root_compression_algorithm = "LZMA";
+    std::string output_directory;
 
-    CLI::App app{"mclient"};
+    CLI::App app{"feminos-daq"};
 
     app.add_option("-s,--server", server_ip, "Base IP address of remote server(s) in dotted decimal")
             ->group("Connection Options")
@@ -145,15 +148,17 @@ int main(int argc, char** argv) {
             ->check(CLI::ValidIPV4);
     app.add_option("-i,--input", input_file, "Read commands from file specified")
             ->group("File Options");
-    app.add_option("-o,--output", output_file, "Save results in file specified")
+    app.add_option("-o,--output", output_file, "Save results in file specified (DOES NOT WORK!)")
+            ->group("File Options");
+    app.add_option("-d,--output-directory", output_directory, "Output directory. This can also be specified via the environment variable 'FEMINOS_DAQ_OUTPUT_DIRECTORY' or 'RAWDATA_PATH'")
             ->group("File Options");
     app.add_option("-v,--verbose", verbose_level, "Verbose level")
             ->group("General")
             ->check(CLI::Range(0, 4));
     app.add_flag("--read-only", readOnly, "Read-only mode")
             ->group("General");
-    app.add_flag("--share-buffer", shareBuffer, "Share buffer")->group("General");
-    app.add_option("--root-compression-algorithm", root_compression_algorithm, "Root compression algorithm (default: LZMA)")
+    app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
+    app.add_option("--root-compression-algorithm", storage_manager.compression_algorithm, "Root compression algorithm (default: LZMA)")
             ->group("File Options")
             ->check(CLI::IsMember({"ZLIB", "LZMA", "LZ4"}));
 
@@ -164,7 +169,7 @@ int main(int argc, char** argv) {
         verbose = 1;
     }
 
-    mclient_storage::StorageManager::Instance().compression_algorithm = root_compression_algorithm;
+    storage_manager.SetOutputDirectory(output_directory);
 
     femarray.verbose = verbose;
     cmdfetcher.verbose = verbose;
@@ -196,10 +201,7 @@ int main(int argc, char** argv) {
         return err;
     }
 
-    auto& prometheus_manager = mclient_prometheus::PrometheusManager::Instance();
-    auto& storage_manager = mclient_storage::StorageManager::Instance();
-
-    if (shareBuffer) {
+    if (sharedBuffer) {
 
         key_t MemKey = ftok("/bin/ls", 3);
         ShMem_DaqInfo_ID = shmget(MemKey, sizeof(daqInfo), 0777 | IPC_CREAT);
@@ -300,7 +302,7 @@ cleanup:
 
     socket_cleanup();
 
-    if (shareBuffer) {
+    if (sharedBuffer) {
         CleanSharedMemory(0);
     }
 

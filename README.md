@@ -210,5 +210,5 @@ assuming your FeminosDAQ directory lies under `$HOME/git`.
   Usage : ./mclient shareBuffer tcm
 
 * We can now specify several options using an argument RST or ST.
-  Usage : ./mclient RST # Equivalent to readOnly, shareBuffer and tcm
-  Usage : ./mclient ST # Equivalent to shareBuffer and tcm
+  Usage : ./mclient RST # Equivalent to readOnly, sharedBuffe and tcm
+  Usage : ./mclient ST # Equivalent to sharedBuffe and tcm
