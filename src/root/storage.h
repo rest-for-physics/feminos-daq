@@ -26,6 +26,18 @@ public:
         signal_data.reserve(MAX_POINTS * MAX_POINTS);
     }
 
+    void clear() {
+        timestamp = 0;
+        id = 0;
+        signal_ids.clear();
+        signal_data.clear();
+    }
+
+    void shrink_to_fit() {
+        signal_ids.shrink_to_fit();
+        signal_data.shrink_to_fit();
+    }
+
     size_t size() const {
         return signal_ids.size();
     }
@@ -51,10 +63,8 @@ public:
     void Initialize(const std::string& filename);
 
     void Clear() {
-        event.timestamp = 0;
-        event.id = 0;
-        event.signal_ids.clear();
-        event.signal_data.clear();
+        // we don't create a new event, so we don't have to allocate memory again
+        event.clear();
     }
 
     Long64_t GetNumberOfEntries() const {
