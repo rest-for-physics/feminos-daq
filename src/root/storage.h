@@ -105,7 +105,9 @@ public:
     }
 
 private:
-    std::chrono::time_point<std::chrono::system_clock> lastCheckpointTime = std::chrono::system_clock::now();
+    // make it a point in the past to force a checkpoint on the first event
+    const std::chrono::duration<int64_t> checkpoint_interval = std::chrono::seconds(10);
+    std::chrono::time_point<std::chrono::system_clock> checkpoint_last = std::chrono::system_clock::now() - checkpoint_interval;
 };
 
 } // namespace mclient_storage
