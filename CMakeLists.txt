@@ -70,10 +70,15 @@ target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
 
 # Install the binary and the viewer script
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+
 install(
     FILES viewer/feminos-viewer.py
     DESTINATION bin
     RENAME feminos-viewer)
+# make sure it has execute permissions (installing with sudo may remove them)
+install(
+    CODE "execute_process(COMMAND chmod +x ${CMAKE_INSTALL_PREFIX}/bin/feminos-viewer)"
+)
 
 # Uninstall
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P

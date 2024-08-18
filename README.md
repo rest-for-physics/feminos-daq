@@ -34,6 +34,7 @@ repository:
 ```bash
 cmake -S . -B build
 cmake --build build
+cmake --install build
 ```
 
 This will generate the `mclient` executable in the `build` directory.
