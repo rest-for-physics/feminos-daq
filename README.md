@@ -91,6 +91,26 @@ natural `std::vector<std::vector<unsigned short>>`.
 In order to reconstruct the original data, the signal data must be split in chunks of 512 values.
 The order of these will be the same as the order of the signal ids.
 
+Storing data in a root file as opposed to the old binary files has several advantages:
+
+* The data is stored in a more efficient way (less disk space is required). This is due to the fact that the data is
+  stored in a more compact way and the file is compressed.
+  `ROOT` provides some user configuration regarding compression. We chose a moderately high compression level to keep
+  the file size small while still allowing for fast reading and writing.
+  From our tests we measured a compression factor of `~x8` with respect to the old binary files.
+
+* The data is more straightforward to read and write. The data can be read and written using `ROOT` or `uproot` without
+  the need for a custom reader/writer. This helps unfamiliar users to access the data more easily.
+
+However, storing the data in a root file requires more processing power and memory than the old binary files, so it
+could
+potentially slow down the data acquisition.
+From our preliminary tests, we have observed a slowdown (factor of 2-3) with respect to the old binary files when
+performing acquisition at a very high rate (~10 MB/s in binary mode) with noisy detectors and saving hundreds of
+channels per event.
+We do not expect any slowdown for background runs and only expect some slowdown for calibration runs with a very high
+rate.
+
 ### Viewer
 
 The viewer program is a new feature that allows to visualize the data stored in the root file.
@@ -116,6 +136,9 @@ The `Attach` button will attempt to find the filename of the root file being wri
 prometheus metrics page).
 If the filename is found, the viewer will start reading the file and plotting the data in real time.
 The `Reload` button can be used to manually refresh the data.
+
+**Note**: The live data feature reads data from the root file, so unfortunately it won't work when using
+the `--read-only` mode.
 
 # - OLD DOCS -
 
