@@ -11,12 +11,14 @@ void mclient_storage::StorageManager::Checkpoint(bool force) {
         return;
     }
 
-    constexpr auto time_interval = std::chrono::seconds(1);
+    constexpr auto time_interval = std::chrono::seconds(60);
     auto now = std::chrono::system_clock::now();
     if (force || now - lastCheckpointTime > time_interval) {
         lastCheckpointTime = now;
-        // cout << "Events (N=" << event_tree->GetEntries() << ") have been saved to " << file->GetName() << endl;
+        cout << "Checkpointing ROOT file..." << endl;
         file->Write("", TObject::kOverwrite);
+        file->Flush();
+        cout << "Checkpoint done" << endl;
     }
 }
 

@@ -913,12 +913,10 @@ int EventBuilder_Loop(EventBuilder* eb) {
 
                         storage_manager.event.id = storage_manager.event_tree->GetEntries();
 
-                        // cout << "End of build event - Event ID: " << storage_manager.event.id << " has " << storage_manager.event.size() << " signals" << endl;
-
-                        storage_manager.event_tree->Fill();
-
                         prometheus_manager.SetNumberOfSignalsInEvent(storage_manager.event.size());
                         prometheus_manager.SetNumberOfEvents(storage_manager.event_tree->GetEntries());
+
+                        storage_manager.event_tree->Fill();
 
                         storage_manager.Checkpoint();
 
