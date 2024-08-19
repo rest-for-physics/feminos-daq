@@ -120,9 +120,6 @@ int main(int argc, char** argv) {
     FemArray_Clear(&femarray);
     EventBuilder_Clear(&eventbuilder);
 
-    auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
-    auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
-
     std::string server_ip;
     std::string local_ip;
     std::string input_file;
@@ -167,10 +164,13 @@ int main(int argc, char** argv) {
         verbose = 1;
     }
 
-    storage_manager.SetOutputDirectory(output_directory);
-
     femarray.verbose = verbose;
     cmdfetcher.verbose = verbose;
+
+    auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
+    auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
+
+    storage_manager.SetOutputDirectory(output_directory);
 
     stringIpToArray(server_ip, femarray.rem_ip_beg);
     stringIpToArray(local_ip, femarray.loc_ip);
