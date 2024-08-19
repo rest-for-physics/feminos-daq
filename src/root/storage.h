@@ -81,7 +81,7 @@ public:
     std::unique_ptr<TTree> run_tree;
     Event event;
 
-    std::string compression_algorithm = "LZMA";
+    std::string compression_algorithm;
 
     unsigned long long run_number = 0;
     unsigned long long run_time_start = 0;

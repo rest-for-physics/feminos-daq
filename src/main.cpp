@@ -126,6 +126,7 @@ int main(int argc, char** argv) {
     std::string output_file;
     int verbose_level = -1;
     std::string output_directory;
+    std::string root_compression_algorithm = "LZMA";
 
     CLI::App app{"feminos-daq"};
 
@@ -153,7 +154,7 @@ int main(int argc, char** argv) {
     app.add_flag("--read-only", readOnly, "Read-only mode")
             ->group("General");
     app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
-    app.add_option("--root-compression-algorithm", storage_manager.compression_algorithm, "Root compression algorithm (default: LZMA)")
+    app.add_option("--root-compression-algorithm", root_compression_algorithm, "Root compression algorithm (default: LZMA)")
             ->group("File Options")
             ->check(CLI::IsMember({"ZLIB", "LZMA", "LZ4"}));
 
@@ -171,6 +172,7 @@ int main(int argc, char** argv) {
     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     storage_manager.SetOutputDirectory(output_directory);
+    storage_manager.compression_algorithm = root_compression_algorithm;
 
     stringIpToArray(server_ip, femarray.rem_ip_beg);
     stringIpToArray(local_ip, femarray.loc_ip);
