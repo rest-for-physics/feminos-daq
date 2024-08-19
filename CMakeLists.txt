@@ -39,6 +39,7 @@ target_compile_definitions(
     PRIVATE FEMINOS_DAQ_VERSION_MAJOR=${feminos-daq_VERSION_MAJOR}
             FEMINOS_DAQ_VERSION_MINOR=${feminos-daq_VERSION_MINOR}
             FEMINOS_DAQ_VERSION_PATCH=${feminos-daq_VERSION_PATCH}
+            FEMINOS_DAQ_VERSION="${feminos-daq_VERSION_MAJOR}.${feminos-daq_VERSION_MINOR}.${feminos-daq_VERSION_PATCH}"
             LINUX
             JUMBO_POOL)
 

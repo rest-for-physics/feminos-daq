@@ -127,6 +127,7 @@ int main(int argc, char** argv) {
     int verbose_level = -1;
     std::string output_directory;
     std::string root_compression_algorithm = "LZMA";
+    bool version_flag = false;
 
     CLI::App app{"feminos-daq"};
 
@@ -157,8 +158,14 @@ int main(int argc, char** argv) {
     app.add_option("--root-compression-algorithm", root_compression_algorithm, "Root compression algorithm (default: LZMA)")
             ->group("File Options")
             ->check(CLI::IsMember({"ZLIB", "LZMA", "LZ4"}));
+    app.add_flag("--version", version_flag, "Print the version");
 
     CLI11_PARSE(app, argc, argv);
+
+    if (version_flag) {
+        std::cout << "feminos-daq version " << FEMINOS_DAQ_VERSION << std::endl;
+        return 0;
+    }
 
     if (verbose_level <= 0) {
         // not explicitly set, use default value (we need to put level 4 for initialization)
