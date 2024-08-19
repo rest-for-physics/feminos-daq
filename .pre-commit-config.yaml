@@ -22,4 +22,12 @@ repos:
     rev: v0.6.13
     hooks:
       - id: cmake-format
-        additional_dependencies: [ pyyaml ]
+        additional_dependencies: [pyyaml]
+
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.13.0
+    hooks:
+      - id: pretty-format-toml
+        args: [--autofix]
+      - id: pretty-format-yaml
+        args: [--autofix, --indent, '2', --offset, '2']

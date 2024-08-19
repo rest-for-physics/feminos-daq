@@ -8,7 +8,8 @@ project(
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# we converted C files into C++ files with minimal changes. We need to suppress some warnings. TODO: fix them
+# we converted C files into C++ files with minimal changes. We need to suppress
+# some warnings. TODO: fix them
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
 find_package(Threads REQUIRED)
@@ -68,8 +69,9 @@ file(
     src/root/storage.cpp)
 
 target_link_libraries(
-    ${PROJECT_NAME} PRIVATE CLI11::CLI11 prometheus-cpp::core prometheus-cpp::pull
-                        prometheus-cpp::push ${ROOT_LIBRARIES})
+    ${PROJECT_NAME}
+    PRIVATE CLI11::CLI11 prometheus-cpp::core prometheus-cpp::pull
+            prometheus-cpp::push ${ROOT_LIBRARIES})
 
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
 
