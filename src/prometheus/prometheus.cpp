@@ -6,7 +6,7 @@
 #include <thread>
 
 feminos_daq_prometheus::PrometheusManager::PrometheusManager() {
-    exposer = std::make_unique<Exposer>("127.0.0.1:8080");
+    exposer = std::make_unique<Exposer>("0.0.0.0:8080");
 
     registry = std::make_shared<Registry>();
 
