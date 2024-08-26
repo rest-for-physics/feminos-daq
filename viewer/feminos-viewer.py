@@ -30,12 +30,17 @@ def get_filename_from_prometheus_metrics() -> str | None:
 
 def get_event(tree: uproot.TTree, entry: int):
     if entry >= tree.num_entries:
-        raise ValueError(f"Entry {entry} is out of bounds. Tree has {tree.num_entries} entries.")
+        raise ValueError(
+            f"Entry {entry} is out of bounds. Tree has {tree.num_entries} entries."
+        )
 
     events = tree.arrays(entry_start=entry, entry_stop=entry + 1)
     events["signal_values"] = ak.unflatten(events["signal_values"], 512, axis=1)
 
-    signals = ak.Array({"id": events["signal_ids"], "data": events["signal_values"]}, with_name="Signals")
+    signals = ak.Array(
+        {"id": events["signal_ids"], "data": events["signal_values"]},
+        with_name="Signals",
+    )
     events["signals"] = signals
 
     events = ak.without_field(events, "signal_ids")
@@ -60,36 +65,50 @@ class EventViewer:
         self.file_menu_frame = tk.Frame(self.root, bd=2)
         self.file_menu_frame.pack(pady=5)
 
-        self.open_button = tk.Button(self.file_menu_frame, text="Open File", command=self.open_file)
+        self.open_button = tk.Button(
+            self.file_menu_frame, text="Open File", command=self.open_file
+        )
         self.open_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.reload_file_button = tk.Button(self.file_menu_frame, text="Reload", command=self.load_file)
+        self.reload_file_button = tk.Button(
+            self.file_menu_frame, text="Reload", command=self.load_file
+        )
         self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.reload_file_button = tk.Button(self.file_menu_frame, text="Attach", command=self.attach)
+        self.reload_file_button = tk.Button(
+            self.file_menu_frame, text="Attach", command=self.attach
+        )
         self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.button_frame = tk.Frame(self.root, bd=2)
         self.button_frame.pack(pady=5)
 
-        self.prev_button = tk.Button(self.button_frame, text="First Event", command=self.first_event)
+        self.prev_button = tk.Button(
+            self.button_frame, text="First Event", command=self.first_event
+        )
         self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.prev_button = tk.Button(self.button_frame, text="Previous Event", command=self.prev_event)
+        self.prev_button = tk.Button(
+            self.button_frame, text="Previous Event", command=self.prev_event
+        )
         self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.entry_textbox = tk.Entry(self.button_frame, width=10)
         self.entry_textbox.pack(side=tk.LEFT, padx=20, pady=5)
         self.entry_textbox.insert(0, "0")
 
-        self.next_button = tk.Button(self.button_frame, text="Next Event", command=self.next_event)
+        self.next_button = tk.Button(
+            self.button_frame, text="Next Event", command=self.next_event
+        )
         self.next_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.prev_button = tk.Button(self.button_frame, text="Last Event", command=self.last_event)
+        self.prev_button = tk.Button(
+            self.button_frame, text="Last Event", command=self.last_event
+        )
         self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.graph_frame = tk.Frame(self.root)
-        self.graph_frame.pack(fill='both', expand=True)
+        self.graph_frame.pack(fill="both", expand=True)
 
         # bindings
         self.root.bind("<Left>", lambda _: self.prev_event())
@@ -139,16 +158,20 @@ class EventViewer:
         try:
             self.event_tree = self.file["events"]
         except KeyError:
-            messagebox.showerror("Error",
-                                 f"File {self.filepath} does not contain the 'events' tree. file keys are {self.file.keys()}")
+            messagebox.showerror(
+                "Error",
+                f"File {self.filepath} does not contain the 'events' tree. file keys are {self.file.keys()}",
+            )
             self.filepath = None
             return
 
         try:
             self.run_tree = self.file["run"]
         except KeyError:
-            messagebox.showerror("Error",
-                                 f"File {self.filepath} does not contain the 'run' tree. file keys are {self.file.keys()}")
+            messagebox.showerror(
+                "Error",
+                f"File {self.filepath} does not contain the 'run' tree. file keys are {self.file.keys()}",
+            )
             self.filepath = None
             return
 
@@ -159,14 +182,14 @@ class EventViewer:
         if len(filename_text) > max_file_length:
             filename_text = filename_text[:max_file_length] + "..."
 
-        self.label.config(text=f"{filename_text} - {self.event_tree.num_entries} entries")
+        self.label.config(
+            text=f"{filename_text} - {self.event_tree.num_entries} entries"
+        )
 
         self.plot_graph()
 
     def open_file(self):
-        self.filepath = filedialog.askopenfilename(
-            filetypes=[("ROOT files", "*.root")]
-        )
+        self.filepath = filedialog.askopenfilename(filetypes=[("ROOT files", "*.root")])
         if not self.filepath:
             return
 
@@ -192,14 +215,16 @@ class EventViewer:
             self.ax.set_xlabel("Time bins")
             self.ax.set_ylabel("ADC")
 
-            self.ax.set_title(f"Event {entry} - Number of signals: {len(event.signals.id)}")
+            self.ax.set_title(
+                f"Event {entry} - Number of signals: {len(event.signals.id)}"
+            )
 
             self.ax.set_xlim(0, 512)
             self.ax.set_xticks(range(0, 512 + 1, 64))
             self.ax.set_xticks(range(0, 512 + 1, 16), minor=True)
 
             if n_signals_showing <= 10:
-                self.ax.legend(loc='upper right')
+                self.ax.legend(loc="upper right")
 
             self.canvas.draw()
 

@@ -22,12 +22,13 @@ repos:
     rev: v0.6.13
     hooks:
       - id: cmake-format
-        additional_dependencies: [pyyaml]
+        additional_dependencies: [ pyyaml ]
 
-  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-    rev: v2.13.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.2
     hooks:
-      - id: pretty-format-toml
-        args: [--autofix]
-      - id: pretty-format-yaml
-        args: [--autofix, --indent, '2', --offset, '2']
+      - id: ruff
+        args: [ "--fix" , "--show-fixes" ]
+        files: ^(?:(?!ipynb).)*$
+
+      - id: ruff-format

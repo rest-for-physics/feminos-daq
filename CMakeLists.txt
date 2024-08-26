@@ -8,7 +8,7 @@ project(
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# we converted C files into C++ files with minimal changes. We need to suppress
+# We converted C files into C++ files with minimal changes. We need to suppress
 # some warnings. TODO: fix them
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
@@ -39,7 +39,6 @@ target_compile_definitions(
     PRIVATE FEMINOS_DAQ_VERSION_MAJOR=${feminos-daq_VERSION_MAJOR}
             FEMINOS_DAQ_VERSION_MINOR=${feminos-daq_VERSION_MINOR}
             FEMINOS_DAQ_VERSION_PATCH=${feminos-daq_VERSION_PATCH}
-            FEMINOS_DAQ_VERSION="${feminos-daq_VERSION_MAJOR}.${feminos-daq_VERSION_MINOR}.${feminos-daq_VERSION_PATCH}"
             LINUX
             JUMBO_POOL)
 
