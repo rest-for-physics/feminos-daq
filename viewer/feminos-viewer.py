@@ -337,8 +337,8 @@ class EventViewer:
         self.label = tk.Label(self.root, text="Select a ROOT file to plot signals from")
         self.label.pack(padx=20, pady=5)
 
-        self.file_menu_frame = tk.Frame(self.root, bd=2)
-        self.file_menu_frame.pack(pady=5)
+        self.file_menu_frame = tk.Frame(self.root, bd=2, relief=tk.FLAT)
+        self.file_menu_frame.pack(pady=5, side=tk.TOP)
 
         self.open_button = tk.Button(
             self.file_menu_frame, text="Open File", command=self.open_file
@@ -355,30 +355,30 @@ class EventViewer:
         )
         self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.button_frame = tk.Frame(self.root, bd=2)
-        self.button_frame.pack(pady=5)
+        self.event_frame = tk.Frame(self.root, bd=2, relief=tk.FLAT)
+        self.event_frame.pack(pady=5, side=tk.TOP)
 
         self.prev_button = tk.Button(
-            self.button_frame, text="First Event", command=self.first_event
+            self.event_frame, text="First Event", command=self.first_event
         )
         self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.prev_button = tk.Button(
-            self.button_frame, text="Previous Event", command=self.prev_event
+            self.event_frame, text="Previous Event", command=self.prev_event
         )
         self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.entry_textbox = tk.Entry(self.button_frame, width=10)
+        self.entry_textbox = tk.Entry(self.event_frame, width=10)
         self.entry_textbox.pack(side=tk.LEFT, padx=20, pady=5)
         self.entry_textbox.insert(0, "0")
 
         self.next_button = tk.Button(
-            self.button_frame, text="Next Event", command=self.next_event
+            self.event_frame, text="Next Event", command=self.next_event
         )
         self.next_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.prev_button = tk.Button(
-            self.button_frame, text="Last Event", command=self.last_event
+            self.event_frame, text="Last Event", command=self.last_event
         )
         self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
@@ -419,18 +419,8 @@ class EventViewer:
         # Initialize the plot area
         self.figure = plt.Figure()
 
-        self.ax_left = self.figure.add_subplot(121)
-        self.ax_right = self.figure.add_subplot(122)
-
-        self.ax_left.set_xlabel("Time bins")
-        self.ax_left.set_ylabel("ADC")
-
-        self.ax_left.set_xlim(0, 512)
-        self.ax_left.set_xlim(0, 512)
-        self.ax_left.set_xticks(range(0, 512 + 1, 64))
-        self.ax_left.set_xticks(range(0, 512 + 1, 16), minor=True)
-
-        self.ax_left.set_ylim(0, 4096)
+        self.ax_left = None
+        self.ax_right = None
 
         self.canvas = FigureCanvasTkAgg(self.figure, self.graph_frame)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
@@ -446,6 +436,9 @@ class EventViewer:
         def on_motion(event):
             # Check if the mouse is over any line
             visible = False
+            if self.ax_left is None:
+                return
+
             for line in self.ax_left.lines:
                 if line.contains(event)[0]:
                     x, y = event.x, event.y
@@ -533,6 +526,9 @@ class EventViewer:
 
         event = get_event(self.event_tree, entry)
 
+        if self.ax_right is None:
+            self.ax_right = self.figure.add_subplot(122)
+
         self.ax_right.clear()  # Clear the previous plot
 
         # get min value of all signals
@@ -577,6 +573,9 @@ class EventViewer:
         self.current_entry = entry
 
         event = get_event(self.event_tree, entry)
+
+        if self.ax_left is None:
+            self.ax_left = self.figure.add_subplot(121)
 
         self.ax_left.clear()  # Clear the previous plot
         for signal_id, values in zip(event.signals.id, event.signals.values):
