@@ -441,7 +441,7 @@ class EventViewer:
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         self.canvas.draw()
 
-        self.label_canvas = tk.Canvas(root, width=150, height=20, bg='white', highlightthickness=0)
+        self.label_canvas = tk.Canvas(root, width=170, height=20, bg='white', highlightthickness=0)
         self.label_canvas.place_forget()
 
         self.event_cache = LimitedOrderedDict(100)  # Cache the last 100 events
@@ -466,7 +466,13 @@ class EventViewer:
                     line_color = line.get_color()
                     self.label_canvas.delete("all")
                     self.label_canvas.create_rectangle(2, 2, 18, 18, fill=rgb_to_hex(line_color), outline="black")
-                    self.label_canvas.create_text(30, 10, anchor='w', text=f'Signal {line.get_label()}', fill='black')
+                    signal_id = int(line.get_label())
+                    additional_text = ""
+                    if signal_id in signal_id_readout_mapping:
+                        signal_type, position = signal_id_readout_mapping[signal_id]
+                        additional_text = f" @ {signal_type} = {position} mm"
+                    self.label_canvas.create_text(30, 10, anchor='w', text=f'ID {line.get_label()}{additional_text}',
+                                                  fill='black')
                     self.label_canvas.place(x=x, y=adjusted_y)
                     visible = True
                     break
@@ -618,7 +624,7 @@ class EventViewer:
 
         self.ax_left.clear()  # Clear the previous plot
         for signal_id, values in zip(event.signals.id, event.signals.values):
-            self.ax_left.plot(values, label=f"ID {signal_id}", alpha=0.75, linewidth=2)
+            self.ax_left.plot(values, label=f"{signal_id}", alpha=0.75, linewidth=2)
 
         n_signals_showing = len(self.ax_left.lines)
 
@@ -656,11 +662,12 @@ class EventViewer:
             alpha *= 5.0 / 3.0
             alpha = np.clip(alpha, 0.1, 1.0)
             if is_x_signal:
-                self.ax_right.plot([readout_y_min, readout_y_max], [position, position], color=line_color,
+                # vertical in X
+                self.ax_right.plot([position, position], [readout_x_min, readout_x_max], color=line_color,
                                    alpha=alpha,
                                    linewidth=line_width)
             else:
-                self.ax_right.plot([position, position], [readout_x_min, readout_x_max], color=line_color,
+                self.ax_right.plot([readout_y_min, readout_y_max], [position, position], color=line_color,
                                    alpha=alpha,
                                    linewidth=line_width)
 
@@ -686,6 +693,7 @@ class EventViewer:
 
         self.ax_right.clear()
 
+        energy_estimate_quantile = 0.99
         with lock:
             if len(self.observable_entries_processed) <= 5:
                 return
@@ -694,7 +702,7 @@ class EventViewer:
             self.observable_energy_estimate.sort()
             # Remove 1% of the highest values to avoid outliers
             observable_energy_estimate = self.observable_energy_estimate[
-                                         :int(len(self.observable_energy_estimate) * 0.99)]
+                                         :int(len(self.observable_energy_estimate) * energy_estimate_quantile)]
 
             self.ax_left.hist(observable_energy_estimate, bins=np.linspace(np.min(observable_energy_estimate),
                                                                            np.max(observable_energy_estimate),
@@ -707,7 +715,7 @@ class EventViewer:
             self.ax_right.bar(signal_ids, channel_activity, color="blue")
 
         self.ax_left.set_xlabel("Energy Estimate (ADC)")
-        self.ax_left.set_title("Energy Estimate")
+        self.ax_left.set_title("Energy Estimate (99th percentile)")
         self.ax_left.set_ylabel("Counts")
         self.ax_left.set_aspect("auto")
 
