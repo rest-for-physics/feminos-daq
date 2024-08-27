@@ -381,29 +381,34 @@ class EventViewer:
         self.event_frame = tk.Frame(self.root, bd=2, relief=tk.FLAT)
         self.event_frame.pack(pady=5, side=tk.TOP)
 
-        self.prev_button = tk.Button(
+        self.first_event_button = tk.Button(
             self.event_frame, text="First Event", command=self.first_event
         )
-        self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
+        self.first_event_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.prev_button = tk.Button(
+        self.previous_event_button = tk.Button(
             self.event_frame, text="Previous Event", command=self.prev_event
         )
-        self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
+        self.previous_event_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.entry_textbox = tk.Entry(self.event_frame, width=10)
         self.entry_textbox.pack(side=tk.LEFT, padx=20, pady=5)
         self.entry_textbox.insert(0, "0")
 
-        self.next_button = tk.Button(
+        self.next_event_button = tk.Button(
             self.event_frame, text="Next Event", command=self.next_event
         )
-        self.next_button.pack(side=tk.LEFT, padx=20, pady=5)
+        self.next_event_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.prev_button = tk.Button(
+        self.last_event_button = tk.Button(
             self.event_frame, text="Last Event", command=self.last_event
         )
-        self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
+        self.last_event_button.pack(side=tk.LEFT, padx=20, pady=5)
+
+        self.random_event_button = tk.Button(
+            self.event_frame, text="Random Event", command=self.random_event
+        )
+        self.random_event_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.graph_frame = tk.Frame(self.root)
         self.graph_frame.pack(fill="both", expand=True)
@@ -706,8 +711,18 @@ class EventViewer:
         if not self.check_file():
             return
 
-        self.load_file()  # Reload the file in case it's been updated
+        self.load_file()
         self.current_entry = self.event_tree.num_entries - 1
+        self.entry_textbox.delete(0, tk.END)
+        self.entry_textbox.insert(0, str(self.current_entry))
+        self.plot_graph()
+
+    def random_event(self):
+        if not self.check_file():
+            return
+
+        self.load_file()
+        self.current_entry = np.random.randint(0, self.event_tree.num_entries)
         self.entry_textbox.delete(0, tk.END)
         self.entry_textbox.insert(0, str(self.current_entry))
         self.plot_graph()
