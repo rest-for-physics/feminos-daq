@@ -436,6 +436,32 @@ class EventViewer:
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         self.canvas.draw()
 
+        self.label_canvas = tk.Canvas(root, width=150, height=20, bg='white', highlightthickness=0)
+        self.label_canvas.place_forget()
+
+        def rgb_to_hex(rgb):
+            """Convert an RGB tuple to a hex color string."""
+            return '#{:02x}{:02x}{:02x}'.format(int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255))
+
+        def on_motion(event):
+            # Check if the mouse is over any line
+            visible = False
+            for line in self.ax_left.lines:
+                if line.contains(event)[0]:
+                    x, y = event.x, event.y
+                    adjusted_y = self.canvas.get_tk_widget().winfo_height() - y
+                    line_color = line.get_color()
+                    self.label_canvas.delete("all")
+                    self.label_canvas.create_rectangle(2, 2, 18, 18, fill=rgb_to_hex(line_color), outline="black")
+                    self.label_canvas.create_text(30, 10, anchor='w', text=f'Signal {line.get_label()}', fill='black')
+                    self.label_canvas.place(x=x, y=adjusted_y)
+                    visible = True
+                    break
+            if not visible:
+                self.label_canvas.place_forget()
+
+        self.canvas.mpl_connect('motion_notify_event', on_motion)
+
         self.filepath = None
 
     def attach(self):
@@ -528,12 +554,12 @@ class EventViewer:
             alpha = np.clip(alpha, 0.1, 1.0)
             if is_x_signal:
                 self.ax_right.plot([readout_y_min, readout_y_max], [position, position], color=line_color,
-                             alpha=alpha,
-                             linewidth=line_width)
+                                   alpha=alpha,
+                                   linewidth=line_width)
             else:
                 self.ax_right.plot([position, position], [readout_x_min, readout_x_max], color=line_color,
-                             alpha=alpha,
-                             linewidth=line_width)
+                                   alpha=alpha,
+                                   linewidth=line_width)
 
         self.ax_right.set_xlabel("X (mm)")
         self.ax_right.set_ylabel("Y (mm)")
