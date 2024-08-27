@@ -107,6 +107,28 @@ class EventViewer:
         )
         self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
+        self.graph_option_frame = tk.Frame(self.root, bd=2)
+        self.graph_option_frame.pack(pady=5)
+
+        self.graph_option_waveforms_variable = tk.BooleanVar()
+        self.graph_option_waveforms = tk.Checkbutton(self.graph_option_frame, text="Waveforms",
+                                                     variable=self.graph_option_waveforms_variable)
+        self.graph_option_waveforms.pack(side=tk.LEFT, padx=20, pady=5)
+        self.graph_option_waveforms.select()
+
+        self.graph_option_energy_variable = tk.BooleanVar()
+        self.graph_option_energy = tk.Checkbutton(self.graph_option_frame, text="Energy",
+                                                  variable=self.graph_option_energy_variable)
+        self.graph_option_energy.pack(side=tk.LEFT, padx=20, pady=5)
+
+        self.graph_option_readout_variable = tk.BooleanVar()
+        self.graph_option_readout = tk.Checkbutton(self.graph_option_frame, text="Readout",
+                                                   variable=self.graph_option_readout_variable)
+        self.graph_option_readout.pack(side=tk.LEFT, padx=20, pady=5)
+
+        self.plot_button = tk.Button(self.graph_option_frame, text="Plot", command=self.plot_graph)
+        self.plot_button.pack(side=tk.LEFT, padx=20, pady=5)
+
         self.graph_frame = tk.Frame(self.root)
         self.graph_frame.pack(fill="both", expand=True)
 
@@ -195,12 +217,20 @@ class EventViewer:
 
         self.load_file()
 
-    def plot_graph(self):
+    def check_file(self) -> bool:
         if self.filepath is None or self.event_tree is None or self.run_tree is None:
             messagebox.showwarning("No File", "Please select a file first!")
+            return False
+        return True
+
+    def plot_graph(self):
+        if not self.check_file():
             return
 
         try:
+            if not self.graph_option_waveforms_variable.get() or not self.graph_option_waveforms_variable.get() or not self.graph_option_waveforms_variable.get():
+                self.graph_option_waveforms.select()
+
             entry = int(self.entry_textbox.get())
             self.current_entry = entry
 
@@ -234,7 +264,7 @@ class EventViewer:
             messagebox.showerror("Error", f"An error occurred while plotting: {str(e)}")
 
     def prev_event(self):
-        if not self.event_tree:
+        if not self.check_file():
             return
 
         if self.current_entry > 0:
@@ -244,7 +274,7 @@ class EventViewer:
             self.plot_graph()
 
     def next_event(self):
-        if not self.event_tree:
+        if not self.check_file():
             return
 
         if self.current_entry == self.event_tree.num_entries - 1:
@@ -257,7 +287,7 @@ class EventViewer:
             self.plot_graph()
 
     def first_event(self):
-        if not self.event_tree:
+        if not self.check_file():
             return
 
         self.current_entry = 0
@@ -266,7 +296,7 @@ class EventViewer:
         self.plot_graph()
 
     def last_event(self):
-        if not self.event_tree:
+        if not self.check_file():
             return
 
         self.load_file()  # Reload the file in case it's been updated
