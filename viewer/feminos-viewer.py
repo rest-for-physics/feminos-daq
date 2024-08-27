@@ -618,10 +618,6 @@ class EventViewer:
 
         event = self.get_event_and_process(entry)
 
-        self.figure.suptitle(
-            f"Event {entry} - Number of signals: {len(event.signals.id)}"
-        )
-
         if self.ax_left is None:
             self.ax_left = self.figure.add_subplot(121)
 
@@ -633,13 +629,19 @@ class EventViewer:
         self.ax_right.clear()
 
         for signal_id, values in zip(event.signals.id, event.signals.values):
+            if int(signal_id) not in signal_id_readout_mapping:
+                continue
+
             self.ax_left.plot(values, label=f"{signal_id}", alpha=0.8, linewidth=2.5)
 
         n_signals_showing = len(self.ax_left.lines)
 
-        # y_min, y_max = self.ax_left.get_ylim()
-        # y_max = min(y_max, 4095)
-        self.ax_left.set_ylim(0, 4095)
+        extra_title = f" / Readout {n_signals_showing}" if n_signals_showing != len(event.signals.id) else ""
+        self.figure.suptitle(
+            f"Event {entry} - Number of Signals: Total {len(event.signals.id)}{extra_title}"
+        )
+
+        self.ax_left.set_ylim(0, 4096)
         self.ax_left.set_yticks(range(0, 4096 + 1, 512))
         self.ax_left.set_yticks(range(0, 4096 + 1, 128), minor=True)
 
