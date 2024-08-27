@@ -2,3 +2,4 @@ matplotlib
 requests
 tk
 uproot
+mplhep

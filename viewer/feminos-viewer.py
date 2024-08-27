@@ -15,6 +15,9 @@ import matplotlib.colors as mcolors
 import threading
 from collections import OrderedDict, defaultdict
 import time
+import mplhep as hep
+
+hep.style.use(hep.style.CMS)
 
 lock = threading.Lock()
 
@@ -622,11 +625,23 @@ class EventViewer:
         if self.ax_left is None:
             self.ax_left = self.figure.add_subplot(121)
 
-        self.ax_left.clear()  # Clear the previous plot
+        self.ax_left.clear()
+
+        if self.ax_right is None:
+            self.ax_right = self.figure.add_subplot(122)
+
+        self.ax_right.clear()
+
         for signal_id, values in zip(event.signals.id, event.signals.values):
-            self.ax_left.plot(values, label=f"{signal_id}", alpha=0.75, linewidth=2)
+            self.ax_left.plot(values, label=f"{signal_id}", alpha=0.8, linewidth=2.5)
 
         n_signals_showing = len(self.ax_left.lines)
+
+        # y_min, y_max = self.ax_left.get_ylim()
+        # y_max = min(y_max, 4095)
+        self.ax_left.set_ylim(0, 4095)
+        self.ax_left.set_yticks(range(0, 4096 + 1, 512))
+        self.ax_left.set_yticks(range(0, 4096 + 1, 128), minor=True)
 
         self.ax_left.set_xlabel("Time bins")
         self.ax_left.set_ylabel("ADC")
@@ -638,11 +653,6 @@ class EventViewer:
 
         if n_signals_showing <= 10:
             self.ax_left.legend(loc="upper right")
-
-        if self.ax_right is None:
-            self.ax_right = self.figure.add_subplot(122)
-
-        self.ax_right.clear()  # Clear the previous plot
 
         # get min value of all signals
         min_value = np.min([np.min(values) for values in event.signals.values])
@@ -707,7 +717,7 @@ class EventViewer:
             self.ax_left.hist(observable_energy_estimate, bins=np.linspace(np.min(observable_energy_estimate),
                                                                            np.max(observable_energy_estimate),
                                                                            80), histtype="step", color="red",
-                              linewidth=2,
+                              linewidth=2.5,
                               label="Energy Estimate")
 
             signal_ids = list(self.observable_channel_activity.keys())
