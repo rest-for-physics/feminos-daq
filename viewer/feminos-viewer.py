@@ -12,8 +12,11 @@ import requests
 import re
 import numpy as np
 import matplotlib.colors as mcolors
+import threading
+from collections import OrderedDict, defaultdict
+import time
 
-from collections import OrderedDict
+lock = threading.Lock()
 
 
 class LimitedOrderedDict(OrderedDict):
@@ -378,6 +381,12 @@ class EventViewer:
         self.event_mode.pack(side=tk.LEFT, padx=20, pady=5)
         self.event_mode.select()
 
+        self.observable_background_calculation_variable = tk.BooleanVar()
+        self.observable_background_calculation = tk.Checkbutton(self.file_menu_frame, text="Observable Calculation",
+                                                                variable=self.observable_background_calculation_variable)
+        self.observable_background_calculation.pack(side=tk.LEFT, padx=20, pady=5)
+        self.observable_background_calculation.select()
+
         self.event_frame = tk.Frame(self.root, bd=2, relief=tk.FLAT)
         self.event_frame.pack(pady=5, side=tk.TOP)
 
@@ -438,7 +447,7 @@ class EventViewer:
         self.event_cache = LimitedOrderedDict(100)  # Cache the last 100 events
         self.observable_entries_processed = set()
         self.observable_energy_estimate = np.array([])
-        self.observable_channel_activity = np.array([])
+        self.observable_channel_activity = defaultdict(int)
 
         def rgb_to_hex(rgb):
             """Convert an RGB tuple to a hex color string."""
@@ -468,11 +477,14 @@ class EventViewer:
 
         self.filepath = None
 
+        self.thread = None
+
     def reset_event_and_observable_data(self):
-        self.event_cache = LimitedOrderedDict(100)  # Cache the last 100 events
-        self.observable_entries_processed = set()
-        self.observable_energy_estimate = np.array([])
-        self.observable_channel_activity = np.array([])
+        with lock:
+            self.event_cache = LimitedOrderedDict(100)  # Cache the last 100 events
+            self.observable_entries_processed = set()
+            self.observable_energy_estimate = np.array([])
+            self.observable_channel_activity = defaultdict(int)
 
     def attach(self):
         filename = get_filename_from_prometheus_metrics()
@@ -529,6 +541,26 @@ class EventViewer:
 
         self.plot_graph()
 
+        if self.thread is None:
+            def worker():
+                while True:
+                    for i in range(0, self.event_tree.num_entries):
+                        while not self.observable_background_calculation_variable.get():
+                            time.sleep(1)
+
+                        if i >= self.event_tree.num_entries:
+                            # Event tree has been reloaded
+                            break
+
+                        if i in self.observable_entries_processed:
+                            continue
+
+                        self.get_event_and_process(i)
+
+            self.thread = threading.Thread(target=worker)
+            self.thread.daemon = True
+            self.thread.start()
+
     def open_file(self):
         self.filepath = filedialog.askopenfilename(filetypes=[("ROOT files", "*.root")])
         if not self.filepath:
@@ -544,24 +576,32 @@ class EventViewer:
         return True
 
     def get_event_and_process(self, entry: int):
-        if entry not in self.event_cache:
-            event = get_event(self.event_tree, entry)
-            self.event_cache[entry] = event
+        with lock:
+            if entry not in self.event_cache:
+                event = get_event(self.event_tree, entry)
+                self.event_cache[entry] = event
 
-        event = self.event_cache[entry]
+            event = self.event_cache[entry]
 
-        if entry not in self.observable_entries_processed:
-            # Process the event to calculate the observable energy estimate and channel activity
-            signal_values = event.signals.values
-            energy_estimate = np.sum([np.max(values) for values in signal_values])
-            self.observable_energy_estimate = np.append(self.observable_energy_estimate, energy_estimate)
+            if entry not in self.observable_entries_processed:
+                # only if signal_id is in mapping
+                signal_ids = [int(signal_id) for signal_id in event.signals.id if
+                              int(signal_id) in signal_id_readout_mapping.keys()]
+                for signal_id in signal_ids:
+                    self.observable_channel_activity[signal_id] += 1
 
-            channel_activity = np.sum([np.any(values > 0) for values in signal_values])
-            self.observable_channel_activity = np.append(self.observable_channel_activity, channel_activity)
+                # Process the event to calculate the observable energy estimate and channel activity
+                signal_values = [values for signal_id, values in zip(event.signals.id, event.signals.values) if
+                                 int(signal_id) in signal_id_readout_mapping.keys()]
 
-            self.observable_entries_processed.add(entry)
+                # Calculate the energy estimate for each signal subtracting the mean of the first 40% of the signal
+                energy_estimate = np.sum(
+                    [np.max(values) - np.mean(values[:int(len(values) * 0.4)]) for values in signal_values])
+                self.observable_energy_estimate = np.append(self.observable_energy_estimate, energy_estimate)
 
-        return event
+                self.observable_entries_processed.add(entry)
+
+            return event
 
     def plot_event(self):
         entry = int(self.entry_textbox.get())
@@ -641,20 +681,38 @@ class EventViewer:
 
         self.ax_left.clear()
 
-        self.ax_left.plot(self.observable_energy_estimate, label="Energy Estimate")
-        self.ax_left.set_xlabel("Event")
-        self.ax_left.set_ylabel("Energy Estimate")
-        self.ax_left.set_title("Energy Estimate")
-        self.ax_left.set_aspect("auto")
-
         if self.ax_right is None:
             self.ax_right = self.figure.add_subplot(122)
 
         self.ax_right.clear()
 
-        self.ax_right.plot(self.observable_channel_activity, label="Channel Activity")
-        self.ax_right.set_xlabel("Event")
-        self.ax_right.set_ylabel("Channel Activity")
+        with lock:
+            if len(self.observable_entries_processed) <= 5:
+                return
+
+            # sort self.observable_energy_estimate
+            self.observable_energy_estimate.sort()
+            # Remove 1% of the highest values to avoid outliers
+            observable_energy_estimate = self.observable_energy_estimate[
+                                         :int(len(self.observable_energy_estimate) * 0.99)]
+
+            self.ax_left.hist(observable_energy_estimate, bins=np.linspace(np.min(observable_energy_estimate),
+                                                                           np.max(observable_energy_estimate),
+                                                                           80), histtype="step", color="red",
+                              linewidth=2,
+                              label="Energy Estimate")
+
+            signal_ids = list(self.observable_channel_activity.keys())
+            channel_activity = list(self.observable_channel_activity.values())
+            self.ax_right.bar(signal_ids, channel_activity, color="blue")
+
+        self.ax_left.set_xlabel("Energy Estimate (ADC)")
+        self.ax_left.set_title("Energy Estimate")
+        self.ax_left.set_ylabel("Counts")
+        self.ax_left.set_aspect("auto")
+
+        self.ax_right.set_xlabel("Signal ID")
+        self.ax_right.set_ylabel("Counts")
         self.ax_right.set_title("Channel Activity")
         self.ax_right.set_aspect("auto")
 
