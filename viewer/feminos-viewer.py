@@ -13,6 +13,22 @@ import re
 import numpy as np
 import matplotlib.colors as mcolors
 
+from collections import OrderedDict
+
+
+class LimitedOrderedDict(OrderedDict):
+    # An OrderedDict that has a maximum size and removes the oldest item when the size is exceeded
+    def __init__(self, max_size):
+        super().__init__()
+        self.max_size = max_size
+
+    def __setitem__(self, key, value):
+        if len(self) >= self.max_size:
+            # Remove the oldest item (the first item in the OrderedDict)
+            self.popitem(last=False)
+        super().__setitem__(key, value)
+
+
 plt.rcParams['axes.prop_cycle'] = plt.cycler(color=plt.cm.Set1.colors)
 
 signal_id_readout_mapping = {
@@ -321,7 +337,8 @@ def get_event(tree: uproot.TTree, entry: int):
     events = ak.without_field(events, "signal_ids")
     events = ak.without_field(events, "signal_values")
 
-    return events[0]
+    event = events[0]
+    return event
 
 
 class EventViewer:
@@ -355,6 +372,12 @@ class EventViewer:
         )
         self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
+        self.event_mode_variable = tk.BooleanVar()
+        self.event_mode = tk.Checkbutton(self.file_menu_frame, text="Toggle Event (ON) / Observable (OFF) Mode",
+                                         variable=self.event_mode_variable, command=self.plot_graph)
+        self.event_mode.pack(side=tk.LEFT, padx=20, pady=5)
+        self.event_mode.select()
+
         self.event_frame = tk.Frame(self.root, bd=2, relief=tk.FLAT)
         self.event_frame.pack(pady=5, side=tk.TOP)
 
@@ -382,29 +405,6 @@ class EventViewer:
         )
         self.prev_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.graph_option_frame = tk.Frame(self.root, bd=2)
-        self.graph_option_frame.pack(pady=5)
-
-        self.graph_option_waveforms_variable = tk.BooleanVar()
-        self.graph_option_waveforms = tk.Checkbutton(self.graph_option_frame, text="Waveforms",
-                                                     variable=self.graph_option_waveforms_variable)
-        self.graph_option_waveforms.pack(side=tk.LEFT, padx=20, pady=5)
-        self.graph_option_waveforms.select()
-
-        self.graph_option_energy_variable = tk.BooleanVar()
-        self.graph_option_energy = tk.Checkbutton(self.graph_option_frame, text="Energy",
-                                                  variable=self.graph_option_energy_variable)
-        self.graph_option_energy.pack(side=tk.LEFT, padx=20, pady=5)
-
-        self.graph_option_readout_variable = tk.BooleanVar()
-        self.graph_option_readout = tk.Checkbutton(self.graph_option_frame, text="Readout",
-                                                   variable=self.graph_option_readout_variable)
-        self.graph_option_readout.select()
-        self.graph_option_readout.pack(side=tk.LEFT, padx=20, pady=5)
-
-        self.plot_button = tk.Button(self.graph_option_frame, text="Plot", command=self.plot_graph)
-        self.plot_button.pack(side=tk.LEFT, padx=20, pady=5)
-
         self.graph_frame = tk.Frame(self.root)
         self.graph_frame.pack(fill="both", expand=True)
 
@@ -418,6 +418,7 @@ class EventViewer:
 
         # Initialize the plot area
         self.figure = plt.Figure()
+        self.figure.tight_layout()
 
         self.ax_left = None
         self.ax_right = None
@@ -428,6 +429,11 @@ class EventViewer:
 
         self.label_canvas = tk.Canvas(root, width=150, height=20, bg='white', highlightthickness=0)
         self.label_canvas.place_forget()
+
+        self.event_cache = LimitedOrderedDict(100)  # Cache the last 100 events
+        self.observable_entries_processed = set()
+        self.observable_energy_estimate = np.array([])
+        self.observable_channel_activity = np.array([])
 
         def rgb_to_hex(rgb):
             """Convert an RGB tuple to a hex color string."""
@@ -457,6 +463,12 @@ class EventViewer:
 
         self.filepath = None
 
+    def reset_event_and_observable_data(self):
+        self.event_cache = LimitedOrderedDict(100)  # Cache the last 100 events
+        self.observable_entries_processed = set()
+        self.observable_energy_estimate = np.array([])
+        self.observable_channel_activity = np.array([])
+
     def attach(self):
         filename = get_filename_from_prometheus_metrics()
 
@@ -464,10 +476,15 @@ class EventViewer:
             messagebox.showerror("Error", "No filename found to attach")
             return
 
-        self.filepath = filename
+        if filename != self.filepath:
+            self.reset_event_and_observable_data()
+            self.filepath = filename
+
         self.load_file()
 
     def load_file(self):
+        self.current_entry = 0
+
         if self.filepath is None:
             messagebox.showwarning("No File", "You must select a file first")
             return
@@ -512,6 +529,7 @@ class EventViewer:
         if not self.filepath:
             return
 
+        self.reset_event_and_observable_data()
         self.load_file()
 
     def check_file(self) -> bool:
@@ -520,11 +538,55 @@ class EventViewer:
             return False
         return True
 
-    def plot_readout(self):
+    def get_event_and_process(self, entry: int):
+        if entry not in self.event_cache:
+            event = get_event(self.event_tree, entry)
+            self.event_cache[entry] = event
+
+        event = self.event_cache[entry]
+
+        if entry not in self.observable_entries_processed:
+            # Process the event to calculate the observable energy estimate and channel activity
+            signal_values = event.signals.values
+            energy_estimate = np.sum([np.max(values) for values in signal_values])
+            self.observable_energy_estimate = np.append(self.observable_energy_estimate, energy_estimate)
+
+            channel_activity = np.sum([np.any(values > 0) for values in signal_values])
+            self.observable_channel_activity = np.append(self.observable_channel_activity, channel_activity)
+
+            self.observable_entries_processed.add(entry)
+
+        return event
+
+    def plot_event(self):
         entry = int(self.entry_textbox.get())
         self.current_entry = entry
 
-        event = get_event(self.event_tree, entry)
+        event = self.get_event_and_process(entry)
+
+        self.figure.suptitle(
+            f"Event {entry} - Number of signals: {len(event.signals.id)}"
+        )
+
+        if self.ax_left is None:
+            self.ax_left = self.figure.add_subplot(121)
+
+        self.ax_left.clear()  # Clear the previous plot
+        for signal_id, values in zip(event.signals.id, event.signals.values):
+            self.ax_left.plot(values, label=f"ID {signal_id}", alpha=0.75, linewidth=2)
+
+        n_signals_showing = len(self.ax_left.lines)
+
+        self.ax_left.set_xlabel("Time bins")
+        self.ax_left.set_ylabel("ADC")
+
+        self.ax_left.set_xlim(0, 512)
+        self.ax_left.set_xticks(range(0, 512 + 1, 64))
+        self.ax_left.set_xticks(range(0, 512 + 1, 16), minor=True)
+        self.ax_left.set_aspect("auto")
+
+        if n_signals_showing <= 10:
+            self.ax_left.legend(loc="upper right")
 
         if self.ax_right is None:
             self.ax_right = self.figure.add_subplot(122)
@@ -562,41 +624,34 @@ class EventViewer:
         self.ax_right.set_aspect("equal")
         self.ax_right.set_xlim(readout_x_min - 1.0, readout_x_max + 1.0)
         self.ax_right.set_ylim(readout_y_min - 1.0, readout_y_max + 1.0)
-        self.ax_right.set_title(
-            f"Event {entry} - Number of signals: {len(event.signals.id)}"
-        )
 
         self.canvas.draw()
 
-    def plot_waveforms(self):
-        entry = int(self.entry_textbox.get())
-        self.current_entry = entry
-
-        event = get_event(self.event_tree, entry)
+    def plot_observables(self):
+        self.figure.suptitle(
+            f"Observables computed for {len(self.observable_entries_processed)} entries out of {self.event_tree.num_entries}")
 
         if self.ax_left is None:
             self.ax_left = self.figure.add_subplot(121)
 
-        self.ax_left.clear()  # Clear the previous plot
-        for signal_id, values in zip(event.signals.id, event.signals.values):
-            self.ax_left.plot(values, label=f"ID {signal_id}", alpha=0.75, linewidth=2)
+        self.ax_left.clear()
 
-        n_signals_showing = len(self.ax_left.lines)
-
-        self.ax_left.set_xlabel("Time bins")
-        self.ax_left.set_ylabel("ADC")
-
-        self.ax_left.set_title(
-            f"Event {entry} - Number of signals: {len(event.signals.id)}"
-        )
-
-        self.ax_left.set_xlim(0, 512)
-        self.ax_left.set_xticks(range(0, 512 + 1, 64))
-        self.ax_left.set_xticks(range(0, 512 + 1, 16), minor=True)
+        self.ax_left.plot(self.observable_energy_estimate, label="Energy Estimate")
+        self.ax_left.set_xlabel("Event")
+        self.ax_left.set_ylabel("Energy Estimate")
+        self.ax_left.set_title("Energy Estimate")
         self.ax_left.set_aspect("auto")
 
-        if n_signals_showing <= 10:
-            self.ax_left.legend(loc="upper right")
+        if self.ax_right is None:
+            self.ax_right = self.figure.add_subplot(122)
+
+        self.ax_right.clear()
+
+        self.ax_right.plot(self.observable_channel_activity, label="Channel Activity")
+        self.ax_right.set_xlabel("Event")
+        self.ax_right.set_ylabel("Channel Activity")
+        self.ax_right.set_title("Channel Activity")
+        self.ax_right.set_aspect("auto")
 
         self.canvas.draw()
 
@@ -605,17 +660,10 @@ class EventViewer:
             return
 
         try:
-            if not self.graph_option_waveforms_variable.get() and not self.graph_option_energy_variable.get() and not self.graph_option_readout_variable.get():
-                self.graph_option_waveforms.select()
-
-            if self.graph_option_waveforms_variable.get():
-                self.plot_waveforms()
-
-            if self.graph_option_energy_variable.get():
-                self.plot_energy()
-
-            if self.graph_option_readout_variable.get():
-                self.plot_readout()
+            if self.event_mode_variable.get():
+                self.plot_event()
+            else:
+                self.plot_observables()
 
         except ValueError as e:
             messagebox.showerror("Error", f"Invalid entry: {str(e)}")
