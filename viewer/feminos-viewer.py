@@ -262,16 +262,14 @@ readout_x_min = min([position for signal_type, position in signal_id_readout_map
 readout_x_max = max([position for signal_type, position in signal_id_readout_mapping.values() if signal_type == "X"])
 
 
-def amplitude_to_color(amplitude, min_amplitude=0, max_amplitude=4095, cmap_name="jet", log_scale=False):
+def amplitude_to_color(amplitude, min_amplitude=0, max_amplitude=4095, cmap_name="jet", log_scale=True):
     amplitude = max(amplitude, min_amplitude)
 
     cmap = plt.get_cmap(cmap_name)
 
     if log_scale:
-        # Logarithmic scaling
-        if amplitude < 0:
-            # Negative values are not supported by log scale
-            amplitude = 1
+        min_amplitude = 1
+        amplitude = max(amplitude, min_amplitude)
         log_amplitude = np.log10(amplitude)
         log_min = np.log10(min_amplitude)
         log_max = np.log10(max_amplitude)
