@@ -10,6 +10,281 @@ import uproot
 import awkward as ak
 import requests
 import re
+import numpy as np
+import matplotlib.colors as mcolors
+
+signal_id_readout_mapping = {
+    4323: ("X", 30),
+    4324: ("X", 29.5),
+    4325: ("X", 29),
+    4326: ("X", 28.5),
+    4327: ("X", 28),
+    4328: ("X", 27.5),
+    4329: ("X", 27),
+    4330: ("X", 26.5),
+    4331: ("X", 26),
+    4332: ("X", 25.5),
+    4334: ("X", 25),
+    4335: ("X", 24.5),
+    4336: ("X", 24),
+    4337: ("X", 23.5),
+    4339: ("X", 23),
+    4340: ("X", 22.5),
+    4341: ("X", 22),
+    4342: ("X", 21.5),
+    4343: ("X", 21),
+    4345: ("X", 20.5),
+    4346: ("X", 20),
+    4347: ("X", 19.5),
+    4348: ("X", 19),
+    4349: ("X", 18.5),
+    4350: ("X", 18),
+    4351: ("X", 17.5),
+    4352: ("X", 17),
+    4353: ("X", 16.5),
+    4354: ("X", 16),
+    4355: ("X", 15.5),
+    4356: ("X", 15),
+    4357: ("X", 14.5),
+    4358: ("X", 14),
+    4359: ("X", 13.5),
+    4360: ("X", 13),
+    4361: ("X", 12.5),
+    4362: ("X", 12),
+    4363: ("X", 11.5),
+    4364: ("X", 11),
+    4365: ("X", 10.5),
+    4366: ("X", 10),
+    4368: ("X", 9.5),
+    4369: ("X", 9),
+    4370: ("X", 8.5),
+    4371: ("X", 8),
+    4372: ("X", 7.5),
+    4374: ("X", 7),
+    4375: ("X", 6.5),
+    4376: ("X", 6),
+    4377: ("X", 5.5),
+    4379: ("X", 5),
+    4380: ("X", 4.5),
+    4381: ("X", 4),
+    4382: ("X", 3.5),
+    4383: ("X", 3),
+    4384: ("X", 2.5),
+    4385: ("X", 2),
+    4386: ("X", 1.5),
+    4387: ("X", 1),
+    4388: ("X", 0.5),
+    4395: ("X", 0),
+    4396: ("X", -0.5),
+    4397: ("X", -1),
+    4398: ("X", -1.5),
+    4399: ("X", -2),
+    4400: ("X", -2.5),
+    4401: ("X", -3),
+    4402: ("X", -3.5),
+    4403: ("X", -4),
+    4404: ("X", -4.5),
+    4406: ("X", -5),
+    4407: ("X", -5.5),
+    4408: ("X", -6),
+    4409: ("X", -6.5),
+    4411: ("X", -7),
+    4412: ("X", -7.5),
+    4413: ("X", -8),
+    4414: ("X", -8.5),
+    4415: ("X", -9),
+    4417: ("X", -9.5),
+    4418: ("X", -10),
+    4419: ("X", -10.5),
+    4420: ("X", -11),
+    4421: ("X", -11.5),
+    4422: ("X", -12),
+    4423: ("X", -12.5),
+    4424: ("X", -13),
+    4425: ("X", -13.5),
+    4426: ("X", -14),
+    4427: ("X", -14.5),
+    4428: ("X", -15),
+    4429: ("X", -15.5),
+    4430: ("X", -16),
+    4431: ("X", -16.5),
+    4432: ("X", -17),
+    4433: ("X", -17.5),
+    4434: ("X", -18),
+    4435: ("X", -18.5),
+    4436: ("X", -19),
+    4437: ("X", -19.5),
+    4438: ("X", -20),
+    4440: ("X", -20.5),
+    4441: ("X", -21),
+    4442: ("X", -21.5),
+    4443: ("X", -22),
+    4444: ("X", -22.5),
+    4446: ("X", -23),
+    4447: ("X", -23.5),
+    4448: ("X", -24),
+    4449: ("X", -24.5),
+    4451: ("X", -25),
+    4452: ("X", -25.5),
+    4453: ("X", -26),
+    4454: ("X", -26.5),
+    4455: ("X", -27),
+    4456: ("X", -27.5),
+    4457: ("X", -28),
+    4458: ("X", -28.5),
+    4459: ("X", -29),
+    4460: ("X", -29.5),
+    4467: ("Y", 29.125),
+    4468: ("Y", 29.9375),
+    4469: ("Y", 28.125),
+    4470: ("Y", 28.625),
+    4471: ("Y", 27.125),
+    4472: ("Y", 27.625),
+    4473: ("Y", 26.125),
+    4474: ("Y", 26.625),
+    4475: ("Y", 25.125),
+    4476: ("Y", 25.625),
+    4478: ("Y", 24.125),
+    4479: ("Y", 24.625),
+    4480: ("Y", 23.125),
+    4481: ("Y", 23.625),
+    4483: ("Y", 22.125),
+    4484: ("Y", 22.625),
+    4485: ("Y", 21.125),
+    4486: ("Y", 21.625),
+    4487: ("Y", 20.125),
+    4489: ("Y", 20.625),
+    4490: ("Y", 19.125),
+    4491: ("Y", 19.625),
+    4492: ("Y", 18.125),
+    4493: ("Y", 18.625),
+    4494: ("Y", 17.125),
+    4495: ("Y", 17.625),
+    4496: ("Y", 16.125),
+    4497: ("Y", 16.625),
+    4498: ("Y", 15.125),
+    4499: ("Y", 15.625),
+    4500: ("Y", 14.125),
+    4501: ("Y", 14.625),
+    4502: ("Y", 13.125),
+    4503: ("Y", 13.625),
+    4504: ("Y", 12.125),
+    4505: ("Y", 12.625),
+    4506: ("Y", 11.125),
+    4507: ("Y", 11.625),
+    4508: ("Y", 10.125),
+    4509: ("Y", 10.625),
+    4510: ("Y", 9.125),
+    4512: ("Y", 9.625),
+    4513: ("Y", 8.125),
+    4514: ("Y", 8.625),
+    4515: ("Y", 7.125),
+    4516: ("Y", 7.625),
+    4518: ("Y", 6.125),
+    4519: ("Y", 6.625),
+    4520: ("Y", 5.125),
+    4521: ("Y", 5.625),
+    4523: ("Y", 4.125),
+    4524: ("Y", 4.625),
+    4525: ("Y", 3.125),
+    4526: ("Y", 3.625),
+    4527: ("Y", 2.125),
+    4528: ("Y", 2.625),
+    4529: ("Y", 1.125),
+    4530: ("Y", 1.625),
+    4531: ("Y", 0.125),
+    4532: ("Y", 0.625),
+    4539: ("Y", -0.875),
+    4540: ("Y", -0.375),
+    4541: ("Y", -1.875),
+    4542: ("Y", -1.375),
+    4543: ("Y", -2.875),
+    4544: ("Y", -2.375),
+    4545: ("Y", -3.875),
+    4546: ("Y", -3.375),
+    4547: ("Y", -4.875),
+    4548: ("Y", -4.375),
+    4550: ("Y", -5.875),
+    4551: ("Y", -5.375),
+    4552: ("Y", -6.875),
+    4553: ("Y", -6.375),
+    4555: ("Y", -7.875),
+    4556: ("Y", -7.375),
+    4557: ("Y", -8.875),
+    4558: ("Y", -8.375),
+    4559: ("Y", -9.875),
+    4561: ("Y", -9.375),
+    4562: ("Y", -10.875),
+    4563: ("Y", -10.375),
+    4564: ("Y", -11.875),
+    4565: ("Y", -11.375),
+    4566: ("Y", -12.875),
+    4567: ("Y", -12.375),
+    4568: ("Y", -13.875),
+    4569: ("Y", -13.375),
+    4570: ("Y", -14.875),
+    4571: ("Y", -14.375),
+    4572: ("Y", -15.875),
+    4573: ("Y", -15.375),
+    4574: ("Y", -16.875),
+    4575: ("Y", -16.375),
+    4576: ("Y", -17.875),
+    4577: ("Y", -17.375),
+    4578: ("Y", -18.875),
+    4579: ("Y", -18.375),
+    4580: ("Y", -19.875),
+    4581: ("Y", -19.375),
+    4582: ("Y", -20.875),
+    4584: ("Y", -20.375),
+    4585: ("Y", -21.875),
+    4586: ("Y", -21.375),
+    4587: ("Y", -22.875),
+    4588: ("Y", -22.375),
+    4590: ("Y", -23.875),
+    4591: ("Y", -23.375),
+    4592: ("Y", -24.875),
+    4593: ("Y", -24.375),
+    4595: ("Y", -25.875),
+    4596: ("Y", -25.375),
+    4597: ("Y", -26.875),
+    4598: ("Y", -26.375),
+    4599: ("Y", -27.875),
+    4600: ("Y", -27.375),
+    4601: ("Y", -28.875),
+    4602: ("Y", -28.375),
+    4603: ("Y", -29.8125),
+    4604: ("Y", -29.375),
+}
+
+readout_y_min = min([position for signal_type, position in signal_id_readout_mapping.values() if signal_type == "Y"])
+readout_y_max = max([position for signal_type, position in signal_id_readout_mapping.values() if signal_type == "Y"])
+readout_x_min = min([position for signal_type, position in signal_id_readout_mapping.values() if signal_type == "X"])
+readout_x_max = max([position for signal_type, position in signal_id_readout_mapping.values() if signal_type == "X"])
+
+
+def amplitude_to_color(amplitude, min_amplitude=0, max_amplitude=4095, cmap_name="jet", log_scale=False):
+    amplitude = max(amplitude, min_amplitude)
+
+    cmap = plt.get_cmap(cmap_name)
+
+    if log_scale:
+        # Logarithmic scaling
+        if amplitude < 0:
+            # Negative values are not supported by log scale
+            amplitude = 1
+        log_amplitude = np.log10(amplitude)
+        log_min = np.log10(min_amplitude)
+        log_max = np.log10(max_amplitude)
+        normalized_amplitude = (log_amplitude - log_min) / (log_max - log_min)
+    else:
+        # Linear scaling
+        normalized_amplitude = (amplitude - min_amplitude) / (max_amplitude - min_amplitude)
+
+    # Normalize the value to be between 0 and 1
+    normalized_amplitude = np.clip(normalized_amplitude, 0, 1)
+
+    # Convert normalized amplitude to a color using the colormap
+    return cmap(normalized_amplitude)
 
 
 def get_filename_from_prometheus_metrics() -> str | None:
@@ -38,7 +313,7 @@ def get_event(tree: uproot.TTree, entry: int):
     events["signal_values"] = ak.unflatten(events["signal_values"], 512, axis=1)
 
     signals = ak.Array(
-        {"id": events["signal_ids"], "data": events["signal_values"]},
+        {"id": events["signal_ids"], "values": events["signal_values"]},
         with_name="Signals",
     )
     events["signals"] = signals
@@ -223,40 +498,88 @@ class EventViewer:
             return False
         return True
 
+    def plot_readout(self):
+        entry = int(self.entry_textbox.get())
+        self.current_entry = entry
+
+        event = get_event(self.event_tree, entry)
+
+        self.ax.clear()  # Clear the previous plot
+
+        line_width = 4
+        for signal_id, values in zip(event.signals.id, event.signals.values):
+            signal_id = int(signal_id)
+            if signal_id not in signal_id_readout_mapping:
+                # print(f"Signal {signal_id} not found in mapping.")
+                continue
+            signal_type, position = signal_id_readout_mapping[signal_id]
+            is_x_signal = signal_type == "X"
+            amplitude = np.max(values)  # amplitude goes from 0 to 4095
+            line_color = amplitude_to_color(amplitude)
+
+            if is_x_signal:
+                self.ax.plot([readout_y_min, readout_y_max], [position, position], color=line_color, alpha=0.4,
+                             linewidth=line_width)
+            else:
+                self.ax.plot([position, position], [readout_x_min, readout_x_max], color=line_color, alpha=0.4,
+                             linewidth=line_width)
+
+        self.ax.set_xlabel("X (mm)")
+        self.ax.set_ylabel("Y (mm)")
+        self.ax.set_aspect("equal")
+        self.ax.set_xlim(readout_x_min - 1.0, readout_x_max + 1.0)
+        self.ax.set_ylim(readout_y_min - 1.0, readout_y_max + 1.0)
+        self.ax.set_title(
+            f"Event {entry} - Number of signals: {len(event.signals.id)}"
+        )
+
+        self.canvas.draw()
+
+    def plot_waveforms(self):
+        entry = int(self.entry_textbox.get())
+        self.current_entry = entry
+
+        event = get_event(self.event_tree, entry)
+
+        self.ax.clear()  # Clear the previous plot
+        for signal_id, values in zip(event.signals.id, event.signals.values):
+            self.ax.plot(values, label=f"ID {signal_id}", alpha=0.5, linewidth=2)
+
+        n_signals_showing = len(self.ax.lines)
+
+        self.ax.set_xlabel("Time bins")
+        self.ax.set_ylabel("ADC")
+
+        self.ax.set_title(
+            f"Event {entry} - Number of signals: {len(event.signals.id)}"
+        )
+
+        self.ax.set_xlim(0, 512)
+        self.ax.set_xticks(range(0, 512 + 1, 64))
+        self.ax.set_xticks(range(0, 512 + 1, 16), minor=True)
+        self.ax.set_aspect("auto")
+
+        if n_signals_showing <= 10:
+            self.ax.legend(loc="upper right")
+
+        self.canvas.draw()
+
     def plot_graph(self):
         if not self.check_file():
             return
 
         try:
-            if not self.graph_option_waveforms_variable.get() or not self.graph_option_waveforms_variable.get() or not self.graph_option_waveforms_variable.get():
+            if not self.graph_option_waveforms_variable.get() and not self.graph_option_energy_variable.get() and not self.graph_option_readout_variable.get():
                 self.graph_option_waveforms.select()
 
-            entry = int(self.entry_textbox.get())
-            self.current_entry = entry
+            if self.graph_option_waveforms_variable.get():
+                self.plot_waveforms()
 
-            event = get_event(self.event_tree, entry)
+            if self.graph_option_energy_variable.get():
+                self.plot_energy()
 
-            self.ax.clear()  # Clear the previous plot
-            for signal_id, data in zip(event.signals.id, event.signals.data):
-                self.ax.plot(data, label=f"ID {signal_id}", alpha=0.5, linewidth=2)
-
-            n_signals_showing = len(self.ax.lines)
-
-            self.ax.set_xlabel("Time bins")
-            self.ax.set_ylabel("ADC")
-
-            self.ax.set_title(
-                f"Event {entry} - Number of signals: {len(event.signals.id)}"
-            )
-
-            self.ax.set_xlim(0, 512)
-            self.ax.set_xticks(range(0, 512 + 1, 64))
-            self.ax.set_xticks(range(0, 512 + 1, 16), minor=True)
-
-            if n_signals_showing <= 10:
-                self.ax.legend(loc="upper right")
-
-            self.canvas.draw()
+            if self.graph_option_readout_variable.get():
+                self.plot_readout()
 
         except ValueError as e:
             messagebox.showerror("Error", f"Invalid entry: {str(e)}")
