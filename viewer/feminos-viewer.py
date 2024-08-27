@@ -13,6 +13,8 @@ import re
 import numpy as np
 import matplotlib.colors as mcolors
 
+plt.rcParams['axes.prop_cycle'] = plt.cycler(color=plt.cm.Set1.colors)
+
 signal_id_readout_mapping = {
     4323: ("X", 30),
     4324: ("X", 29.5),
@@ -397,6 +399,7 @@ class EventViewer:
         self.graph_option_readout_variable = tk.BooleanVar()
         self.graph_option_readout = tk.Checkbutton(self.graph_option_frame, text="Readout",
                                                    variable=self.graph_option_readout_variable)
+        self.graph_option_readout.select()
         self.graph_option_readout.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.plot_button = tk.Button(self.graph_option_frame, text="Plot", command=self.plot_graph)
@@ -415,17 +418,19 @@ class EventViewer:
 
         # Initialize the plot area
         self.figure = plt.Figure()
-        self.ax = self.figure.add_subplot(111)
 
-        self.ax.set_xlabel("Time bins")
-        self.ax.set_ylabel("ADC")
+        self.ax_left = self.figure.add_subplot(121)
+        self.ax_right = self.figure.add_subplot(122)
 
-        self.ax.set_xlim(0, 512)
-        self.ax.set_xlim(0, 512)
-        self.ax.set_xticks(range(0, 512 + 1, 64))
-        self.ax.set_xticks(range(0, 512 + 1, 16), minor=True)
+        self.ax_left.set_xlabel("Time bins")
+        self.ax_left.set_ylabel("ADC")
 
-        self.ax.set_ylim(0, 4096)
+        self.ax_left.set_xlim(0, 512)
+        self.ax_left.set_xlim(0, 512)
+        self.ax_left.set_xticks(range(0, 512 + 1, 64))
+        self.ax_left.set_xticks(range(0, 512 + 1, 16), minor=True)
+
+        self.ax_left.set_ylim(0, 4096)
 
         self.canvas = FigureCanvasTkAgg(self.figure, self.graph_frame)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
@@ -502,7 +507,10 @@ class EventViewer:
 
         event = get_event(self.event_tree, entry)
 
-        self.ax.clear()  # Clear the previous plot
+        self.ax_right.clear()  # Clear the previous plot
+
+        # get min value of all signals
+        min_value = np.min([np.min(values) for values in event.signals.values])
 
         line_width = 4
         for signal_id, values in zip(event.signals.id, event.signals.values):
@@ -513,21 +521,26 @@ class EventViewer:
             signal_type, position = signal_id_readout_mapping[signal_id]
             is_x_signal = signal_type == "X"
             amplitude = np.max(values)  # amplitude goes from 0 to 4095
+            amplitude = amplitude - min_value
             line_color = amplitude_to_color(amplitude)
-
+            alpha = amplitude / 4095
+            alpha *= 5.0 / 3.0
+            alpha = np.clip(alpha, 0.1, 1.0)
             if is_x_signal:
-                self.ax.plot([readout_y_min, readout_y_max], [position, position], color=line_color, alpha=0.4,
+                self.ax_right.plot([readout_y_min, readout_y_max], [position, position], color=line_color,
+                             alpha=alpha,
                              linewidth=line_width)
             else:
-                self.ax.plot([position, position], [readout_x_min, readout_x_max], color=line_color, alpha=0.4,
+                self.ax_right.plot([position, position], [readout_x_min, readout_x_max], color=line_color,
+                             alpha=alpha,
                              linewidth=line_width)
 
-        self.ax.set_xlabel("X (mm)")
-        self.ax.set_ylabel("Y (mm)")
-        self.ax.set_aspect("equal")
-        self.ax.set_xlim(readout_x_min - 1.0, readout_x_max + 1.0)
-        self.ax.set_ylim(readout_y_min - 1.0, readout_y_max + 1.0)
-        self.ax.set_title(
+        self.ax_right.set_xlabel("X (mm)")
+        self.ax_right.set_ylabel("Y (mm)")
+        self.ax_right.set_aspect("equal")
+        self.ax_right.set_xlim(readout_x_min - 1.0, readout_x_max + 1.0)
+        self.ax_right.set_ylim(readout_y_min - 1.0, readout_y_max + 1.0)
+        self.ax_right.set_title(
             f"Event {entry} - Number of signals: {len(event.signals.id)}"
         )
 
@@ -539,26 +552,26 @@ class EventViewer:
 
         event = get_event(self.event_tree, entry)
 
-        self.ax.clear()  # Clear the previous plot
+        self.ax_left.clear()  # Clear the previous plot
         for signal_id, values in zip(event.signals.id, event.signals.values):
-            self.ax.plot(values, label=f"ID {signal_id}", alpha=0.5, linewidth=2)
+            self.ax_left.plot(values, label=f"ID {signal_id}", alpha=0.75, linewidth=2)
 
-        n_signals_showing = len(self.ax.lines)
+        n_signals_showing = len(self.ax_left.lines)
 
-        self.ax.set_xlabel("Time bins")
-        self.ax.set_ylabel("ADC")
+        self.ax_left.set_xlabel("Time bins")
+        self.ax_left.set_ylabel("ADC")
 
-        self.ax.set_title(
+        self.ax_left.set_title(
             f"Event {entry} - Number of signals: {len(event.signals.id)}"
         )
 
-        self.ax.set_xlim(0, 512)
-        self.ax.set_xticks(range(0, 512 + 1, 64))
-        self.ax.set_xticks(range(0, 512 + 1, 16), minor=True)
-        self.ax.set_aspect("auto")
+        self.ax_left.set_xlim(0, 512)
+        self.ax_left.set_xticks(range(0, 512 + 1, 64))
+        self.ax_left.set_xticks(range(0, 512 + 1, 16), minor=True)
+        self.ax_left.set_aspect("auto")
 
         if n_signals_showing <= 10:
-            self.ax.legend(loc="upper right")
+            self.ax_left.legend(loc="upper right")
 
         self.canvas.draw()
 
