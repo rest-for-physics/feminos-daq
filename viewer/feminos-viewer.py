@@ -1677,24 +1677,14 @@ class EventViewer:
         )
         self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.event_mode_variable = tk.BooleanVar()
-        self.event_mode = tk.Checkbutton(
-            self.file_menu_frame,
-            text="Toggle Event (ON) / Observable (OFF) Mode",
-            variable=self.event_mode_variable,
-            command=self.plot_graph,
-        )
-        self.event_mode.pack(side=tk.LEFT, padx=20, pady=5)
-        self.event_mode.select()
-
-        self.observable_background_calculation_variable = tk.BooleanVar()
+        self.observable_mode_variable = tk.BooleanVar()
         self.observable_background_calculation = tk.Checkbutton(
             self.file_menu_frame,
-            text="Observable Calculation",
-            variable=self.observable_background_calculation_variable,
+            text="Observables",
+            variable=self.observable_mode_variable,
+            command=self.on_observable_mode,
         )
         self.observable_background_calculation.pack(side=tk.LEFT, padx=20, pady=5)
-        # self.observable_background_calculation.select() # Disable for performance reasons
 
         self.readout_options = list(readouts.keys())
         self.selected_readout = tk.StringVar()
@@ -1836,12 +1826,38 @@ class EventViewer:
         self.reset_event_and_observable_data()
         self.load_file()
 
-    def on_auto_update(self):
-        if self.auto_update_variable.get() and self.thread_auto_update is None:
+    def on_observable_mode(self):
+        print(f"Observable mode: {self.observable_mode_variable.get()}")
+        if self.thread_observables is None and self.observable_mode_variable.get():
             def worker():
                 while True:
-                    if not self.auto_update_variable.get():
-                        continue
+                    for i in range(0, self.event_tree.num_entries):
+                        while not self.observable_mode_variable.get():
+                            time.sleep(0.1)
+
+                        if i >= self.event_tree.num_entries:
+                            # Event tree has been reloaded
+                            break
+
+                        if i in self.observable_entries_processed:
+                            continue
+
+                        self.get_event_and_process(i)
+                        time.sleep(0.1)
+
+            self.thread_observables = threading.Thread(target=worker)
+            self.thread_observables.daemon = True
+            self.thread_observables.start()
+
+        if self.check_file(silent=True):
+            self.plot_graph()
+
+    def on_auto_update(self):
+        if self.thread_auto_update is None and self.auto_update_variable.get():
+            def worker():
+                while True:
+                    while not self.auto_update_variable.get():
+                        time.sleep(0.1)
 
                     if self.check_file(silent=True):
                         self.last_event()
@@ -1912,27 +1928,6 @@ class EventViewer:
         self.label.config(
             text=f"{filename_text} - {self.event_tree.num_entries} entries"
         )
-
-        if self.thread_observables is None:
-            def worker():
-                while True:
-                    for i in range(0, self.event_tree.num_entries):
-                        while not self.observable_background_calculation_variable.get():
-                            time.sleep(1)
-
-                        if i >= self.event_tree.num_entries:
-                            # Event tree has been reloaded
-                            break
-
-                        if i in self.observable_entries_processed:
-                            continue
-
-                        self.get_event_and_process(i)
-                        time.sleep(0.1)
-
-            self.thread_observables = threading.Thread(target=worker)
-            self.thread_observables.daemon = True
-            self.thread_observables.start()
 
         self.plot_graph()
 
@@ -2145,10 +2140,10 @@ class EventViewer:
             return
 
         try:
-            if self.event_mode_variable.get():
-                self.plot_event()
-            else:
+            if self.observable_mode_variable.get():
                 self.plot_observables()
+            else:
+                self.plot_event()
 
         except ValueError as e:
             messagebox.showerror("Error", f"Invalid entry: {str(e)}")
