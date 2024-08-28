@@ -1737,6 +1737,15 @@ class EventViewer:
         )
         self.auto_update_button.pack(side=tk.LEFT, padx=20, pady=5)
 
+        self.show_all_waveforms_variable = tk.BooleanVar()
+        self.show_all_waveforms_button = tk.Checkbutton(
+            self.event_frame,
+            text="Waveforms Outside Readout",
+            variable=self.show_all_waveforms_variable,
+            command=self.on_show_all_waveforms,
+        )
+        self.show_all_waveforms_button.pack(side=tk.LEFT, padx=20, pady=5)
+
         self.graph_frame = tk.Frame(self.root)
         self.graph_frame.pack(fill="both", expand=True)
 
@@ -1824,6 +1833,10 @@ class EventViewer:
     def on_select_readout(self, _):
         self.readout_signal_ids = set(readouts[self.readout]["mapping"].keys())
         self.reset_event_and_observable_data()
+        self.load_file()
+        self.plot_graph()
+
+    def on_show_all_waveforms(self):
         self.load_file()
         self.plot_graph()
 
@@ -2009,6 +2022,14 @@ class EventViewer:
                 continue
 
             self.ax_left.plot(values, label=f"{signal_id}", alpha=0.8, linewidth=2.5)
+
+        # plot signals outside of readout after plotting the signals inside the readout, this way we maintain the colors
+        if not self.show_all_waveforms_variable.get():
+            for signal_id, values in zip(event.signals.id, event.signals.values):
+                if int(signal_id) in readouts[self.readout]["mapping"]:
+                    continue
+
+                self.ax_left.plot(values, label=f"{signal_id}", alpha=0.8, linewidth=2.5)
 
         n_signals_showing = len(self.ax_left.lines)
 
