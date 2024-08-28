@@ -19,6 +19,8 @@ import mplhep as hep
 
 hep.style.use(hep.style.CMS)
 
+plt.rcParams.update({'font.size': 18})
+
 lock = threading.Lock()
 
 
@@ -1767,7 +1769,7 @@ class EventViewer:
         self.canvas.draw()
 
         self.label_canvas = tk.Canvas(
-            root, width=170, height=20, bg="white", highlightthickness=0
+            root, width=200, height=20, bg="white", highlightthickness=0
         )
         self.label_canvas.place_forget()
 
@@ -2079,13 +2081,14 @@ class EventViewer:
         self.ax_right.set_xlabel("X (mm)")
         self.ax_right.set_ylabel("Y (mm)")
         self.ax_right.set_aspect("equal")
+        extra_space = 2.0
         self.ax_right.set_xlim(
-            readouts[self.readout]["limits"]["x"][0] - 1.0,
-            readouts[self.readout]["limits"]["x"][1] + 1.0,
+            readouts[self.readout]["limits"]["x"][0] - extra_space,
+            readouts[self.readout]["limits"]["x"][1] + extra_space,
         )
         self.ax_right.set_ylim(
-            readouts[self.readout]["limits"]["y"][0] - 1.0,
-            readouts[self.readout]["limits"]["y"][1] + 1.0,
+            readouts[self.readout]["limits"]["y"][0] - extra_space,
+            readouts[self.readout]["limits"]["y"][1] + extra_space,
         )
 
         self.canvas.draw()
