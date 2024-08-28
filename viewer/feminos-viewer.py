@@ -41,7 +41,7 @@ plt.rcParams["axes.prop_cycle"] = plt.cycler(color=plt.cm.Set1.colors)
 # There is some issue in the REST-for-Physics readout for TREX-DM.
 # When this is addressed the mapping should be updated.
 readouts = {
-    "iaxo-d0": {
+    "IAXO-D0": {
         "mapping": {
             4323: ("X", 30),
             4324: ("X", 29.5),
@@ -285,7 +285,7 @@ readouts = {
             4604: ("Y", -29.375),
         },
     },
-    "iaxo-d1": {
+    "IAXO-D1": {
         "mapping": {
             4323: ("Y", 2.625),
             4324: ("Y", 2.125),
@@ -529,7 +529,7 @@ readouts = {
             4604: ("X", 2),
         }
     },
-    "trex-dm-left": {"mapping": {
+    "TREX-DM-LEFT": {"mapping": {
         2: ("Y", -115.92),
         3: ("Y", -117.84),
         4: ("Y", -119.76),
@@ -1042,7 +1042,7 @@ readouts = {
         572: ("X", -117.12),
         573: ("X", -115.2),
     }},
-    "trex-dm-right": {"mapping": {
+    "TREX-DM-RIGHT": {"mapping": {
         578: ("Y", -115.92),
         579: ("Y", -117.84),
         580: ("Y", -119.76),
@@ -1555,7 +1555,7 @@ readouts = {
         1148: ("X", -117.12),
         1149: ("X", -115.2),
     }},
-    # "alpha-camm": {"mapping": {}},
+    # "ALPHA-CAMM": {"mapping": {}},
 }
 
 for readout_name in readouts:
@@ -1651,8 +1651,6 @@ class EventViewer:
         self.run_tree = None
         self.current_entry = 0
 
-        self.readout = "iaxo-d1"
-
         self.root = _root
         self.root.title("Event Viewer")
 
@@ -1695,6 +1693,15 @@ class EventViewer:
         )
         self.observable_background_calculation.pack(side=tk.LEFT, padx=20, pady=5)
         self.observable_background_calculation.select()
+
+        self.readout_options = list(readouts.keys())
+        self.selected_readout = tk.StringVar()
+
+        self.readout_menu = tk.OptionMenu(self.file_menu_frame, self.selected_readout, *self.readout_options,
+                                          command=self.on_select_readout)
+        self.readout_menu.pack(side=tk.LEFT, padx=20, pady=5)
+        self.selected_readout.set("IAXO-D1")
+        assert self.selected_readout.get() in readouts, f"Invalid readout {self.selected_readout.get()}. Available readouts are {readouts.keys()}"
 
         self.event_frame = tk.Frame(self.root, bd=2, relief=tk.FLAT)
         self.event_frame.pack(pady=5, side=tk.TOP)
@@ -1806,6 +1813,17 @@ class EventViewer:
         self.filepath = None
 
         self.thread = None
+
+    @property
+    def readout(self):
+        return self.selected_readout.get()
+
+    def on_select_readout(self, readout):
+        if readout == self.readout:
+            return
+
+        self.reset_event_and_observable_data()
+        self.load_file()
 
     def reset_event_and_observable_data(self):
         with lock:
