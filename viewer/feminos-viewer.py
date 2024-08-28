@@ -1659,27 +1659,32 @@ class EventViewer:
         self.label = tk.Label(self.root, text="Select a ROOT file to plot signals from")
         self.label.pack(padx=20, pady=5)
 
-        self.file_menu_frame = tk.Frame(self.root, bd=2, relief=tk.FLAT)
-        self.file_menu_frame.pack(pady=5, side=tk.TOP)
+        self.top_menu = tk.Frame(self.root, bd=2, relief=tk.FLAT)
+        self.top_menu.pack(pady=5, side=tk.TOP)
 
         self.open_button = tk.Button(
-            self.file_menu_frame, text="Open File", command=self.open_file
+            self.top_menu, text="Open Remote File", command=self.open_remote_file
+        )
+        self.open_button.pack(side=tk.LEFT, padx=20, pady=5)
+
+        self.open_button = tk.Button(
+            self.top_menu, text="Open Local File", command=self.open_local_file
         )
         self.open_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.reload_file_button = tk.Button(
-            self.file_menu_frame, text="Reload", command=self.load_file
+            self.top_menu, text="Reload", command=self.load_file
         )
         self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.reload_file_button = tk.Button(
-            self.file_menu_frame, text="Attach", command=self.attach
+            self.top_menu, text="Attach", command=self.attach
         )
         self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.observable_mode_variable = tk.BooleanVar()
         self.observable_background_calculation = tk.Checkbutton(
-            self.file_menu_frame,
+            self.top_menu,
             text="Observables",
             variable=self.observable_mode_variable,
             command=self.on_observable_mode,
@@ -1689,7 +1694,7 @@ class EventViewer:
         self.readout_options = list(readouts.keys())
         self.selected_readout = tk.StringVar()
 
-        self.readout_menu = tk.OptionMenu(self.file_menu_frame, self.selected_readout, *self.readout_options,
+        self.readout_menu = tk.OptionMenu(self.top_menu, self.selected_readout, *self.readout_options,
                                           command=self.on_select_readout)
         self.readout_menu.pack(side=tk.LEFT, padx=20, pady=5)
         self.selected_readout.set("IAXO-D1")
@@ -1698,7 +1703,7 @@ class EventViewer:
 
         self.auto_update_variable = tk.BooleanVar()
         self.auto_update_button = tk.Checkbutton(
-            self.file_menu_frame,
+            self.top_menu,
             text="Auto-Update",
             variable=self.auto_update_variable,
             command=self.on_auto_update,
@@ -1754,7 +1759,7 @@ class EventViewer:
         self.root.bind("<Right>", lambda _: self.next_event())
         self.root.bind("r", lambda _: self.load_file())
         self.root.bind("a", lambda _: self.attach())
-        self.root.bind("o", lambda _: self.open_file())
+        self.root.bind("o", lambda _: self.open_local_file())
         self.entry_textbox.bind("<Return>", lambda _: self.plot_graph())
 
         # Initialize the plot area
@@ -1949,7 +1954,7 @@ class EventViewer:
         if self.current_entry >= self.event_tree.num_entries:
             self.current_entry = 0
 
-    def open_file(self):
+    def open_local_file(self):
         self.filepath = filedialog.askopenfilename(filetypes=[("ROOT files", "*.root")])
         if not self.filepath:
             return
@@ -1958,6 +1963,9 @@ class EventViewer:
         self.reset_event_and_observable_data()
         self.load_file()
         self.plot_graph()
+
+    def open_remote_file(self):
+        ...
 
     def check_file(self, silent: bool = False) -> bool:
         if self.filepath is None or self.event_tree is None or self.run_tree is None:
@@ -2018,15 +2026,15 @@ class EventViewer:
         self.ax_right.clear()
 
         for signal_id, values in zip(event.signals.id, event.signals.values):
-            if int(signal_id) not in readouts[self.readout]["mapping"]:
+            if int(signal_id) not in self.readout_signal_ids:
                 continue
 
             self.ax_left.plot(values, label=f"{signal_id}", alpha=0.8, linewidth=2.5)
 
         # plot signals outside of readout after plotting the signals inside the readout, this way we maintain the colors
-        if not self.show_all_waveforms_variable.get():
+        if self.show_all_waveforms_variable.get():
             for signal_id, values in zip(event.signals.id, event.signals.values):
-                if int(signal_id) in readouts[self.readout]["mapping"]:
+                if int(signal_id) in self.readout_signal_ids:
                     continue
 
                 self.ax_left.plot(values, label=f"{signal_id}", alpha=0.8, linewidth=2.5)
@@ -2164,7 +2172,6 @@ class EventViewer:
         self.canvas.draw()
 
     def plot_graph(self):
-        print(f"Plotting entry {self.current_entry}")
         if not self.check_file():
             return
 
