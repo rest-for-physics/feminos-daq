@@ -16,6 +16,7 @@ import threading
 from collections import OrderedDict, defaultdict
 import time
 import mplhep as hep
+from tkinter import simpledialog
 
 hep.style.use(hep.style.CMS)
 
@@ -1965,7 +1966,23 @@ class EventViewer:
         self.plot_graph()
 
     def open_remote_file(self):
-        ...
+        # ask the user for the filename
+        filename = simpledialog.askstring("Remote File",
+                                          "Please enter file URI in a format supported by uproot such as 'http://localhost:8080/file.root' or 'ssh://user@host:port/home/user/file.root'")
+        # check it is a valid filename if uproot can open it
+        try:
+            uproot.open(filename)
+        except Exception:
+            messagebox.showerror("Error",
+                                 f"uproot couldn't open the file '{filename}'. The file may not exist or you may not have the necessary permissions.")
+            return
+
+        self.filepath = filename
+
+        self.current_entry = 0
+        self.reset_event_and_observable_data()
+        self.load_file()
+        self.plot_graph()
 
     def check_file(self, silent: bool = False) -> bool:
         if self.filepath is None or self.event_tree is None or self.run_tree is None:
@@ -1986,6 +2003,7 @@ class EventViewer:
                 for signal_id in event.signals.id:
                     self.observable_channel_activity[int(signal_id)] += 1
 
+                # TODO: Try to speed up the computation using numba
                 # Process the event to calculate the observable energy estimate (only for signals in the readout)
                 signal_values = [
                     values
@@ -2137,11 +2155,12 @@ class EventViewer:
 
         self.ax_right.clear()
 
-        energy_estimate_quantile = 0.99
         with lock:
             # sort self.observable_energy_estimate
             self.observable_energy_estimate.sort()
             # Remove 1% of the highest values to avoid outliers
+            energy_estimate_quantile = 0.99
+
             observable_energy_estimate = self.observable_energy_estimate[
                                          : int(len(self.observable_energy_estimate) * energy_estimate_quantile)
                                          ]
