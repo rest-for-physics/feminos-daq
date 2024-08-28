@@ -1692,7 +1692,7 @@ class EventViewer:
             variable=self.observable_background_calculation_variable,
         )
         self.observable_background_calculation.pack(side=tk.LEFT, padx=20, pady=5)
-        self.observable_background_calculation.select()
+        # self.observable_background_calculation.select() # Disable for performance reasons
 
         self.readout_options = list(readouts.keys())
         self.selected_readout = tk.StringVar()
@@ -1734,6 +1734,15 @@ class EventViewer:
             self.event_frame, text="Random Event", command=self.random_event
         )
         self.random_event_button.pack(side=tk.LEFT, padx=20, pady=5)
+
+        self.auto_update_variable = tk.BooleanVar()
+        self.auto_update_button = tk.Checkbutton(
+            self.event_frame,
+            text="Auto-Update",
+            variable=self.auto_update_variable,
+            command=self.on_auto_update,
+        )
+        self.auto_update_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.graph_frame = tk.Frame(self.root)
         self.graph_frame.pack(fill="both", expand=True)
@@ -1824,6 +1833,12 @@ class EventViewer:
 
         self.reset_event_and_observable_data()
         self.load_file()
+
+    def on_auto_update(self):
+        if self.auto_update_variable.get():
+            print("Auto-Update enabled")
+        else:
+            print("Auto-Update disabled")
 
     def reset_event_and_observable_data(self):
         with lock:
@@ -2082,9 +2097,6 @@ class EventViewer:
 
         energy_estimate_quantile = 0.99
         with lock:
-            if len(self.observable_entries_processed) <= 5:
-                return
-
             # sort self.observable_energy_estimate
             self.observable_energy_estimate.sort()
             # Remove 1% of the highest values to avoid outliers
@@ -2094,11 +2106,7 @@ class EventViewer:
 
             self.ax_left.hist(
                 observable_energy_estimate,
-                bins=np.linspace(
-                    np.min(observable_energy_estimate),
-                    np.max(observable_energy_estimate),
-                    80,
-                ),
+                bins=80,
                 histtype="step",
                 color="red",
                 linewidth=2.5,
