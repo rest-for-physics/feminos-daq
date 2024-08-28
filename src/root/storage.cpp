@@ -50,7 +50,7 @@ void StorageManager::Initialize(const string& filename) {
 
     cout << "ROOT file will be saved to " << file->GetName() << endl;
 
-    event_tree = std::make_unique<TTree>("events", "Signal events. Each entry is an event which contains multiple signals");
+    event_tree = std::make_unique<TTree>("events", "Signal events. Each entry is an event which may contain multiple signals");
 
     event_tree->Branch("timestamp", &event.timestamp);
     event_tree->Branch("signal_ids", &event.signal_ids);
