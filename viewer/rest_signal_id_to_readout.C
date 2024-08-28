@@ -9,7 +9,6 @@
 using namespace std;
 
 void rest_signal_id_to_readout(TRestDetectorReadout* readout, std::string output_filename = "signal_id_readout_mapping.txt") {
-    // write to "output.txt" file
     std::ofstream out(output_filename);
 
     out << "signal_id_readout_mapping = {\n";
