@@ -1,0 +1,46 @@
+name: feminos-viewer-build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Setup conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.12
+          miniforge-variant: Mambaforge
+          use-mamba: true
+
+      - uses: actions/checkout@v4
+
+      # package with pyinstaller the tk application
+      - name: Install dependencies
+        run: |
+          mamba install pyinstaller
+          mamba install -c conda-forge -r viewer/requirements
+
+      - name: Build
+        run: |
+          pyinstaller viewer/feminos-viewer.py --onefile --name feminos-viewer
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: feminos-viewer-${{ matrix.os }}
+          path: dist/feminos-viewer${{ matrix.os == 'windows-latest' && '.exe' || '' }}
