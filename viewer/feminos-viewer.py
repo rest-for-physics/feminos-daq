@@ -2080,7 +2080,7 @@ class EventViewer:
 
         self.ax_right.set_xlabel("X (mm)")
         self.ax_right.set_ylabel("Y (mm)")
-        self.ax_right.set_aspect("equal")
+
         extra_space = 2.0
         self.ax_right.set_xlim(
             readouts[self.readout]["limits"]["x"][0] - extra_space,
@@ -2090,6 +2090,7 @@ class EventViewer:
             readouts[self.readout]["limits"]["y"][0] - extra_space,
             readouts[self.readout]["limits"]["y"][1] + extra_space,
         )
+        self.ax_right.set_aspect("equal")
 
         self.canvas.draw()
 
