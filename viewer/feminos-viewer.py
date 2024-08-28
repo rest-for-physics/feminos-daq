@@ -1704,6 +1704,7 @@ class EventViewer:
         self.readout_menu.pack(side=tk.LEFT, padx=20, pady=5)
         self.selected_readout.set("IAXO-D1")
         assert self.selected_readout.get() in readouts, f"Invalid readout {self.selected_readout.get()}. Available readouts are {readouts.keys()}"
+        self.readout_signal_ids = set(readouts[self.readout]["mapping"].keys())
 
         self.event_frame = tk.Frame(self.root, bd=2, relief=tk.FLAT)
         self.event_frame.pack(pady=5, side=tk.TOP)
@@ -1831,6 +1832,7 @@ class EventViewer:
         return self.selected_readout.get()
 
     def on_select_readout(self, _):
+        self.readout_signal_ids = set(readouts[self.readout]["mapping"].keys())
         self.reset_event_and_observable_data()
         self.load_file()
 
@@ -1958,26 +1960,21 @@ class EventViewer:
             event = self.event_cache[entry]
 
             if entry not in self.observable_entries_processed:
-                # only if signal_id is in mapping
-                signal_ids = [
-                    int(signal_id)
-                    for signal_id in event.signals.id
-                    if int(signal_id) in readouts[self.readout]["mapping"].keys()
-                ]
-                for signal_id in signal_ids:
-                    self.observable_channel_activity[signal_id] += 1
+                for signal_id in event.signals.id:
+                    self.observable_channel_activity[int(signal_id)] += 1
 
-                # Process the event to calculate the observable energy estimate and channel activity
+                # Process the event to calculate the observable energy estimate (only for signals in the readout)
                 signal_values = [
                     values
                     for signal_id, values in zip(event.signals.id, event.signals.values)
-                    if int(signal_id) in readouts[self.readout]["mapping"].keys()
+                    if int(signal_id) in self.readout_signal_ids
                 ]
 
                 # Calculate the energy estimate for each signal subtracting the mean of the first 40% of the signal
+                baseline_range = 0.4
                 energy_estimate = np.sum(
                     [
-                        np.max(values) - np.mean(values[: int(len(values) * 0.4)])
+                        np.max(values) - np.mean(values[: int(len(values) * baseline_range)])
                         for values in signal_values
                     ]
                 )
@@ -2034,7 +2031,7 @@ class EventViewer:
         self.ax_left.set_xticks(range(0, 512 + 1, 16), minor=True)
         self.ax_left.set_aspect("auto")
 
-        if n_signals_showing <= 10:
+        if 0 < n_signals_showing <= 10:
             self.ax_left.legend(loc="upper right")
 
         # get min value of all signals
