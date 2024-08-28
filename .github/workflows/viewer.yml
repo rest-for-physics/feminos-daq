@@ -1,4 +1,4 @@
-name: feminos-viewer-build
+name: Generate Viewer Distribution
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           mamba install pyinstaller
-          mamba install -c conda-forge -r viewer/requirements
+          mamba install -c conda-forge --file viewer/requirements.txt
 
       - name: Build
         run: |
