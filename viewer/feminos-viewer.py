@@ -1825,6 +1825,7 @@ class EventViewer:
         self.readout_signal_ids = set(readouts[self.readout]["mapping"].keys())
         self.reset_event_and_observable_data()
         self.load_file()
+        self.plot_graph()
 
     def on_observable_mode(self):
         print(f"Observable mode: {self.observable_mode_variable.get()}")
@@ -1888,10 +1889,9 @@ class EventViewer:
 
         self.load_file()
         self.auto_update.select()
+        self.load_file()
 
     def load_file(self):
-        self.current_entry = 0
-
         if self.filepath is None:
             messagebox.showwarning("No File", "You must select a file first")
             return
@@ -1901,6 +1901,8 @@ class EventViewer:
         try:
             self.event_tree = self.file["events"]
         except KeyError:
+            self.current_entry = 0
+
             messagebox.showerror(
                 "Error",
                 f"File {self.filepath} does not contain the 'events' tree. file keys are {self.file.keys()}",
@@ -1911,6 +1913,8 @@ class EventViewer:
         try:
             self.run_tree = self.file["run"]
         except KeyError:
+            self.current_entry = 0
+
             messagebox.showerror(
                 "Error",
                 f"File {self.filepath} does not contain the 'run' tree. file keys are {self.file.keys()}",
@@ -1929,15 +1933,18 @@ class EventViewer:
             text=f"{filename_text} - {self.event_tree.num_entries} entries"
         )
 
-        self.plot_graph()
+        if self.current_entry >= self.event_tree.num_entries:
+            self.current_entry = 0
 
     def open_file(self):
         self.filepath = filedialog.askopenfilename(filetypes=[("ROOT files", "*.root")])
         if not self.filepath:
             return
 
+        self.current_entry = 0
         self.reset_event_and_observable_data()
         self.load_file()
+        self.plot_graph()
 
     def check_file(self, silent: bool = False) -> bool:
         if self.filepath is None or self.event_tree is None or self.run_tree is None:
@@ -2136,6 +2143,7 @@ class EventViewer:
         self.canvas.draw()
 
     def plot_graph(self):
+        print(f"Plotting entry {self.current_entry}")
         if not self.check_file():
             return
 
@@ -2168,6 +2176,7 @@ class EventViewer:
 
         if self.current_entry == self.event_tree.num_entries - 1:
             self.load_file()
+            self.plot_graph()
 
         if self.event_tree and self.current_entry < self.event_tree.num_entries - 1:
             self.current_entry += 1
@@ -2181,12 +2190,11 @@ class EventViewer:
         if not self.check_file():
             return
 
+        self.auto_update_button.deselect()
         self.current_entry = 0
         self.entry_textbox.delete(0, tk.END)
         self.entry_textbox.insert(0, str(self.current_entry))
         self.plot_graph()
-        # disable auto update
-        self.auto_update_button.deselect()
 
     def last_event(self):
         if not self.check_file():
@@ -2202,13 +2210,12 @@ class EventViewer:
         if not self.check_file():
             return
 
+        self.auto_update_button.deselect()
         self.load_file()
         self.current_entry = np.random.randint(0, self.event_tree.num_entries)
         self.entry_textbox.delete(0, tk.END)
         self.entry_textbox.insert(0, str(self.current_entry))
         self.plot_graph()
-        # disable auto update
-        self.auto_update_button.deselect()
 
 
 if __name__ == "__main__":
