@@ -11,17 +11,18 @@ using namespace std;
 void rest_signal_id_to_readout(TRestDetectorReadout* readout, std::string output_filename = "signal_id_readout_mapping.txt") {
     // write to "output.txt" file
     std::ofstream out(output_filename);
-    // write header
-    out << "# signal_id: ( type (X/Y), position)\n";
+
     out << "signal_id_readout_mapping = {\n";
 
-    for (int i = 0; i < 100000; i++) {
-        auto signalID = i;
+    unsigned int counter = 0;
+
+    for (int i = 0; i < 1000000; i++) {
+        const auto signalID = i;
 
         int readoutChannelID, readoutModuleID, x, y;
-
         for (int p = 0; p < readout->GetNumberOfReadoutPlanes(); p++) {
             TRestDetectorReadoutPlane* plane = readout->GetReadoutPlane(p);
+            const auto planeID = plane->GetID();
             for (int m = 0; m < plane->GetNumberOfModules(); m++) {
                 TRestDetectorReadoutModule* mod = plane->GetModule(m);
                 // We iterate over all readout modules searching for the one
@@ -42,6 +43,8 @@ void rest_signal_id_to_readout(TRestDetectorReadout* readout, std::string output
                     auto y = plane->GetY(readoutModuleID, readoutChannelID);
                     // check if x or y are quiet nan
                     if (std::isnan(x) and std::isnan(y)) {
+                        cerr << "Both X and Y are NaN for signalID: " << signalID << " in readout plane: " << planeID << " in readout module: " << readoutModuleID
+                             << " in channel: " << readoutChannelID << endl;
                         continue;
                     }
                     bool is_x = false;
@@ -49,10 +52,12 @@ void rest_signal_id_to_readout(TRestDetectorReadout* readout, std::string output
                         is_x = true;
                     }
                     auto channel_type = is_x ? "X" : "Y";
-                    cout << "Signal ID: " << signalID << " is in readout module: " << readoutModuleID
+                    counter += 1;
+                    cout << "- " << counter << " Signal ID: " << signalID << " is in readout plane: " << planeID << " is in readout module: " << readoutModuleID
                          << " in channel: " << readoutChannelID << " at " << channel_type << " = "
                          << (is_x ? x : y) << endl;
                     out << "\t" << signalID << ": ( \"" << channel_type << "\", " << (is_x ? x : y) << "),\n";
+
                     break;
                 }
             }
