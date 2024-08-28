@@ -1,10 +1,8 @@
 name: Generate Viewer Distribution
+# Not working atm I think because uproot cannot be packaged with pyinstaller
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-test:
