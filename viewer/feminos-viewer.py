@@ -35,258 +35,523 @@ class LimitedOrderedDict(OrderedDict):
         super().__setitem__(key, value)
 
 
-plt.rcParams['axes.prop_cycle'] = plt.cycler(color=plt.cm.Set1.colors)
+plt.rcParams["axes.prop_cycle"] = plt.cycler(color=plt.cm.Set1.colors)
 
-signal_id_readout_mapping = {
-    4323: ("X", 30),
-    4324: ("X", 29.5),
-    4325: ("X", 29),
-    4326: ("X", 28.5),
-    4327: ("X", 28),
-    4328: ("X", 27.5),
-    4329: ("X", 27),
-    4330: ("X", 26.5),
-    4331: ("X", 26),
-    4332: ("X", 25.5),
-    4334: ("X", 25),
-    4335: ("X", 24.5),
-    4336: ("X", 24),
-    4337: ("X", 23.5),
-    4339: ("X", 23),
-    4340: ("X", 22.5),
-    4341: ("X", 22),
-    4342: ("X", 21.5),
-    4343: ("X", 21),
-    4345: ("X", 20.5),
-    4346: ("X", 20),
-    4347: ("X", 19.5),
-    4348: ("X", 19),
-    4349: ("X", 18.5),
-    4350: ("X", 18),
-    4351: ("X", 17.5),
-    4352: ("X", 17),
-    4353: ("X", 16.5),
-    4354: ("X", 16),
-    4355: ("X", 15.5),
-    4356: ("X", 15),
-    4357: ("X", 14.5),
-    4358: ("X", 14),
-    4359: ("X", 13.5),
-    4360: ("X", 13),
-    4361: ("X", 12.5),
-    4362: ("X", 12),
-    4363: ("X", 11.5),
-    4364: ("X", 11),
-    4365: ("X", 10.5),
-    4366: ("X", 10),
-    4368: ("X", 9.5),
-    4369: ("X", 9),
-    4370: ("X", 8.5),
-    4371: ("X", 8),
-    4372: ("X", 7.5),
-    4374: ("X", 7),
-    4375: ("X", 6.5),
-    4376: ("X", 6),
-    4377: ("X", 5.5),
-    4379: ("X", 5),
-    4380: ("X", 4.5),
-    4381: ("X", 4),
-    4382: ("X", 3.5),
-    4383: ("X", 3),
-    4384: ("X", 2.5),
-    4385: ("X", 2),
-    4386: ("X", 1.5),
-    4387: ("X", 1),
-    4388: ("X", 0.5),
-    4395: ("X", 0),
-    4396: ("X", -0.5),
-    4397: ("X", -1),
-    4398: ("X", -1.5),
-    4399: ("X", -2),
-    4400: ("X", -2.5),
-    4401: ("X", -3),
-    4402: ("X", -3.5),
-    4403: ("X", -4),
-    4404: ("X", -4.5),
-    4406: ("X", -5),
-    4407: ("X", -5.5),
-    4408: ("X", -6),
-    4409: ("X", -6.5),
-    4411: ("X", -7),
-    4412: ("X", -7.5),
-    4413: ("X", -8),
-    4414: ("X", -8.5),
-    4415: ("X", -9),
-    4417: ("X", -9.5),
-    4418: ("X", -10),
-    4419: ("X", -10.5),
-    4420: ("X", -11),
-    4421: ("X", -11.5),
-    4422: ("X", -12),
-    4423: ("X", -12.5),
-    4424: ("X", -13),
-    4425: ("X", -13.5),
-    4426: ("X", -14),
-    4427: ("X", -14.5),
-    4428: ("X", -15),
-    4429: ("X", -15.5),
-    4430: ("X", -16),
-    4431: ("X", -16.5),
-    4432: ("X", -17),
-    4433: ("X", -17.5),
-    4434: ("X", -18),
-    4435: ("X", -18.5),
-    4436: ("X", -19),
-    4437: ("X", -19.5),
-    4438: ("X", -20),
-    4440: ("X", -20.5),
-    4441: ("X", -21),
-    4442: ("X", -21.5),
-    4443: ("X", -22),
-    4444: ("X", -22.5),
-    4446: ("X", -23),
-    4447: ("X", -23.5),
-    4448: ("X", -24),
-    4449: ("X", -24.5),
-    4451: ("X", -25),
-    4452: ("X", -25.5),
-    4453: ("X", -26),
-    4454: ("X", -26.5),
-    4455: ("X", -27),
-    4456: ("X", -27.5),
-    4457: ("X", -28),
-    4458: ("X", -28.5),
-    4459: ("X", -29),
-    4460: ("X", -29.5),
-    4467: ("Y", 29.125),
-    4468: ("Y", 29.9375),
-    4469: ("Y", 28.125),
-    4470: ("Y", 28.625),
-    4471: ("Y", 27.125),
-    4472: ("Y", 27.625),
-    4473: ("Y", 26.125),
-    4474: ("Y", 26.625),
-    4475: ("Y", 25.125),
-    4476: ("Y", 25.625),
-    4478: ("Y", 24.125),
-    4479: ("Y", 24.625),
-    4480: ("Y", 23.125),
-    4481: ("Y", 23.625),
-    4483: ("Y", 22.125),
-    4484: ("Y", 22.625),
-    4485: ("Y", 21.125),
-    4486: ("Y", 21.625),
-    4487: ("Y", 20.125),
-    4489: ("Y", 20.625),
-    4490: ("Y", 19.125),
-    4491: ("Y", 19.625),
-    4492: ("Y", 18.125),
-    4493: ("Y", 18.625),
-    4494: ("Y", 17.125),
-    4495: ("Y", 17.625),
-    4496: ("Y", 16.125),
-    4497: ("Y", 16.625),
-    4498: ("Y", 15.125),
-    4499: ("Y", 15.625),
-    4500: ("Y", 14.125),
-    4501: ("Y", 14.625),
-    4502: ("Y", 13.125),
-    4503: ("Y", 13.625),
-    4504: ("Y", 12.125),
-    4505: ("Y", 12.625),
-    4506: ("Y", 11.125),
-    4507: ("Y", 11.625),
-    4508: ("Y", 10.125),
-    4509: ("Y", 10.625),
-    4510: ("Y", 9.125),
-    4512: ("Y", 9.625),
-    4513: ("Y", 8.125),
-    4514: ("Y", 8.625),
-    4515: ("Y", 7.125),
-    4516: ("Y", 7.625),
-    4518: ("Y", 6.125),
-    4519: ("Y", 6.625),
-    4520: ("Y", 5.125),
-    4521: ("Y", 5.625),
-    4523: ("Y", 4.125),
-    4524: ("Y", 4.625),
-    4525: ("Y", 3.125),
-    4526: ("Y", 3.625),
-    4527: ("Y", 2.125),
-    4528: ("Y", 2.625),
-    4529: ("Y", 1.125),
-    4530: ("Y", 1.625),
-    4531: ("Y", 0.125),
-    4532: ("Y", 0.625),
-    4539: ("Y", -0.875),
-    4540: ("Y", -0.375),
-    4541: ("Y", -1.875),
-    4542: ("Y", -1.375),
-    4543: ("Y", -2.875),
-    4544: ("Y", -2.375),
-    4545: ("Y", -3.875),
-    4546: ("Y", -3.375),
-    4547: ("Y", -4.875),
-    4548: ("Y", -4.375),
-    4550: ("Y", -5.875),
-    4551: ("Y", -5.375),
-    4552: ("Y", -6.875),
-    4553: ("Y", -6.375),
-    4555: ("Y", -7.875),
-    4556: ("Y", -7.375),
-    4557: ("Y", -8.875),
-    4558: ("Y", -8.375),
-    4559: ("Y", -9.875),
-    4561: ("Y", -9.375),
-    4562: ("Y", -10.875),
-    4563: ("Y", -10.375),
-    4564: ("Y", -11.875),
-    4565: ("Y", -11.375),
-    4566: ("Y", -12.875),
-    4567: ("Y", -12.375),
-    4568: ("Y", -13.875),
-    4569: ("Y", -13.375),
-    4570: ("Y", -14.875),
-    4571: ("Y", -14.375),
-    4572: ("Y", -15.875),
-    4573: ("Y", -15.375),
-    4574: ("Y", -16.875),
-    4575: ("Y", -16.375),
-    4576: ("Y", -17.875),
-    4577: ("Y", -17.375),
-    4578: ("Y", -18.875),
-    4579: ("Y", -18.375),
-    4580: ("Y", -19.875),
-    4581: ("Y", -19.375),
-    4582: ("Y", -20.875),
-    4584: ("Y", -20.375),
-    4585: ("Y", -21.875),
-    4586: ("Y", -21.375),
-    4587: ("Y", -22.875),
-    4588: ("Y", -22.375),
-    4590: ("Y", -23.875),
-    4591: ("Y", -23.375),
-    4592: ("Y", -24.875),
-    4593: ("Y", -24.375),
-    4595: ("Y", -25.875),
-    4596: ("Y", -25.375),
-    4597: ("Y", -26.875),
-    4598: ("Y", -26.375),
-    4599: ("Y", -27.875),
-    4600: ("Y", -27.375),
-    4601: ("Y", -28.875),
-    4602: ("Y", -28.375),
-    4603: ("Y", -29.8125),
-    4604: ("Y", -29.375),
+readouts = {
+    "iaxo-d0": {
+        "mapping": {
+            4323: ("X", 30),
+            4324: ("X", 29.5),
+            4325: ("X", 29),
+            4326: ("X", 28.5),
+            4327: ("X", 28),
+            4328: ("X", 27.5),
+            4329: ("X", 27),
+            4330: ("X", 26.5),
+            4331: ("X", 26),
+            4332: ("X", 25.5),
+            4334: ("X", 25),
+            4335: ("X", 24.5),
+            4336: ("X", 24),
+            4337: ("X", 23.5),
+            4339: ("X", 23),
+            4340: ("X", 22.5),
+            4341: ("X", 22),
+            4342: ("X", 21.5),
+            4343: ("X", 21),
+            4345: ("X", 20.5),
+            4346: ("X", 20),
+            4347: ("X", 19.5),
+            4348: ("X", 19),
+            4349: ("X", 18.5),
+            4350: ("X", 18),
+            4351: ("X", 17.5),
+            4352: ("X", 17),
+            4353: ("X", 16.5),
+            4354: ("X", 16),
+            4355: ("X", 15.5),
+            4356: ("X", 15),
+            4357: ("X", 14.5),
+            4358: ("X", 14),
+            4359: ("X", 13.5),
+            4360: ("X", 13),
+            4361: ("X", 12.5),
+            4362: ("X", 12),
+            4363: ("X", 11.5),
+            4364: ("X", 11),
+            4365: ("X", 10.5),
+            4366: ("X", 10),
+            4368: ("X", 9.5),
+            4369: ("X", 9),
+            4370: ("X", 8.5),
+            4371: ("X", 8),
+            4372: ("X", 7.5),
+            4374: ("X", 7),
+            4375: ("X", 6.5),
+            4376: ("X", 6),
+            4377: ("X", 5.5),
+            4379: ("X", 5),
+            4380: ("X", 4.5),
+            4381: ("X", 4),
+            4382: ("X", 3.5),
+            4383: ("X", 3),
+            4384: ("X", 2.5),
+            4385: ("X", 2),
+            4386: ("X", 1.5),
+            4387: ("X", 1),
+            4388: ("X", 0.5),
+            4395: ("X", 0),
+            4396: ("X", -0.5),
+            4397: ("X", -1),
+            4398: ("X", -1.5),
+            4399: ("X", -2),
+            4400: ("X", -2.5),
+            4401: ("X", -3),
+            4402: ("X", -3.5),
+            4403: ("X", -4),
+            4404: ("X", -4.5),
+            4406: ("X", -5),
+            4407: ("X", -5.5),
+            4408: ("X", -6),
+            4409: ("X", -6.5),
+            4411: ("X", -7),
+            4412: ("X", -7.5),
+            4413: ("X", -8),
+            4414: ("X", -8.5),
+            4415: ("X", -9),
+            4417: ("X", -9.5),
+            4418: ("X", -10),
+            4419: ("X", -10.5),
+            4420: ("X", -11),
+            4421: ("X", -11.5),
+            4422: ("X", -12),
+            4423: ("X", -12.5),
+            4424: ("X", -13),
+            4425: ("X", -13.5),
+            4426: ("X", -14),
+            4427: ("X", -14.5),
+            4428: ("X", -15),
+            4429: ("X", -15.5),
+            4430: ("X", -16),
+            4431: ("X", -16.5),
+            4432: ("X", -17),
+            4433: ("X", -17.5),
+            4434: ("X", -18),
+            4435: ("X", -18.5),
+            4436: ("X", -19),
+            4437: ("X", -19.5),
+            4438: ("X", -20),
+            4440: ("X", -20.5),
+            4441: ("X", -21),
+            4442: ("X", -21.5),
+            4443: ("X", -22),
+            4444: ("X", -22.5),
+            4446: ("X", -23),
+            4447: ("X", -23.5),
+            4448: ("X", -24),
+            4449: ("X", -24.5),
+            4451: ("X", -25),
+            4452: ("X", -25.5),
+            4453: ("X", -26),
+            4454: ("X", -26.5),
+            4455: ("X", -27),
+            4456: ("X", -27.5),
+            4457: ("X", -28),
+            4458: ("X", -28.5),
+            4459: ("X", -29),
+            4460: ("X", -29.5),
+            4467: ("Y", 29.125),
+            4468: ("Y", 29.9375),
+            4469: ("Y", 28.125),
+            4470: ("Y", 28.625),
+            4471: ("Y", 27.125),
+            4472: ("Y", 27.625),
+            4473: ("Y", 26.125),
+            4474: ("Y", 26.625),
+            4475: ("Y", 25.125),
+            4476: ("Y", 25.625),
+            4478: ("Y", 24.125),
+            4479: ("Y", 24.625),
+            4480: ("Y", 23.125),
+            4481: ("Y", 23.625),
+            4483: ("Y", 22.125),
+            4484: ("Y", 22.625),
+            4485: ("Y", 21.125),
+            4486: ("Y", 21.625),
+            4487: ("Y", 20.125),
+            4489: ("Y", 20.625),
+            4490: ("Y", 19.125),
+            4491: ("Y", 19.625),
+            4492: ("Y", 18.125),
+            4493: ("Y", 18.625),
+            4494: ("Y", 17.125),
+            4495: ("Y", 17.625),
+            4496: ("Y", 16.125),
+            4497: ("Y", 16.625),
+            4498: ("Y", 15.125),
+            4499: ("Y", 15.625),
+            4500: ("Y", 14.125),
+            4501: ("Y", 14.625),
+            4502: ("Y", 13.125),
+            4503: ("Y", 13.625),
+            4504: ("Y", 12.125),
+            4505: ("Y", 12.625),
+            4506: ("Y", 11.125),
+            4507: ("Y", 11.625),
+            4508: ("Y", 10.125),
+            4509: ("Y", 10.625),
+            4510: ("Y", 9.125),
+            4512: ("Y", 9.625),
+            4513: ("Y", 8.125),
+            4514: ("Y", 8.625),
+            4515: ("Y", 7.125),
+            4516: ("Y", 7.625),
+            4518: ("Y", 6.125),
+            4519: ("Y", 6.625),
+            4520: ("Y", 5.125),
+            4521: ("Y", 5.625),
+            4523: ("Y", 4.125),
+            4524: ("Y", 4.625),
+            4525: ("Y", 3.125),
+            4526: ("Y", 3.625),
+            4527: ("Y", 2.125),
+            4528: ("Y", 2.625),
+            4529: ("Y", 1.125),
+            4530: ("Y", 1.625),
+            4531: ("Y", 0.125),
+            4532: ("Y", 0.625),
+            4539: ("Y", -0.875),
+            4540: ("Y", -0.375),
+            4541: ("Y", -1.875),
+            4542: ("Y", -1.375),
+            4543: ("Y", -2.875),
+            4544: ("Y", -2.375),
+            4545: ("Y", -3.875),
+            4546: ("Y", -3.375),
+            4547: ("Y", -4.875),
+            4548: ("Y", -4.375),
+            4550: ("Y", -5.875),
+            4551: ("Y", -5.375),
+            4552: ("Y", -6.875),
+            4553: ("Y", -6.375),
+            4555: ("Y", -7.875),
+            4556: ("Y", -7.375),
+            4557: ("Y", -8.875),
+            4558: ("Y", -8.375),
+            4559: ("Y", -9.875),
+            4561: ("Y", -9.375),
+            4562: ("Y", -10.875),
+            4563: ("Y", -10.375),
+            4564: ("Y", -11.875),
+            4565: ("Y", -11.375),
+            4566: ("Y", -12.875),
+            4567: ("Y", -12.375),
+            4568: ("Y", -13.875),
+            4569: ("Y", -13.375),
+            4570: ("Y", -14.875),
+            4571: ("Y", -14.375),
+            4572: ("Y", -15.875),
+            4573: ("Y", -15.375),
+            4574: ("Y", -16.875),
+            4575: ("Y", -16.375),
+            4576: ("Y", -17.875),
+            4577: ("Y", -17.375),
+            4578: ("Y", -18.875),
+            4579: ("Y", -18.375),
+            4580: ("Y", -19.875),
+            4581: ("Y", -19.375),
+            4582: ("Y", -20.875),
+            4584: ("Y", -20.375),
+            4585: ("Y", -21.875),
+            4586: ("Y", -21.375),
+            4587: ("Y", -22.875),
+            4588: ("Y", -22.375),
+            4590: ("Y", -23.875),
+            4591: ("Y", -23.375),
+            4592: ("Y", -24.875),
+            4593: ("Y", -24.375),
+            4595: ("Y", -25.875),
+            4596: ("Y", -25.375),
+            4597: ("Y", -26.875),
+            4598: ("Y", -26.375),
+            4599: ("Y", -27.875),
+            4600: ("Y", -27.375),
+            4601: ("Y", -28.875),
+            4602: ("Y", -28.375),
+            4603: ("Y", -29.8125),
+            4604: ("Y", -29.375),
+        },
+    },
+    "iaxo-d1": {
+        "mapping": {
+            4323: ("Y", 2.625),
+            4324: ("Y", 2.125),
+            4325: ("Y", 0.125),
+            4326: ("Y", 0.625),
+            4327: ("Y", 1.125),
+            4328: ("Y", 1.625),
+            4330: ("Y", 6.625),
+            4331: ("Y", 6.125),
+            4332: ("Y", 3.125),
+            4334: ("Y", 3.625),
+            4335: ("Y", 4.125),
+            4336: ("Y", 4.625),
+            4337: ("Y", 5.125),
+            4338: ("Y", 5.625),
+            4339: ("Y", 10.625),
+            4340: ("Y", 10.125),
+            4341: ("Y", 7.125),
+            4342: ("Y", 7.625),
+            4343: ("Y", 8.125),
+            4345: ("Y", 8.625),
+            4346: ("Y", 9.125),
+            4347: ("Y", 9.625),
+            4348: ("Y", 14.625),
+            4349: ("Y", 14.125),
+            4350: ("Y", 11.125),
+            4351: ("Y", 11.625),
+            4352: ("Y", 12.125),
+            4353: ("Y", 12.625),
+            4354: ("Y", 13.125),
+            4355: ("Y", 13.625),
+            4356: ("Y", 18.625),
+            4357: ("Y", 18.125),
+            4358: ("Y", 15.125),
+            4359: ("Y", 15.625),
+            4360: ("Y", 16.125),
+            4361: ("Y", 16.625),
+            4362: ("Y", 17.125),
+            4363: ("Y", 17.625),
+            4364: ("Y", 22.625),
+            4365: ("Y", 22.125),
+            4366: ("Y", 19.125),
+            4368: ("Y", 19.625),
+            4369: ("Y", 20.125),
+            4370: ("Y", 20.625),
+            4371: ("Y", 21.125),
+            4372: ("Y", 21.625),
+            4373: ("Y", 26.625),
+            4374: ("Y", 26.125),
+            4375: ("Y", 23.125),
+            4376: ("Y", 23.625),
+            4377: ("Y", 24.125),
+            4379: ("Y", 24.625),
+            4380: ("Y", 25.125),
+            4381: ("Y", 25.625),
+            4383: ("Y", 27.125),
+            4384: ("Y", 27.625),
+            4385: ("Y", 28.125),
+            4386: ("Y", 28.625),
+            4387: ("Y", 29.125),
+            4388: ("Y", 29.9375),
+            4395: ("Y", -29.8125),
+            4396: ("Y", -29.375),
+            4397: ("Y", -28.875),
+            4398: ("Y", -28.375),
+            4399: ("Y", -27.875),
+            4400: ("Y", -27.375),
+            4402: ("Y", -26.875),
+            4403: ("Y", -26.375),
+            4404: ("Y", -23.375),
+            4406: ("Y", -23.875),
+            4407: ("Y", -24.375),
+            4408: ("Y", -24.875),
+            4409: ("Y", -25.375),
+            4410: ("Y", -25.875),
+            4411: ("Y", -22.875),
+            4412: ("Y", -22.375),
+            4413: ("Y", -19.375),
+            4414: ("Y", -19.875),
+            4415: ("Y", -20.375),
+            4417: ("Y", -20.875),
+            4418: ("Y", -21.375),
+            4419: ("Y", -21.875),
+            4420: ("Y", -18.875),
+            4421: ("Y", -18.375),
+            4422: ("Y", -15.375),
+            4423: ("Y", -15.875),
+            4424: ("Y", -16.375),
+            4425: ("Y", -16.875),
+            4426: ("Y", -17.375),
+            4427: ("Y", -17.875),
+            4428: ("Y", -14.875),
+            4429: ("Y", -14.375),
+            4430: ("Y", -11.375),
+            4431: ("Y", -11.875),
+            4432: ("Y", -12.375),
+            4433: ("Y", -12.875),
+            4434: ("Y", -13.375),
+            4435: ("Y", -13.875),
+            4436: ("Y", -10.875),
+            4437: ("Y", -10.375),
+            4438: ("Y", -7.375),
+            4440: ("Y", -7.875),
+            4441: ("Y", -8.375),
+            4442: ("Y", -8.875),
+            4443: ("Y", -9.375),
+            4444: ("Y", -9.875),
+            4445: ("Y", -6.875),
+            4446: ("Y", -6.375),
+            4447: ("Y", -3.375),
+            4448: ("Y", -3.875),
+            4449: ("Y", -4.375),
+            4451: ("Y", -4.875),
+            4452: ("Y", -5.375),
+            4453: ("Y", -5.875),
+            4455: ("Y", -2.875),
+            4456: ("Y", -2.375),
+            4457: ("Y", -0.375),
+            4458: ("Y", -0.875),
+            4459: ("Y", -1.375),
+            4460: ("Y", -1.875),
+            4467: ("X", -2.5),
+            4468: ("X", -2),
+            4469: ("X", 0),
+            4470: ("X", -0.5),
+            4471: ("X", -1),
+            4472: ("X", -1.5),
+            4474: ("X", -6.5),
+            4475: ("X", -6),
+            4476: ("X", -3),
+            4478: ("X", -3.5),
+            4479: ("X", -4),
+            4480: ("X", -4.5),
+            4481: ("X", -5),
+            4482: ("X", -5.5),
+            4483: ("X", -10.5),
+            4484: ("X", -10),
+            4485: ("X", -7),
+            4486: ("X", -7.5),
+            4487: ("X", -8),
+            4489: ("X", -8.5),
+            4490: ("X", -9),
+            4491: ("X", -9.5),
+            4492: ("X", -14.5),
+            4493: ("X", -14),
+            4494: ("X", -11),
+            4495: ("X", -11.5),
+            4496: ("X", -12),
+            4497: ("X", -12.5),
+            4498: ("X", -13),
+            4499: ("X", -13.5),
+            4500: ("X", -18.5),
+            4501: ("X", -18),
+            4502: ("X", -15),
+            4503: ("X", -15.5),
+            4504: ("X", -16),
+            4505: ("X", -16.5),
+            4506: ("X", -17),
+            4507: ("X", -17.5),
+            4508: ("X", -22.5),
+            4509: ("X", -22),
+            4510: ("X", -19),
+            4512: ("X", -19.5),
+            4513: ("X", -20),
+            4514: ("X", -20.5),
+            4515: ("X", -21),
+            4516: ("X", -21.5),
+            4517: ("X", -26.5),
+            4518: ("X", -26),
+            4519: ("X", -23),
+            4520: ("X", -23.5),
+            4521: ("X", -24),
+            4523: ("X", -24.5),
+            4524: ("X", -25),
+            4525: ("X", -25.5),
+            4527: ("X", -27),
+            4528: ("X", -27.5),
+            4529: ("X", -28),
+            4530: ("X", -28.5),
+            4531: ("X", -29),
+            4532: ("X", -29.5),
+            4539: ("X", 27.5),
+            4540: ("X", 28),
+            4541: ("X", 28.5),
+            4542: ("X", 29),
+            4543: ("X", 29.5),
+            4544: ("X", 30),
+            4546: ("X", 27),
+            4547: ("X", 26.5),
+            4548: ("X", 23.5),
+            4550: ("X", 24),
+            4551: ("X", 24.5),
+            4552: ("X", 25),
+            4553: ("X", 25.5),
+            4554: ("X", 26),
+            4555: ("X", 23),
+            4556: ("X", 22.5),
+            4557: ("X", 19.5),
+            4558: ("X", 20),
+            4559: ("X", 20.5),
+            4561: ("X", 21),
+            4562: ("X", 21.5),
+            4563: ("X", 22),
+            4564: ("X", 19),
+            4565: ("X", 18.5),
+            4566: ("X", 15.5),
+            4567: ("X", 16),
+            4568: ("X", 16.5),
+            4569: ("X", 17),
+            4570: ("X", 17.5),
+            4571: ("X", 18),
+            4572: ("X", 15),
+            4573: ("X", 14.5),
+            4574: ("X", 11.5),
+            4575: ("X", 12),
+            4576: ("X", 12.5),
+            4577: ("X", 13),
+            4578: ("X", 13.5),
+            4579: ("X", 14),
+            4580: ("X", 11),
+            4581: ("X", 10.5),
+            4582: ("X", 7.5),
+            4584: ("X", 8),
+            4585: ("X", 8.5),
+            4586: ("X", 9),
+            4587: ("X", 9.5),
+            4588: ("X", 10),
+            4589: ("X", 7),
+            4590: ("X", 6.5),
+            4591: ("X", 3.5),
+            4592: ("X", 4),
+            4593: ("X", 4.5),
+            4595: ("X", 5),
+            4596: ("X", 5.5),
+            4597: ("X", 6),
+            4599: ("X", 3),
+            4600: ("X", 2.5),
+            4601: ("X", 0.5),
+            4602: ("X", 1),
+            4603: ("X", 1.5),
+            4604: ("X", 2),
+        }
+    },
 }
 
-readout_y_min = min([position for signal_type, position in signal_id_readout_mapping.values() if signal_type == "Y"])
-readout_y_max = max([position for signal_type, position in signal_id_readout_mapping.values() if signal_type == "Y"])
-readout_x_min = min([position for signal_type, position in signal_id_readout_mapping.values() if signal_type == "X"])
-readout_x_max = max([position for signal_type, position in signal_id_readout_mapping.values() if signal_type == "X"])
+for readout_name in readouts:
+    mapping = readouts[readout_name]["mapping"]
+
+    y_min = np.min(
+        [position for signal_type, position in mapping.values() if signal_type == "Y"]
+    )
+    y_max = np.max(
+        [position for signal_type, position in mapping.values() if signal_type == "Y"]
+    )
+    x_min = np.min(
+        [position for signal_type, position in mapping.values() if signal_type == "X"]
+    )
+    x_max = np.max(
+        [position for signal_type, position in mapping.values() if signal_type == "X"]
+    )
+
+    readouts[readout_name]["limits"] = {}
+    readouts[readout_name]["limits"]["x"] = (x_min, x_max)
+    readouts[readout_name]["limits"]["y"] = (y_min, y_max)
 
 
-def amplitude_to_color(amplitude, min_amplitude=0, max_amplitude=4095, cmap_name="jet", log_scale=True):
+def amplitude_to_color(
+    amplitude, min_amplitude=0, max_amplitude=4095, cmap_name="jet", log_scale=True
+):
     amplitude = max(amplitude, min_amplitude)
 
     cmap = plt.get_cmap(cmap_name)
@@ -300,7 +565,9 @@ def amplitude_to_color(amplitude, min_amplitude=0, max_amplitude=4095, cmap_name
         normalized_amplitude = (log_amplitude - log_min) / (log_max - log_min)
     else:
         # Linear scaling
-        normalized_amplitude = (amplitude - min_amplitude) / (max_amplitude - min_amplitude)
+        normalized_amplitude = (amplitude - min_amplitude) / (
+            max_amplitude - min_amplitude
+        )
 
     # Normalize the value to be between 0 and 1
     normalized_amplitude = np.clip(normalized_amplitude, 0, 1)
@@ -354,6 +621,8 @@ class EventViewer:
         self.run_tree = None
         self.current_entry = 0
 
+        self.readout = "iaxo-d1"
+
         self.root = _root
         self.root.title("Event Viewer")
 
@@ -379,14 +648,21 @@ class EventViewer:
         self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.event_mode_variable = tk.BooleanVar()
-        self.event_mode = tk.Checkbutton(self.file_menu_frame, text="Toggle Event (ON) / Observable (OFF) Mode",
-                                         variable=self.event_mode_variable, command=self.plot_graph)
+        self.event_mode = tk.Checkbutton(
+            self.file_menu_frame,
+            text="Toggle Event (ON) / Observable (OFF) Mode",
+            variable=self.event_mode_variable,
+            command=self.plot_graph,
+        )
         self.event_mode.pack(side=tk.LEFT, padx=20, pady=5)
         self.event_mode.select()
 
         self.observable_background_calculation_variable = tk.BooleanVar()
-        self.observable_background_calculation = tk.Checkbutton(self.file_menu_frame, text="Observable Calculation",
-                                                                variable=self.observable_background_calculation_variable)
+        self.observable_background_calculation = tk.Checkbutton(
+            self.file_menu_frame,
+            text="Observable Calculation",
+            variable=self.observable_background_calculation_variable,
+        )
         self.observable_background_calculation.pack(side=tk.LEFT, padx=20, pady=5)
         self.observable_background_calculation.select()
 
@@ -444,7 +720,9 @@ class EventViewer:
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         self.canvas.draw()
 
-        self.label_canvas = tk.Canvas(root, width=170, height=20, bg='white', highlightthickness=0)
+        self.label_canvas = tk.Canvas(
+            root, width=170, height=20, bg="white", highlightthickness=0
+        )
         self.label_canvas.place_forget()
 
         self.event_cache = LimitedOrderedDict(100)  # Cache the last 100 events
@@ -454,7 +732,9 @@ class EventViewer:
 
         def rgb_to_hex(rgb):
             """Convert an RGB tuple to a hex color string."""
-            return '#{:02x}{:02x}{:02x}'.format(int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255))
+            return "#{:02x}{:02x}{:02x}".format(
+                int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)
+            )
 
         def on_motion(event):
             # Check if the mouse is over any line
@@ -468,21 +748,30 @@ class EventViewer:
                     adjusted_y = self.canvas.get_tk_widget().winfo_height() - y
                     line_color = line.get_color()
                     self.label_canvas.delete("all")
-                    self.label_canvas.create_rectangle(2, 2, 18, 18, fill=rgb_to_hex(line_color), outline="black")
+                    self.label_canvas.create_rectangle(
+                        2, 2, 18, 18, fill=rgb_to_hex(line_color), outline="black"
+                    )
                     signal_id = int(line.get_label())
                     additional_text = ""
-                    if signal_id in signal_id_readout_mapping:
-                        signal_type, position = signal_id_readout_mapping[signal_id]
+                    if signal_id in readouts[self.readout]["mapping"]:
+                        signal_type, position = readouts[self.readout]["mapping"][
+                            signal_id
+                        ]
                         additional_text = f" @ {signal_type} = {position} mm"
-                    self.label_canvas.create_text(30, 10, anchor='w', text=f'ID {line.get_label()}{additional_text}',
-                                                  fill='black')
+                    self.label_canvas.create_text(
+                        30,
+                        10,
+                        anchor="w",
+                        text=f"ID {line.get_label()}{additional_text}",
+                        fill="black",
+                    )
                     self.label_canvas.place(x=x, y=adjusted_y)
                     visible = True
                     break
             if not visible:
                 self.label_canvas.place_forget()
 
-        self.canvas.mpl_connect('motion_notify_event', on_motion)
+        self.canvas.mpl_connect("motion_notify_event", on_motion)
 
         self.filepath = None
 
@@ -551,6 +840,7 @@ class EventViewer:
         self.plot_graph()
 
         if self.thread is None:
+
             def worker():
                 while True:
                     for i in range(0, self.event_tree.num_entries):
@@ -594,19 +884,31 @@ class EventViewer:
 
             if entry not in self.observable_entries_processed:
                 # only if signal_id is in mapping
-                signal_ids = [int(signal_id) for signal_id in event.signals.id if
-                              int(signal_id) in signal_id_readout_mapping.keys()]
+                signal_ids = [
+                    int(signal_id)
+                    for signal_id in event.signals.id
+                    if int(signal_id) in readouts[self.readout]["mapping"].keys()
+                ]
                 for signal_id in signal_ids:
                     self.observable_channel_activity[signal_id] += 1
 
                 # Process the event to calculate the observable energy estimate and channel activity
-                signal_values = [values for signal_id, values in zip(event.signals.id, event.signals.values) if
-                                 int(signal_id) in signal_id_readout_mapping.keys()]
+                signal_values = [
+                    values
+                    for signal_id, values in zip(event.signals.id, event.signals.values)
+                    if int(signal_id) in readouts[self.readout]["mapping"].keys()
+                ]
 
                 # Calculate the energy estimate for each signal subtracting the mean of the first 40% of the signal
                 energy_estimate = np.sum(
-                    [np.max(values) - np.mean(values[:int(len(values) * 0.4)]) for values in signal_values])
-                self.observable_energy_estimate = np.append(self.observable_energy_estimate, energy_estimate)
+                    [
+                        np.max(values) - np.mean(values[: int(len(values) * 0.4)])
+                        for values in signal_values
+                    ]
+                )
+                self.observable_energy_estimate = np.append(
+                    self.observable_energy_estimate, energy_estimate
+                )
 
                 self.observable_entries_processed.add(entry)
 
@@ -629,14 +931,18 @@ class EventViewer:
         self.ax_right.clear()
 
         for signal_id, values in zip(event.signals.id, event.signals.values):
-            if int(signal_id) not in signal_id_readout_mapping:
+            if int(signal_id) not in readouts[self.readout]["mapping"]:
                 continue
 
             self.ax_left.plot(values, label=f"{signal_id}", alpha=0.8, linewidth=2.5)
 
         n_signals_showing = len(self.ax_left.lines)
 
-        extra_title = f" / Readout {n_signals_showing}" if n_signals_showing != len(event.signals.id) else ""
+        extra_title = (
+            f" / Readout {n_signals_showing}"
+            if n_signals_showing != len(event.signals.id)
+            else ""
+        )
         self.figure.suptitle(
             f"Event {entry} - Number of Signals: Total {len(event.signals.id)}{extra_title}"
         )
@@ -662,10 +968,10 @@ class EventViewer:
         line_width = 4
         for signal_id, values in zip(event.signals.id, event.signals.values):
             signal_id = int(signal_id)
-            if signal_id not in signal_id_readout_mapping:
+            if signal_id not in readouts[self.readout]["mapping"]:
                 # print(f"Signal {signal_id} not found in mapping.")
                 continue
-            signal_type, position = signal_id_readout_mapping[signal_id]
+            signal_type, position = readouts[self.readout]["mapping"][signal_id]
             is_x_signal = signal_type == "X"
             amplitude = np.max(values)  # amplitude goes from 0 to 4095
             amplitude = amplitude - min_value
@@ -675,25 +981,46 @@ class EventViewer:
             alpha = np.clip(alpha, 0.1, 1.0)
             if is_x_signal:
                 # vertical in X
-                self.ax_right.plot([position, position], [readout_x_min, readout_x_max], color=line_color,
-                                   alpha=alpha,
-                                   linewidth=line_width)
+                self.ax_right.plot(
+                    [position, position],
+                    [
+                        readouts[self.readout]["limits"]["x"][0],
+                        readouts[self.readout]["limits"]["x"][1],
+                    ],
+                    color=line_color,
+                    alpha=alpha,
+                    linewidth=line_width,
+                )
             else:
-                self.ax_right.plot([readout_y_min, readout_y_max], [position, position], color=line_color,
-                                   alpha=alpha,
-                                   linewidth=line_width)
+                self.ax_right.plot(
+                    [
+                        readouts[self.readout]["limits"]["y"][0],
+                        readouts[self.readout]["limits"]["y"][1],
+                    ],
+                    [position, position],
+                    color=line_color,
+                    alpha=alpha,
+                    linewidth=line_width,
+                )
 
         self.ax_right.set_xlabel("X (mm)")
         self.ax_right.set_ylabel("Y (mm)")
         self.ax_right.set_aspect("equal")
-        self.ax_right.set_xlim(readout_x_min - 1.0, readout_x_max + 1.0)
-        self.ax_right.set_ylim(readout_y_min - 1.0, readout_y_max + 1.0)
+        self.ax_right.set_xlim(
+            readouts[self.readout]["limits"]["x"][0] - 1.0,
+            readouts[self.readout]["limits"]["x"][1] + 1.0,
+        )
+        self.ax_right.set_ylim(
+            readouts[self.readout]["limits"]["y"][0] - 1.0,
+            readouts[self.readout]["limits"]["y"][1] + 1.0,
+        )
 
         self.canvas.draw()
 
     def plot_observables(self):
         self.figure.suptitle(
-            f"Observables computed for {len(self.observable_entries_processed)} entries out of {self.event_tree.num_entries}")
+            f"Observables computed for {len(self.observable_entries_processed)} entries out of {self.event_tree.num_entries}"
+        )
 
         if self.ax_left is None:
             self.ax_left = self.figure.add_subplot(121)
@@ -714,13 +1041,21 @@ class EventViewer:
             self.observable_energy_estimate.sort()
             # Remove 1% of the highest values to avoid outliers
             observable_energy_estimate = self.observable_energy_estimate[
-                                         :int(len(self.observable_energy_estimate) * energy_estimate_quantile)]
+                : int(len(self.observable_energy_estimate) * energy_estimate_quantile)
+            ]
 
-            self.ax_left.hist(observable_energy_estimate, bins=np.linspace(np.min(observable_energy_estimate),
-                                                                           np.max(observable_energy_estimate),
-                                                                           80), histtype="step", color="red",
-                              linewidth=2.5,
-                              label="Energy Estimate")
+            self.ax_left.hist(
+                observable_energy_estimate,
+                bins=np.linspace(
+                    np.min(observable_energy_estimate),
+                    np.max(observable_energy_estimate),
+                    80,
+                ),
+                histtype="step",
+                color="red",
+                linewidth=2.5,
+                label="Energy Estimate",
+            )
 
             signal_ids = list(self.observable_channel_activity.keys())
             channel_activity = list(self.observable_channel_activity.values())

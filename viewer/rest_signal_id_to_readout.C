@@ -1,9 +1,10 @@
 #include <TRestDetectorReadout.h>
 #include <TRestDetectorReadoutModule.h>
 #include <TRestDetectorReadoutPlane.h>
+
 #include <fstream>
-#include <math.h>
 #include <iostream>
+#include <math.h>
 
 using namespace std;
 
