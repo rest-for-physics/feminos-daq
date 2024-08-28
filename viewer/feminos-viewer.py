@@ -1821,24 +1821,32 @@ class EventViewer:
 
         self.filepath = None
 
-        self.thread = None
+        self.thread_observables = None
+        self.thread_auto_update = None
 
     @property
     def readout(self):
         return self.selected_readout.get()
 
-    def on_select_readout(self, readout):
-        if readout == self.readout:
-            return
-
+    def on_select_readout(self, _):
         self.reset_event_and_observable_data()
         self.load_file()
 
     def on_auto_update(self):
-        if self.auto_update_variable.get():
-            print("Auto-Update enabled")
-        else:
-            print("Auto-Update disabled")
+        if self.auto_update_variable.get() and self.thread_auto_update is None:
+            def worker():
+                while True:
+                    if not self.auto_update_variable.get():
+                        continue
+
+                    if self.check_file(silent=True):
+                        self.last_event()
+
+                    time.sleep(1)
+
+            self.thread_auto_update = threading.Thread(target=worker)
+            self.thread_auto_update.daemon = True
+            self.thread_auto_update.start()
 
     def reset_event_and_observable_data(self):
         with lock:
@@ -1859,6 +1867,7 @@ class EventViewer:
             self.filepath = filename
 
         self.load_file()
+        self.auto_update.select()
 
     def load_file(self):
         self.current_entry = 0
@@ -1900,10 +1909,7 @@ class EventViewer:
             text=f"{filename_text} - {self.event_tree.num_entries} entries"
         )
 
-        self.plot_graph()
-
-        if self.thread is None:
-
+        if self.thread_observables is None:
             def worker():
                 while True:
                     for i in range(0, self.event_tree.num_entries):
@@ -1918,10 +1924,13 @@ class EventViewer:
                             continue
 
                         self.get_event_and_process(i)
+                        time.sleep(0.1)
 
-            self.thread = threading.Thread(target=worker)
-            self.thread.daemon = True
-            self.thread.start()
+            self.thread_observables = threading.Thread(target=worker)
+            self.thread_observables.daemon = True
+            self.thread_observables.start()
+
+        self.plot_graph()
 
     def open_file(self):
         self.filepath = filedialog.askopenfilename(filetypes=[("ROOT files", "*.root")])
@@ -1931,9 +1940,10 @@ class EventViewer:
         self.reset_event_and_observable_data()
         self.load_file()
 
-    def check_file(self) -> bool:
+    def check_file(self, silent: bool = False) -> bool:
         if self.filepath is None or self.event_tree is None or self.run_tree is None:
-            messagebox.showwarning("No File", "Please select a file first!")
+            if not silent:
+                messagebox.showwarning("No File", "Please select a file first!")
             return False
         return True
 
@@ -2153,6 +2163,8 @@ class EventViewer:
             self.entry_textbox.delete(0, tk.END)
             self.entry_textbox.insert(0, str(self.current_entry))
             self.plot_graph()
+            # disable auto update
+            self.auto_update_button.deselect()
 
     def next_event(self):
         if not self.check_file():
@@ -2166,6 +2178,8 @@ class EventViewer:
             self.entry_textbox.delete(0, tk.END)
             self.entry_textbox.insert(0, str(self.current_entry))
             self.plot_graph()
+            # disable auto update
+            self.auto_update_button.deselect()
 
     def first_event(self):
         if not self.check_file():
@@ -2175,6 +2189,8 @@ class EventViewer:
         self.entry_textbox.delete(0, tk.END)
         self.entry_textbox.insert(0, str(self.current_entry))
         self.plot_graph()
+        # disable auto update
+        self.auto_update_button.deselect()
 
     def last_event(self):
         if not self.check_file():
@@ -2195,6 +2211,8 @@ class EventViewer:
         self.entry_textbox.delete(0, tk.END)
         self.entry_textbox.insert(0, str(self.current_entry))
         self.plot_graph()
+        # disable auto update
+        self.auto_update_button.deselect()
 
 
 if __name__ == "__main__":
