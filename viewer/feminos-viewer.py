@@ -1696,6 +1696,15 @@ class EventViewer:
         assert self.selected_readout.get() in readouts, f"Invalid readout {self.selected_readout.get()}. Available readouts are {readouts.keys()}"
         self.readout_signal_ids = set(readouts[self.readout]["mapping"].keys())
 
+        self.auto_update_variable = tk.BooleanVar()
+        self.auto_update_button = tk.Checkbutton(
+            self.file_menu_frame,
+            text="Auto-Update",
+            variable=self.auto_update_variable,
+            command=self.on_auto_update,
+        )
+        self.auto_update_button.pack(side=tk.LEFT, padx=20, pady=5)
+
         self.event_frame = tk.Frame(self.root, bd=2, relief=tk.FLAT)
         self.event_frame.pack(pady=5, side=tk.TOP)
 
@@ -1727,15 +1736,6 @@ class EventViewer:
             self.event_frame, text="Random Event", command=self.random_event
         )
         self.random_event_button.pack(side=tk.LEFT, padx=20, pady=5)
-
-        self.auto_update_variable = tk.BooleanVar()
-        self.auto_update_button = tk.Checkbutton(
-            self.event_frame,
-            text="Auto-Update",
-            variable=self.auto_update_variable,
-            command=self.on_auto_update,
-        )
-        self.auto_update_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.show_all_waveforms_variable = tk.BooleanVar()
         self.show_all_waveforms_button = tk.Checkbutton(
@@ -2151,8 +2151,8 @@ class EventViewer:
             channel_activity = list(self.observable_channel_activity.values())
             self.ax_right.bar(signal_ids, channel_activity, color="blue")
 
-        self.ax_left.set_xlabel("Energy Estimate (ADC)")
-        self.ax_left.set_title("Energy Estimate (99th percentile)")
+        self.ax_left.set_xlabel("Energy (ADC)")
+        self.ax_left.set_title("Energy in Readout (99th percentile)")
         self.ax_left.set_ylabel("Counts")
         self.ax_left.set_aspect("auto")
 
