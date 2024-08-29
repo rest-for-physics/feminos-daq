@@ -313,12 +313,15 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
             const auto speed_events_per_second = feminos_daq_storage::StorageManager::Instance().GetSpeedEventsPerSecond();
             const auto number_of_events = feminos_daq_storage::StorageManager::Instance().GetNumberOfEntries();
 
+            auto& storageManager = feminos_daq_storage::StorageManager::Instance();
+            const auto queueUsagePercent = storageManager.GetQueueUsage() * 100.0;
+
             time_t now_time = time(nullptr);
             tm* now_tm = gmtime(&now_time);
             char time_str[80];
             strftime(time_str, 80, "[%Y-%m-%dT%H:%M:%SZ]", now_tm);
 
-            cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s)" << endl;
+            cout << std::scientific << std::setprecision(2) << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s) | Queue Usage: " << queueUsagePercent << "%" << endl;
 
             auto& prometheusManager = feminos_daq_prometheus::PrometheusManager::Instance();
 
@@ -328,9 +331,6 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
             // Update the new time and size of received data
             fa->daq_last_time = now;
             fa->daq_size_lst = daq_size_rcv;
-
-            auto& storageManager = feminos_daq_storage::StorageManager::Instance();
-            cout << "N Frames in Q: " << storageManager.GetNumberOfFramesInQueue() << " - In Total: " << storageManager.GetNumberOfFramesInserted() << endl;
         }
 
         return 0;
