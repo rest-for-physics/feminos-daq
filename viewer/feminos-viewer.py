@@ -26,6 +26,8 @@ plt.rcParams.update({'font.size': 18})
 lock = threading.Lock()
 
 
+# ssh://lobis@sultan.unizar.es:22/home/lobis/R02286_Calibration_109Cd_Vm_260_Vd_94_Pr_1.1_Gain_0x1_Shape_0xF_Clock_0x4.root
+
 class LimitedOrderedDict(OrderedDict):
     # An OrderedDict that has a maximum size and removes the oldest item when the size is exceeded
     def __init__(self, max_size):
@@ -1903,9 +1905,7 @@ class EventViewer:
                         time.sleep(0.1)
 
                     if self.check_file(silent=True):
-                        self.current_entry = self.event_tree.num_entries - 1
-                        self.entry_textbox.delete(0, tk.END)
-                        self.entry_textbox.insert(0, str(self.current_entry))
+                        self.update_entry(self.event_tree.num_entries - 1)
                         self.plot_graph()
 
                     time.sleep(1)
@@ -1986,7 +1986,7 @@ class EventViewer:
         if not self.filepath:
             return
 
-        self.current_entry = 0
+        self.update_entry(0)
         self.reset_event_and_observable_data()
         self.load_file()
         self.plot_graph()
@@ -2005,7 +2005,7 @@ class EventViewer:
 
         self.filepath = filename
 
-        self.current_entry = 0
+        self.update_entry(0)
         self.reset_event_and_observable_data()
         self.load_file()
         self.plot_graph()
@@ -2218,14 +2218,17 @@ class EventViewer:
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred while plotting: {str(e)}")
 
+    def update_entry(self, entry: int):
+        self.current_entry = entry
+        self.entry_textbox.delete(0, tk.END)
+        self.entry_textbox.insert(0, str(entry))
+
     def prev_event(self):
         if not self.check_file():
             return
 
         if self.current_entry > 0:
-            self.current_entry -= 1
-            self.entry_textbox.delete(0, tk.END)
-            self.entry_textbox.insert(0, str(self.current_entry))
+            self.update_entry(self.current_entry - 1)
             self.plot_graph()
             # disable auto update
             self.auto_update_button.deselect()
@@ -2239,9 +2242,7 @@ class EventViewer:
             self.plot_graph()
 
         if self.event_tree and self.current_entry < self.event_tree.num_entries - 1:
-            self.current_entry += 1
-            self.entry_textbox.delete(0, tk.END)
-            self.entry_textbox.insert(0, str(self.current_entry))
+            self.update_entry(self.current_entry + 1)
             self.plot_graph()
             # disable auto update
             self.auto_update_button.deselect()
@@ -2251,9 +2252,7 @@ class EventViewer:
             return
 
         self.auto_update_button.deselect()
-        self.current_entry = 0
-        self.entry_textbox.delete(0, tk.END)
-        self.entry_textbox.insert(0, str(self.current_entry))
+        self.update_entry(0)
         self.plot_graph()
 
     def last_event(self):
@@ -2262,9 +2261,7 @@ class EventViewer:
 
         self.load_file()
         self.auto_update_button.deselect()
-        self.current_entry = self.event_tree.num_entries - 1
-        self.entry_textbox.delete(0, tk.END)
-        self.entry_textbox.insert(0, str(self.current_entry))
+        self.update_entry(self.event_tree.num_entries - 1)
         self.plot_graph()
 
     def random_event(self):
@@ -2273,9 +2270,7 @@ class EventViewer:
 
         self.auto_update_button.deselect()
         self.load_file()
-        self.current_entry = np.random.randint(0, self.event_tree.num_entries)
-        self.entry_textbox.delete(0, tk.END)
-        self.entry_textbox.insert(0, str(self.current_entry))
+        self.update_entry(np.random.randint(0, self.event_tree.num_entries))
         self.plot_graph()
 
 
