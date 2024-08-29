@@ -1938,6 +1938,8 @@ class EventViewer:
         self.plot_graph()
 
         self.auto_update_button.select()
+        # just selecting the button does not trigger the command!
+        self.on_auto_update()
 
     def load_file(self):
         if self.filepath is None:
