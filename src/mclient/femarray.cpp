@@ -21,7 +21,7 @@
    the sequence number is also cleared at the other end
    - New scheme: on the first daq command, the sequence number becomes 0 after
    it is incremented, and the first daq command does not contain the sequence
-   number so that it gets cleared at the other end. Sub-sequend daq requests
+   number so that it gets cleared at the other end. Subsequent daq requests
    have a sequence number starting from 0x00 and incrementing by one unit until
    wrap around.
    The problem with the initial scheme is that after the last daq request is
@@ -313,17 +313,28 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
             const auto speed_events_per_second = feminos_daq_storage::StorageManager::Instance().GetSpeedEventsPerSecond();
             const auto number_of_events = feminos_daq_storage::StorageManager::Instance().GetNumberOfEntries();
 
+            auto& storageManager = feminos_daq_storage::StorageManager::Instance();
+            const auto queueUsage = storageManager.GetQueueUsage();
+
             time_t now_time = time(nullptr);
             tm* now_tm = gmtime(&now_time);
             char time_str[80];
             strftime(time_str, 80, "[%Y-%m-%dT%H:%M:%SZ]", now_tm);
 
-            cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s)" << endl;
+            string q_fill_string;
+            if (queueUsage > 0.05) {
+                std::stringstream ss;
+                ss << std::fixed << std::setprecision(1) << queueUsage * 100.0;
+                q_fill_string = " | ⚠\uFE0F Queue at " + ss.str() + "% Capacity ⚠\uFE0F";
+            }
 
-            auto& manager = feminos_daq_prometheus::PrometheusManager::Instance();
+            cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entry/s (" << daq_speed << " MB/s)" << q_fill_string << endl;
 
-            manager.SetDaqSpeedMB(daq_speed);
-            manager.SetDaqSpeedEvents(speed_events_per_second);
+            auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
+
+            prometheus_manager.SetDaqSpeedMB(daq_speed);
+            prometheus_manager.SetDaqSpeedEvents(speed_events_per_second);
+            prometheus_manager.SetFrameQueueFillLevel(queueUsage);
 
             // Update the new time and size of received data
             fa->daq_last_time = now;

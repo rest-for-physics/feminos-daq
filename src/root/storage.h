@@ -5,6 +5,8 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <array>
+#include <atomic>
+#include <queue>
 #include <string>
 #include <vector>
 
@@ -81,7 +83,8 @@ public:
     std::unique_ptr<TTree> run_tree;
     Event event;
 
-    std::string compression_algorithm;
+    bool fast_compression = false;
+    bool disable_aqs = false;
 
     unsigned long long run_number = 0;
     unsigned long long run_time_start = 0;
@@ -109,11 +112,22 @@ public:
         return output_directory;
     }
 
+    void AddFrame(const std::vector<unsigned short>& frame);
+    std::vector<unsigned short> PopFrame();
+    unsigned int GetNumberOfFramesInQueue();
+    double GetQueueUsage();
+    unsigned int GetNumberOfFramesInserted() const;
+
 private:
     // make it a point in the past to force a checkpoint on the first event
     const std::chrono::duration<int64_t> checkpoint_interval = std::chrono::seconds(10);
     std::chrono::time_point<std::chrono::system_clock> checkpoint_last = std::chrono::system_clock::now() - checkpoint_interval;
     std::string output_directory;
+
+    std::queue<std::vector<unsigned short>> frames;
+    std::atomic<unsigned long long> frames_count = 0;
+    std::mutex frames_mutex;
+    const size_t max_frames = 1000000; // this should be about 2GB when full (depends on frame size)
 };
 
 } // namespace feminos_daq_storage

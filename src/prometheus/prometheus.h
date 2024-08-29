@@ -37,6 +37,8 @@ public:
 
     PrometheusManager& operator=(const PrometheusManager&) = delete;
 
+    void SetFrameQueueFillLevel(double fill_level);
+
     void SetDaqSpeedMB(double speed);
 
     void SetDaqSpeedEvents(double speed);
@@ -64,13 +66,20 @@ private:
 
     Gauge* uptime_seconds = nullptr;
     Gauge* number_of_events = nullptr;
-    Gauge* daq_speed_mb_per_s_now = nullptr;
-    Gauge* daq_speed_events_per_s_now = nullptr;
     Gauge* run_number = nullptr;
+
+    Gauge* daq_speed_mb_per_s_now = nullptr;
+    Summary* daq_speed_mb_per_s = nullptr;
+
+    Gauge* daq_speed_events_per_s_now = nullptr;
+    Summary* daq_speed_events_per_s = nullptr;
+
+    Gauge* daq_frames_queue_fill_level_now = nullptr;
+    Summary* daq_frames_queue_fill_level = nullptr;
+
     Gauge* number_of_signals_in_last_event = nullptr;
     Summary* number_of_signals_in_event = nullptr;
-    Summary* daq_speed_mb_per_s = nullptr;
-    Summary* daq_speed_events_per_s = nullptr;
+
     Gauge* output_root_file_size = nullptr;
 };
 } // namespace feminos_daq_prometheus

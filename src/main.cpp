@@ -115,7 +115,6 @@ void CleanSharedMemory(int s) {
 }
 
 int main(int argc, char** argv) {
-
     CmdFetcher_Init(&cmdfetcher);
     FemArray_Clear(&femarray);
     EventBuilder_Clear(&eventbuilder);
@@ -126,11 +125,13 @@ int main(int argc, char** argv) {
     std::string output_file;
     int verbose_level = -1;
     std::string output_directory;
-    std::string root_compression_algorithm = "LZMA";
     bool version_flag = false;
+    bool fast_compression = false;
+    bool disable_aqs = false;
 
     CLI::App app{"feminos-daq"};
 
+    app.add_flag("--version", version_flag, "Print the version");
     app.add_option("-s,--server", server_ip, "Base IP address of remote server(s) in dotted decimal")
             ->group("Connection Options")
             ->check(CLI::ValidIPV4);
@@ -155,10 +156,8 @@ int main(int argc, char** argv) {
     app.add_flag("--read-only", readOnly, "Read-only mode")
             ->group("General");
     app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
-    app.add_option("--root-compression-algorithm", root_compression_algorithm, "Root compression algorithm. Use LZMA (default) for best compression or LZ4 for speed when the event rate very high")
-            ->group("File Options")
-            ->check(CLI::IsMember({"ZLIB", "LZMA", "LZ4"}));
-    app.add_flag("--version", version_flag, "Print the version");
+    app.add_flag("--fast-compression", fast_compression, "Disable maximum compression in output file to improve performance. This should only be enabled when the event rate is so high that the default compression cannot keep up. This will increase output file size")->group("File Options");
+    app.add_flag("--disable-aqs", disable_aqs, "Do not store data in aqs format. NOTE: aqs files may be created anyways but they will not have data")->group("File Options");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -179,7 +178,8 @@ int main(int argc, char** argv) {
     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     storage_manager.SetOutputDirectory(output_directory);
-    storage_manager.compression_algorithm = root_compression_algorithm;
+    storage_manager.fast_compression = fast_compression;
+    storage_manager.disable_aqs = disable_aqs;
 
     stringIpToArray(server_ip, femarray.rem_ip_beg);
     stringIpToArray(local_ip, femarray.loc_ip);
@@ -272,7 +272,6 @@ int main(int argc, char** argv) {
         printf("Thread_Create failed %d\n", err);
         goto cleanup;
     }
-    // printf("femarray Thread_Create done\n" );
 
     // Create Event Builder thread
     eventbuilder.thread.routine = reinterpret_cast<void (*)()>(EventBuilder_Loop);
@@ -282,7 +281,6 @@ int main(int argc, char** argv) {
         printf("Thread_Create failed %d\n", err);
         goto cleanup;
     }
-    // printf("eventbuilder Thread_Create done\n" );
 
     // Run the main loop of the command interpreter
     CmdFetcher_Main(&cmdfetcher);

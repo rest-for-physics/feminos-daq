@@ -1938,6 +1938,8 @@ class EventViewer:
         self.plot_graph()
 
         self.auto_update_button.select()
+        # just selecting the button does not trigger the command!
+        self.on_auto_update()
 
     def load_file(self):
         if self.filepath is None:
@@ -1949,7 +1951,7 @@ class EventViewer:
         try:
             self.event_tree = self.file["events"]
         except KeyError:
-            self.current_entry = 0
+            self.update_entry(0)
 
             messagebox.showerror(
                 "Error",
@@ -1961,7 +1963,7 @@ class EventViewer:
         try:
             self.run_tree = self.file["run"]
         except KeyError:
-            self.current_entry = 0
+            self.update_entry(0)
 
             messagebox.showerror(
                 "Error",
@@ -1982,7 +1984,7 @@ class EventViewer:
         )
 
         if self.current_entry >= self.event_tree.num_entries:
-            self.current_entry = 0
+            self.update_entry(0)
 
     def open_local_file(self):
         self.filepath = filedialog.askopenfilename(filetypes=[("ROOT files", "*.root")])

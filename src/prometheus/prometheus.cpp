@@ -86,6 +86,26 @@ feminos_daq_prometheus::PrometheusManager::PrometheusManager() {
                                                        {0.99, 0.02},
                                                });
 
+    daq_frames_queue_fill_level_now = &BuildGauge()
+                                               .Name("daq_frames_queue_fill_level_now")
+                                               .Help("DAQ frames queue fill level (0 - empty - good, 1 - full - bad)")
+                                               .Register(*registry)
+                                               .Add({});
+
+    daq_frames_queue_fill_level = &BuildSummary()
+                                           .Name("daq_frames_queue_fill_level")
+                                           .Help("DAQ frames queue fill level (0 - empty - good, 1 - full - bad)")
+                                           .Register(*registry)
+                                           .Add({}, Summary::Quantiles{
+                                                            {0.01, 0.02},
+                                                            {0.1, 0.02},
+                                                            {0.25, 0.02},
+                                                            {0.5, 0.02},
+                                                            {0.75, 0.02},
+                                                            {0.9, 0.02},
+                                                            {0.99, 0.02},
+                                                    });
+
     run_number = &BuildGauge()
                           .Name("run_number")
                           .Help("Run number")
@@ -205,6 +225,16 @@ void feminos_daq_prometheus::PrometheusManager::UpdateOutputRootFileSize() {
 
         auto size = std::filesystem::file_size(output_root_filename);
         output_root_file_size->Set(double(size) / (1024 * 1024));
+    }
+}
+
+void feminos_daq_prometheus::PrometheusManager::SetFrameQueueFillLevel(double fill_level) {
+    if (daq_frames_queue_fill_level_now) {
+        daq_frames_queue_fill_level_now->Set(fill_level);
+    }
+
+    if (daq_frames_queue_fill_level) {
+        daq_frames_queue_fill_level->Observe(fill_level);
     }
 }
 

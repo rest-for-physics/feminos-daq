@@ -37,6 +37,7 @@ and timestamps depending on event builder mode
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
+#include <thread>
 
 #include "prometheus.h"
 #include "storage.h"
@@ -403,169 +404,6 @@ int EventBuilder_CheckBuffer(EventBuilder* eb, int src,
     return (err);
 }
 
-void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
-    unsigned short* p;
-    int done = 0;
-    unsigned short r0, r1, r2;
-    unsigned short n0, n1;
-    unsigned short cardNumber, chipNumber, daqChannel;
-    unsigned int tmp;
-    int tmp_i[10];
-    int si;
-
-    p = (unsigned short*) fr;
-
-    done = 0;
-    si = 0;
-
-    unsigned int signal_id = 0;
-    std::array<unsigned short, 512> signal_data = {};
-
-    while (!done) {
-        // Is it a prefix for 14-bit content?
-        if ((*p & PFX_14_BIT_CONTENT_MASK) == PFX_CARD_CHIP_CHAN_HIT_IX) {
-            // if (sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints) {                fSignalEvent->AddSignal(sgnl);            }
-
-            if (si > 0) {
-                event.add_signal(signal_id, signal_data);
-            }
-
-            cardNumber = GET_CARD_IX(*p);
-            chipNumber = GET_CHIP_IX(*p);
-            daqChannel = GET_CHAN_IX(*p);
-
-            if (daqChannel >= 0) {
-                daqChannel += cardNumber * 4 * 72 + chipNumber * 72;
-            }
-
-            p++;
-            si = 0;
-
-            signal_id = daqChannel;
-        }
-        // Is it a prefix for 12-bit content?
-        else if ((*p & PFX_12_BIT_CONTENT_MASK) == PFX_ADC_SAMPLE) {
-            r0 = GET_ADC_DATA(*p);
-
-            signal_data[si] = r0;
-
-            p++;
-            si++;
-        }
-        // Is it a prefix for 4-bit content?
-        else if ((*p & PFX_4_BIT_CONTENT_MASK) == PFX_START_OF_EVENT) {
-            // cout << " + Start of event" << endl;
-            r0 = GET_EVENT_TYPE(*p);
-            p++;
-
-            // Time Stamp lower 16-bit
-            r0 = *p;
-            p++;
-
-            // Time Stamp middle 16-bit
-            r1 = *p;
-            p++;
-
-            // Time Stamp upper 16-bit
-            r2 = *p;
-            p++;
-
-            // Set timestamp and event ID
-
-            // Event Count lower 16-bit
-            n0 = *p;
-            p++;
-
-            // Event Count upper 16-bit
-            n1 = *p;
-            p++;
-
-            tmp = (((unsigned int) n1) << 16) | ((unsigned int) n0);
-
-            // auto time = 0 + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8;
-
-            // milliseconds unix time
-
-            if (event.timestamp == 0) {
-                auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                event.timestamp = milliseconds;
-            }
-
-            // cout << " - Time: " << time << endl;
-            // Some times the end of the frame contains the header of the next event.
-            // Then, in the attempt to read the header of next event, we must avoid
-            // that it overwrites the already assigned id. In that case (id != 0), we
-            // do nothing, and we store the values at fLastXX variables, that we will
-            // use that for next event.
-
-            /*
-            if (fSignalEvent->GetID() == 0) {
-                if (fLastEventId == 0) {
-                    fSignalEvent->SetID(tmp);
-                    fSignalEvent->SetTime(tStart + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8);
-                } else {
-                    fSignalEvent->SetID(fLastEventId);
-                    fSignalEvent->SetTime(fLastTimeStamp);
-                }
-            }
-
-            fLastEventId = tmp;
-            fLastTimeStamp = tStart + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8;
-
-            // If it is the first event we use it to define the run start time
-            if (fCounter == 0) {
-                fRunInfo->SetStartTimeStamp(fLastTimeStamp);
-                fCounter++;
-            } else {
-                // and we keep updating the end run time
-                fRunInfo->SetEndTimeStamp(fLastTimeStamp);
-            }
-            */
-            // fSignalEvent->SetRunOrigin(fRunOrigin);
-            // fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
-        } else if ((*p & PFX_4_BIT_CONTENT_MASK) == PFX_END_OF_EVENT) {
-            tmp = ((unsigned int) GET_EOE_SIZE(*p)) << 16;
-            p++;
-            tmp = tmp + (unsigned int) *p;
-            p++;
-
-            // if (fElectronicsType == "SingleFeminos") endOfEvent = true;
-            // cout << " - End of event" << endl;
-        }
-
-        // Is it a prefix for 0-bit content?
-        else if ((*p & PFX_0_BIT_CONTENT_MASK) == PFX_END_OF_FRAME) {
-            // if (sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints) { fSignalEvent->AddSignal(sgnl); }
-            if (si > 0) {
-                event.add_signal(signal_id, signal_data);
-            }
-
-            p++;
-            done = 1;
-        } else if (*p == PFX_START_OF_BUILT_EVENT) {
-            p++;
-        } else if (*p == PFX_END_OF_BUILT_EVENT) {
-            p++;
-        } else if (*p == PFX_SOBE_SIZE) {
-            // Skip header
-            p++;
-
-            // Built Event Size lower 16-bit
-            r0 = *p;
-            p++;
-            // Built Event Size upper 16-bit
-            r1 = *p;
-            p++;
-            tmp_i[0] = (int) ((r1 << 16) | (r0));
-        } else {
-            p++;
-        }
-    }
-}
-
-/*******************************************************************************
- EventBuilder_ProcessBuffer
-*******************************************************************************/
 int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     int err = 0;
     unsigned short* bu_s;
@@ -589,27 +427,15 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     if (sharedBuffer) {
         SemaphoreRed(SemaphoreId);
 
-        //	printf( "Event time BEFORE : %lf\n",
-        // ShMem_DaqInfo->timeStamp );
         Frame_ToSharedMemory((void*) stdout, (void*) bu_s,
                              (int) sz, 0x0, ShMem_DaqInfo,
                              ShMem_Buffer, timeStart, tcm);
-
-        // cout << "        -- frame to shared memory" << endl;
-
-        // printf( "TIME START : %d\n", timeStart );
-        //	printf( "Event time : %lf\n",
-        // ShMem_DaqInfo->timeStamp );
-        //	ShMem_DaqInfo->timeStamp = (double)
-        // timeStart + ShMem_DaqInfo->timeStamp; printf(
-        // "Event time added : %lf\n",
-        // ShMem_DaqInfo->timeStamp ); printf( "-----\n");
 
         SemaphoreGreen(SemaphoreId);
     }
 
     // Save data to file
-    if (!readOnly && eb->savedata) {
+    if (!readOnly && eb->savedata && !feminos_daq_storage::StorageManager::Instance().disable_aqs) {
         // Should we close the current file and open a new one?
         if ((eb->byte_wr + sz) > eb->file_max_size) {
             if ((err = EventBuilder_FileAction(
@@ -638,14 +464,19 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         }
 
         eb->byte_wr += sz;
-        // printf("EventBuilder_ProcessBuffer: wrote %d
-        // bytes to file\n", sz);
     }
 
     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     if (storage_manager.IsInitialized()) {
-        ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
+        // ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
+
+        // Insert frame
+        std::vector<unsigned short> data;
+        data.reserve(sz); // Reserve space to avoid reallocations
+        std::copy(bu_s, bu_s + sz, std::back_inserter(data));
+
+        storage_manager.AddFrame(data);
     }
 
     return (err);
@@ -902,27 +733,16 @@ int EventBuilder_Loop(EventBuilder* eb) {
                 } else {
                     eb->had_sobe = 0;
 
-                    auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
                     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
                     if (storage_manager.IsInitialized()) {
 
+                        // Send a special frame signaling the end of a built event
+                        storage_manager.AddFrame({0});
+
                         if (storage_manager.GetNumberOfEntries() == 0) {
                             storage_manager.millisSinceEpochForSpeedCalculation = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         }
-
-                        storage_manager.event.id = storage_manager.event_tree->GetEntries();
-
-                        prometheus_manager.SetNumberOfSignalsInEvent(storage_manager.event.size());
-                        prometheus_manager.SetNumberOfEvents(storage_manager.event_tree->GetEntries());
-
-                        storage_manager.event_tree->Fill();
-
-                        storage_manager.Checkpoint();
-
-                        prometheus_manager.UpdateOutputRootFileSize();
-
-                        storage_manager.Clear();
                     }
                 }
 
@@ -1094,7 +914,7 @@ int EventBuilder_GetBufferToRecycle(EventBuilder* eb,
 int EventBuilder_FileAction(EventBuilder* eb,
                             EBFileActions action,
                             int format) {
-    if (readOnly) return 0;
+    if (readOnly) { return 0; }
 
     struct tm* now;
     char name[120];
@@ -1154,7 +974,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
     }
     // Close the current file
     else if (action == EBFA_CloseCurrentOpenNext) {
-        if (eb->fout == 0) {
+        if (eb->fout == nullptr) {
         } else {
             fflush(eb->fout);
             fclose(eb->fout);
