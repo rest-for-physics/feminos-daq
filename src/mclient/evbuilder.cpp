@@ -609,7 +609,6 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         std::copy(bu_s, bu_s + sz, std::back_inserter(data));
 
         storage_manager.AddFrame(data);
-        cout << "Number of frames: " << storage_manager.GetNumberOfFrames() << endl;
     }
 
     return (err);

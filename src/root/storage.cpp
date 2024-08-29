@@ -110,8 +110,7 @@ void StorageManager::AddFrame(const vector<unsigned short>& frame) {
     frames.push(frame);
 
     // pop oldest frames if we have too many
-    while (frames.size() > 1000) {
-        cout << "Dropping frame" << endl;
+    while (frames.size() > 10000) {
         frames.pop();
     }
 }
