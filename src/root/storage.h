@@ -5,6 +5,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <array>
+#include <queue>
 #include <string>
 #include <vector>
 
@@ -109,11 +110,18 @@ public:
         return output_directory;
     }
 
+    void AddFrame(const std::vector<unsigned short>& frame);
+    std::vector<unsigned short> PopFrame();
+    unsigned int GetNumberOfFrames();
+
 private:
     // make it a point in the past to force a checkpoint on the first event
     const std::chrono::duration<int64_t> checkpoint_interval = std::chrono::seconds(10);
     std::chrono::time_point<std::chrono::system_clock> checkpoint_last = std::chrono::system_clock::now() - checkpoint_interval;
     std::string output_directory;
+
+    std::queue<std::vector<unsigned short>> frames;
+    std::mutex frames_mutex;
 };
 
 } // namespace feminos_daq_storage

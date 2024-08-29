@@ -602,7 +602,14 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     if (storage_manager.IsInitialized()) {
-        ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
+        // ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
+
+        std::vector<unsigned short> data;
+        data.reserve(sz); // Reserve space to avoid reallocations
+        std::copy(bu_s, bu_s + sz, std::back_inserter(data));
+
+        storage_manager.AddFrame(data);
+        cout << "Number of frames: " << storage_manager.GetNumberOfFrames() << endl;
     }
 
     return (err);

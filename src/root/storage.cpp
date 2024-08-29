@@ -105,6 +105,32 @@ void StorageManager::SetOutputDirectory(const string& directory) {
     }
 }
 
+void StorageManager::AddFrame(const vector<unsigned short>& frame) {
+    lock_guard<mutex> lock(frames_mutex);
+    frames.push(frame);
+
+    // pop oldest frames if we have too many
+    while (frames.size() > 1000) {
+        cout << "Dropping frame" << endl;
+        frames.pop();
+    }
+}
+
+std::vector<unsigned short> StorageManager::PopFrame() {
+    lock_guard<mutex> lock(frames_mutex);
+    if (frames.empty()) {
+        return {};
+    }
+    auto frame = frames.front();
+    frames.pop();
+    return frame;
+}
+
+unsigned int StorageManager::GetNumberOfFrames() {
+    lock_guard<mutex> lock(frames_mutex);
+    return frames.size();
+}
+
 std::pair<unsigned short, std::array<unsigned short, MAX_POINTS>> Event::get_signal_id_data_pair(size_t index) const {
     unsigned short channel = signal_ids[index];
     std::array<unsigned short, MAX_POINTS> data{};
