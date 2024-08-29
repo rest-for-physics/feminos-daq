@@ -404,24 +404,24 @@ int EventBuilder_CheckBuffer(EventBuilder* eb, int src,
 }
 
 void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
-    unsigned short* p;
     unsigned short r0, r1, r2;
     unsigned short n0, n1;
     unsigned short cardNumber, chipNumber, daqChannel;
     unsigned int tmp;
     int tmp_i[10];
-    int si;
+    int si = 0;
 
-    p = (unsigned short*) fr;
+    auto* p = static_cast<unsigned short*>(fr);
+
+    auto start = static_cast<unsigned short*>(fr);
 
     bool done = false;
-    si = 0;
 
     unsigned int signal_id = 0;
     std::array<unsigned short, 512> signal_data = {};
 
     while (!done) {
-        cout << "READ FRAME COUNTER: " << p << " / " << fr_sz << endl;
+        cout << "READ FRAME COUNTER: " << (p - start) << " / " << fr_sz << endl;
         // Is it a prefix for 14-bit content?
         if ((*p & PFX_14_BIT_CONTENT_MASK) == PFX_CARD_CHIP_CHAN_HIT_IX) {
             // if (sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints) {                fSignalEvent->AddSignal(sgnl);            }
@@ -529,6 +529,7 @@ void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
             p++;
         }
     }
+    cout << "READ FRAME DONE" << endl;
 }
 
 /*******************************************************************************
