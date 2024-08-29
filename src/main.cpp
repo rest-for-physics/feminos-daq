@@ -157,7 +157,7 @@ int main(int argc, char** argv) {
             ->group("General");
     app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
     app.add_flag("--fast-compression", fast_compression, "Disable maximum compression in output file to improve performance. This should only be enabled when the event rate is so high that the default compression cannot keep up. This will increase output file size")->group("File Options");
-    app.add_flag("--disable-aqs", disable_aqs, "Do not store data in aqs format")->group("File Options");
+    app.add_flag("--disable-aqs", disable_aqs, "Do not store data in aqs format. NOTE: aqs files may be created anyways but they will not have data")->group("File Options");
 
     CLI11_PARSE(app, argc, argv);
 
