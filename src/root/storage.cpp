@@ -281,9 +281,10 @@ void StorageManager::AddFrame(const vector<unsigned short>& frame) {
     frames.push(frame);
     frames_count++;
 
-    // pop oldest frames if we have too many
-    while (frames.size() > 100000) {
-        frames.pop();
+    constexpr size_t max_frames = 100000;
+
+    if (frames.size() >= max_frames) {
+        throw std::runtime_error("Too many frames in queue");
     }
 }
 
