@@ -405,7 +405,6 @@ int EventBuilder_CheckBuffer(EventBuilder* eb, int src,
 
 void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
     unsigned short* p;
-    int done = 0;
     unsigned short r0, r1, r2;
     unsigned short n0, n1;
     unsigned short cardNumber, chipNumber, daqChannel;
@@ -415,13 +414,14 @@ void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
 
     p = (unsigned short*) fr;
 
-    done = 0;
+    bool done = false;
     si = 0;
 
     unsigned int signal_id = 0;
     std::array<unsigned short, 512> signal_data = {};
 
     while (!done) {
+        cout << "READ FRAME COUNTER: " << p << " / " << fr_sz << endl;
         // Is it a prefix for 14-bit content?
         if ((*p & PFX_14_BIT_CONTENT_MASK) == PFX_CARD_CHIP_CHAN_HIT_IX) {
             // if (sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints) {                fSignalEvent->AddSignal(sgnl);            }
@@ -491,38 +491,6 @@ void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
                 event.timestamp = milliseconds;
             }
 
-            // cout << " - Time: " << time << endl;
-            // Some times the end of the frame contains the header of the next event.
-            // Then, in the attempt to read the header of next event, we must avoid
-            // that it overwrites the already assigned id. In that case (id != 0), we
-            // do nothing, and we store the values at fLastXX variables, that we will
-            // use that for next event.
-
-            /*
-            if (fSignalEvent->GetID() == 0) {
-                if (fLastEventId == 0) {
-                    fSignalEvent->SetID(tmp);
-                    fSignalEvent->SetTime(tStart + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8);
-                } else {
-                    fSignalEvent->SetID(fLastEventId);
-                    fSignalEvent->SetTime(fLastTimeStamp);
-                }
-            }
-
-            fLastEventId = tmp;
-            fLastTimeStamp = tStart + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8;
-
-            // If it is the first event we use it to define the run start time
-            if (fCounter == 0) {
-                fRunInfo->SetStartTimeStamp(fLastTimeStamp);
-                fCounter++;
-            } else {
-                // and we keep updating the end run time
-                fRunInfo->SetEndTimeStamp(fLastTimeStamp);
-            }
-            */
-            // fSignalEvent->SetRunOrigin(fRunOrigin);
-            // fSignalEvent->SetSubRunOrigin(fSubRunOrigin);
         } else if ((*p & PFX_4_BIT_CONTENT_MASK) == PFX_END_OF_EVENT) {
             tmp = ((unsigned int) GET_EOE_SIZE(*p)) << 16;
             p++;
@@ -541,7 +509,7 @@ void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
             }
 
             p++;
-            done = 1;
+            done = true;
         } else if (*p == PFX_START_OF_BUILT_EVENT) {
             p++;
         } else if (*p == PFX_END_OF_BUILT_EVENT) {
@@ -589,21 +557,9 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     if (sharedBuffer) {
         SemaphoreRed(SemaphoreId);
 
-        //	printf( "Event time BEFORE : %lf\n",
-        // ShMem_DaqInfo->timeStamp );
         Frame_ToSharedMemory((void*) stdout, (void*) bu_s,
                              (int) sz, 0x0, ShMem_DaqInfo,
                              ShMem_Buffer, timeStart, tcm);
-
-        // cout << "        -- frame to shared memory" << endl;
-
-        // printf( "TIME START : %d\n", timeStart );
-        //	printf( "Event time : %lf\n",
-        // ShMem_DaqInfo->timeStamp );
-        //	ShMem_DaqInfo->timeStamp = (double)
-        // timeStart + ShMem_DaqInfo->timeStamp; printf(
-        // "Event time added : %lf\n",
-        // ShMem_DaqInfo->timeStamp ); printf( "-----\n");
 
         SemaphoreGreen(SemaphoreId);
     }
