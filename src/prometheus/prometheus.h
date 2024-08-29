@@ -74,8 +74,8 @@ private:
     Gauge* daq_speed_events_per_s_now = nullptr;
     Summary* daq_speed_events_per_s = nullptr;
 
-    Gauge* frame_queue_fill_level_now = nullptr;
-    Summary* frame_queue_fill_level = nullptr;
+    Gauge* daq_frames_queue_fill_level_now = nullptr;
+    Summary* daq_frames_queue_fill_level = nullptr;
 
     Gauge* number_of_signals_in_last_event = nullptr;
     Summary* number_of_signals_in_event = nullptr;
