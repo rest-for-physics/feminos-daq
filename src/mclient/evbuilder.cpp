@@ -420,6 +420,7 @@ void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
     unsigned int signal_id = 0;
     std::array<unsigned short, 512> signal_data = {};
 
+    cout << "READ FRAME START" << endl;
     while (!done) {
         cout << "READ FRAME COUNTER: " << (p - start) << " / " << fr_sz << endl;
         // Is it a prefix for 14-bit content?
@@ -499,6 +500,7 @@ void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
 
             // if (fElectronicsType == "SingleFeminos") endOfEvent = true;
             // cout << " - End of event" << endl;
+            cout << " - End of event" << endl;
         }
 
         // Is it a prefix for 0-bit content?
@@ -600,7 +602,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     if (storage_manager.IsInitialized()) {
-        // ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
+        ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
     }
 
     return (err);
