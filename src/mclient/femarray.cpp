@@ -325,7 +325,7 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
             if (queueUsagePercent > 5.0) {
                 std::stringstream ss;
                 ss << std::fixed << std::setprecision(1) << queueUsagePercent;
-                q_fill_string = " | ⚠ Queue at " + ss.str() + "% ⚠";
+                q_fill_string = " | ⚠ Queue at " + ss.str() + "% Capacity ⚠";
             }
 
             cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s)" << q_fill_string << endl;

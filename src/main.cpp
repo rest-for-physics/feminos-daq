@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <sys/ipc.h>
+#include <sys/resource.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <thread>
@@ -115,6 +116,8 @@ void CleanSharedMemory(int s) {
 }
 
 int main(int argc, char** argv) {
+    // Change process priority to get more out of the CPU
+    setpriority(PRIO_PROCESS, 0, 0);
 
     CmdFetcher_Init(&cmdfetcher);
     FemArray_Clear(&femarray);
