@@ -595,14 +595,12 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
         }
 
         eb->byte_wr += sz;
-        // printf("EventBuilder_ProcessBuffer: wrote %d
-        // bytes to file\n", sz);
     }
 
     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     if (storage_manager.IsInitialized()) {
-        ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
+        // ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
     }
 
     return (err);
