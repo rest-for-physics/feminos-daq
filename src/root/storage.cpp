@@ -281,8 +281,6 @@ void StorageManager::AddFrame(const vector<unsigned short>& frame) {
     frames.push(frame);
     frames_count++;
 
-    constexpr size_t max_frames = 100000;
-
     if (frames.size() >= max_frames) {
         throw std::runtime_error("Too many frames in queue");
     }
@@ -305,6 +303,10 @@ unsigned int StorageManager::GetNumberOfFramesInserted() const {
 unsigned int StorageManager::GetNumberOfFramesInQueue() {
     lock_guard<mutex> lock(frames_mutex);
     return frames.size();
+}
+
+double StorageManager::GetQueueUsage() {
+    return GetNumberOfFramesInQueue() / (double) max_frames;
 }
 
 std::pair<unsigned short, std::array<unsigned short, MAX_POINTS>> Event::get_signal_id_data_pair(size_t index) const {
