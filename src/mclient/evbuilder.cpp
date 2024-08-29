@@ -914,7 +914,7 @@ int EventBuilder_GetBufferToRecycle(EventBuilder* eb,
 int EventBuilder_FileAction(EventBuilder* eb,
                             EBFileActions action,
                             int format) {
-    if (readOnly || feminos_daq_storage::StorageManager::Instance().disable_aqs) { return 0; }
+    if (readOnly) { return 0; }
 
     struct tm* now;
     char name[120];
