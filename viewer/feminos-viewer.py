@@ -1674,7 +1674,7 @@ class EventViewer:
         self.open_button.pack(side=tk.LEFT, padx=20, pady=5)
 
         self.reload_file_button = tk.Button(
-            self.top_menu, text="Reload", command=self.load_file
+            self.top_menu, text="Reload", command=self.on_reload
         )
         self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
@@ -1842,6 +1842,10 @@ class EventViewer:
         self.load_file()
         self.plot_graph()
 
+    def on_reload(self):
+        self.load_file()
+        self.plot_graph()
+
     def on_show_all_waveforms(self):
         self.load_file()
         self.plot_graph()
@@ -1880,7 +1884,10 @@ class EventViewer:
                         time.sleep(0.1)
 
                     if self.check_file(silent=True):
-                        self.last_event()
+                        self.current_entry = self.event_tree.num_entries - 1
+                        self.entry_textbox.delete(0, tk.END)
+                        self.entry_textbox.insert(0, str(self.current_entry))
+                        self.plot_graph()
 
                     time.sleep(1)
 
@@ -2248,6 +2255,7 @@ class EventViewer:
             return
 
         self.load_file()
+        self.auto_update_button.deselect()
         self.current_entry = self.event_tree.num_entries - 1
         self.entry_textbox.delete(0, tk.END)
         self.entry_textbox.insert(0, str(self.current_entry))
