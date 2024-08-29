@@ -1,6 +1,6 @@
-## `mclient`
+## `feminos-daq`
 
-This is a modified and extended version of the original `mclient` program.
+This is an upgraded version of the original `mclient` program written by Denis Calvet.
 
 ### New features
 
@@ -32,22 +32,38 @@ This project uses `CMake` to build the project. To build the project, run the fo
 repository:
 
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/your/custom/install/path
 cmake --build build
-cmake --install build
 ```
 
-This will generate the `mclient` executable in the `build` directory.
+This will generate the `feminos-daq` executable in the `build` directory.
+
+It is recommended to install the program in a directory present in the `PATH` environment variable so that the
+`feminos-daq` and the viewer `feminos-viewer` can be run from any directory.
+
+Installing the program using cmake will also move the python viewer program to the same directory as the `feminos-daq`.
+
+A way to install for all users is to avoid specifying the `CMAKE_INSTALL_PREFIX` so it installs in the default system
+path. It's probably necessary to use `sudo` to install the program in a system path.
+
+```bash
+cmake -S . -B build
+cmake --build build
+sudo cmake --install build
+```
 
 We make use of `CMakes` `FetchContent` module to download the new required dependencies (CLI11 and Prometheus-cpp).
 Only ROOT remains an external dependency (that was not the case in the original `mclient`).
+
+The `feminos-daq` executable is only meant to be compiled for a linux target but the `feminos-viewer` python program can
+be run on any platform.
 
 ### Usage
 
 To get a list of the available options, run the following command:
 
 ```bash
-./mclient --help
+./feminos-daq --help
 ```
 
 The usage remains mostly the same as the original `mclient`. Most of the original options are still available, but
@@ -63,8 +79,8 @@ Prometheus is an industry standard for monitoring and alerting, and it's widely 
 More info about prometheus can be found [here](https://prometheus.io/).
 
 The prometheus exporter is a simple HTTP server that listens on a port (default is 8080) and provides metrics about
-the `mclient` program.
-After starting the `mclient` program, the metrics can be accessed
+the `feminos-daq` program.
+After starting the `feminos-daq` program, the metrics can be accessed
 at [http://localhost:8080/metrics](http://localhost:8080/metrics).
 
 Accessing this html page may be enough for basic monitoring. For instance a slow control system could be configured to
@@ -72,11 +88,14 @@ check the values of the metrics and raise an alarm if something goes wrong.
 
 ### `ROOT` output
 
-The `ROOT` output is a new feature that allows to store the data in a more efficient way.
+`feminos-daq` maintains the old binary output format (`.aqs`) for compatibility reasons but also writes data to a root
+file.
+This new output file is recommended over the old binary files as it's more efficient and easier to read.
 
-It is enabled by default and a root file will be created in the same directory as the binary file.
-Instead of using subruns, the data will be stored in a single file. This file is constantly updated as new data is
-added.
+The root file will be created in the same directory and with the same name as the binary file. Instead of using subruns,
+the data will be stored in a single file.
+
+This file is constantly updated as new data is added.
 It can be read as it's being written and a sudden interruption should not corrupt the file.
 
 The layout of this file has been designed so that the file is as small and easy to read as possible.
@@ -96,26 +115,49 @@ Storing data in a root file as opposed to the old binary files has several advan
 
 * The data is stored in a more efficient way (less disk space is required). This is due to the fact that the data is
   stored in a more compact way and the file is compressed.
-  `ROOT` provides some user configuration regarding compression. We chose a moderately high compression level to keep
-  the file size small while still allowing for fast reading and writing.
-  From our tests we measured a compression factor of `~x8` with respect to the old binary files.
-
+  `ROOT` provides some user configuration regarding compression. The default mode of `feminos-daq` is to use a high
+  compression algorithm (`LZMA`) but a faster algorithm (root's default) can be selected with the `--fast-compression`
+  option.
+  From our tests we measured a compression factor between 2.5 and 8 with respect to the old binary files.
 * The data is more straightforward to read and write. The data can be read and written using `ROOT` or `uproot` without
   the need for a custom reader/writer. This helps unfamiliar users to access the data more easily.
 
-However, storing the data in a root file requires more processing power and memory than the old binary files, so it
-could
-potentially slow down the data acquisition.
-From our preliminary tests, we have observed a slowdown (factor of 2-3) with respect to the old binary files when
-performing acquisition at a very high rate (~10 MB/s in binary mode) with noisy detectors and saving hundreds of
-channels per event.
-We do not expect any slowdown for background runs and only expect some slowdown for calibration runs with a very high
-rate.
+#### Frames Queue
+
+The data is not written to the root file as it arrives (in contrast to the binary files).
+Instead, since writing root files is relatively slow, the frames (the data being sent from the electronics) are stored
+in a container which is periodically emptied by a separate thread that writes the data to the root file.
+
+This reduces the overhead of writing to the root file and allows the program to keep up with the data rate.
+
+However, if the rate at which data arrives is too high, the program will not be able to keep up and the frames queue
+will begin to fill up.
+If the queue reaches a certain size, the program will stop. The size of the queue is displayed periodically in the
+terminal next to the speed of the data acquisition as long as the queue is above a certain size.
+
+In general the user shouldn't worry about this as the queue takes a long time to fill up even for high data rates.
+The only scenario where this could be a problem is on high intensity calibrations.
+In this case the user can select the `--fast-compression` option which will significantly speed up the rate at which the
+queue is emptied. Remember that this will increase the size of the root file so it's not recommended unless it's
+unavoidable.
+
+#### Processing the ROOT files
+
+As mentioned before, the root file can be read using `ROOT` or `uproot`.
+It's also possible to use the root file ("feminos-root") as input for a `REST-for-Physics` analysis using
+the [TRestRawFeminosRootToSignalProcess](https://github.com/rest-for-physics/rawlib/blob/master/inc/TRestRawFeminosRootToSignalProcess.h).
+This process has no options and will read the root file and output a `TRestRawSignalEvent` for each event in the input
+feminos-root file.
+
+Even though the `--fast-compression` files and the regular more compressed files are different in size and take
+different
+times to write, we have measured no difference in the time it takes to process the files with the
+`TRestRawFeminosRootToSignalProcess`.
 
 ### Viewer
 
-The viewer program is a new feature that allows to visualize the data stored in the root file.
-It's a simple `tkinter` program that uses `uproot` to read the data from the root file and `matplotlib` to plot the
+`feminos-viewer` is a Python GUI application that allows to visualize the data stored in the root file.
+`tkinter` is used for the GUI, `uproot` to read the data from the root file and `matplotlib` to plot the
 data.
 
 The required dependencies are listed in `viewer/requirements.txt`. To install them, run the following command:
@@ -127,88 +169,40 @@ python3 -m pip install -r viewer/requirements.txt
 To run the viewer program, use the following command:
 
 ```bash
-python3 viewer/viewer.py
+python3 viewer/feminos-viewer.py
 ```
 
-The viewer program will open a window with some buttons. The user can select a file to view its contents.
+or you can just run `feminos-viewer` from any directory if the cmake install was used.
 
-There is an option to view the data in real time as it's being written.
-The `Attach` button will attempt to find the filename of the root file being written by the `mclient` program (using the
-prometheus metrics page).
-If the filename is found, the viewer will start reading the file and plotting the data in real time.
-The `Reload` button can be used to manually refresh the data.
+![feminos-viewer-screenshot](https://private-user-images.githubusercontent.com/35803280/362641091-2ee62e73-83e7-4be2-a7cd-ac37779de5c7.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjQ5NTc4OTEsIm5iZiI6MTcyNDk1NzU5MSwicGF0aCI6Ii8zNTgwMzI4MC8zNjI2NDEwOTEtMmVlNjJlNzMtODNlNy00YmUyLWE3Y2QtYWMzNzc3OWRlNWM3LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA4MjklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwODI5VDE4NTMxMVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWE2MzlkMjQ1YTgyM2Q4ZGY4ODAxZjgzMWIyNjc2NGIxZDA4ZWEzZmIxNjljMzMwZTMzNWIzMTM4NjBhZTM5YWEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.JU1rU09TNLZu6zbEMwbs6uCCFIhmv8GBW5husEntMpc)
 
-**Note**: The live data feature reads data from the root file, so unfortunately it won't work when using
-the `--read-only` mode.
+There are three ways to open a file:
 
-# - OLD DOCS -
+- The `Open Remote File` button will pop up a dialog to enter the URL of the file to open. This can be any URL supported
+  by `uproot`, such as `https`, `s3` or even `ssh`. This means that the viewer can be run on a local
+  computer and the data from a remote computer (accessible by ssh) can be displayed.
+- The `Open Local File` button will open a file dialog to select a file from the local filesystem.
+- The `Attach` button will attempt to find a running instance of the `feminos-daq` program and open the file being
+  written by it. This is the recommended way to open a file if the data is being written in real time. Remember that the
+  viewer uses the data from the root file, so it's not possible to live-view data when operating in `--read-only` mode.
 
-### Compiling the mclient executable
+The viewer has an option to select a readout corresponding to the data being read.
+The readout is just a mapping between signal ids (ids of the signals in the root file) and the physical channel they
+correspond to given by the type (X or Y) and the position.
 
-Quick recipe to generate the `mclient` executable
+The readouts are hardcoded in the viewer program. In order to add a new readout create a pull request with the new
+readout mapping using the existing ones as guidelines. In the `viewer` directory there is a root macro that can be used
+to generate the mappings from a `REST-for-Physics` readout.
 
-```
-cd projects/minos/mclient/linux
-make
-```
+There is an event menu to navigate through the events. The `Waveforms Outside Readout` option can be selected to plot
+all signals, even those that are not part of the readout.
 
-If everything went smooth, the binary will be placed at `projects/bin/minos/linux/`.
+The `Auto-Update` option will periodically reload the file and select the latest event. This is particularly useful
+when the file is being written in real time.
 
-A good option is to create a symbolic link to that executable wherever you want to use it.
-
-#### Setting up the DAQ environment
-
-In order to mclient from FeminosDAQ to work properly few environment variables must be defined in the system.
-
-The file `loadDAQ_EnvVars.sh` will serve as a template to help definning those variables.
-
-All these varibles are needed, values could be changed.
-
-The best practice is to modify that file and add the following line to your `.bashrc`, or similar.
-
-```
-source $HOME/git/FeminosDAQ/loadDAQ_EnvVars.sh
-```
-
-assuming your FeminosDAQ directory lies under `$HOME/git`.
-
-#### Relevant changes to the original version
-
-* When using "exec" command with a command file with name different from "ped,start,runTCM", which are the values to be
-  used for pedestal, initialization and TCM, we will be prompted for some run conditions.
-
-* If properly configured, an automatic elog entry will be generated.
-    * If the runTag contains the word "Test" or "test", this feature will be skipped.
-    * It is important that the e-log contains a field named detector, and the detector corresponds with one of the
-      options at the e-log.
-
-* A shared memory resource will be created when using "shareBuffer" option in mclient.
-  Usage : ./mclient shareBuffer
-
-    * This buffer can be accessed by other processes, and in particular by TRestSharedMemoryBufferToRawSignalProcess.
-    * When mclient program is terminated by clean exit or by CTRL-C the shared resources will be removed.
-
-* A read only option. Actually, this option will be mostly used together with shareBuffer or very basic tests.
-  Usage : ./mclient readOnly
-  Usage : ./mclient readOnly shareBuffer
-
-    * The data flow received will not be dumped to disk.
-
-* A new empty file will be generated at FILES_TO_ANALYSE_PATH to indicate when a particular RUN has completely finished.
-
-    * The generated file under FILES_TO_ANALYSE_PATH will have extension *.endRun*. And it will use the same file name
-      as the last file written.
-
-* When launching a command file (using exec) that is not named "start", "ped" or "runTCM" a command will be sent to the
-  cards to reinitialize the event counter and timestamp.
-    * This is important in order to construct the timestamp using the file creation timestamp and the internal
-      electronics clock sampling.
-    * An alternative way (future implementation required) would be to use directly the system time.
-
-* A new option has been added to support TCM event build. We need to specify in the command line an argument to let know
-  mclient we are using a TCM.
-  Usage : ./mclient shareBuffer tcm
-
-* We can now specify several options using an argument RST or ST.
-  Usage : ./mclient RST # Equivalent to readOnly, sharedBuffe and tcm
-  Usage : ./mclient ST # Equivalent to sharedBuffe and tcm
+The `Observables` mode will display and compute some observables from the data such as an energy estimate or the channel
+activity.
+This computation is done by the viewer program so it may take significant time to produce histograms with a high number
+of counts. The computations are only performed as long as the `Observables` mode is selected (so it might be a good idea
+to leave this mode selected when performing a long acquisition run). The `Auto-Update` option will periodically refresh
+the observables so it's recommended to enable it when using the `Observables` mode.
