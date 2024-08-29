@@ -174,14 +174,8 @@ void StorageManager::Initialize(const string& filename) {
 
     file = std::make_unique<TFile>(filename.c_str(), "RECREATE");
 
-    if (compression_algorithm == "ZLIB") {
-        file->SetCompressionAlgorithm(ROOT::kZLIB); // good compression ratio and fast (old root default)
-    } else if (compression_algorithm == "LZ4") {
-        file->SetCompressionAlgorithm(ROOT::kLZ4); // good compression ratio and fast (new root default)
-    } else if (compression_algorithm == "LZMA") {
+    if (!fast_compression) {
         file->SetCompressionAlgorithm(ROOT::kLZMA); // biggest compression ratio but slowest
-    } else {
-        throw std::runtime_error("Unknown compression algorithm: " + compression_algorithm);
     }
 
     // file->SetCompressionLevel(9);               // max compression level, but it's very slow, probably not worth it

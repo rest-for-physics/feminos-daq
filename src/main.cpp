@@ -126,8 +126,8 @@ int main(int argc, char** argv) {
     std::string output_file;
     int verbose_level = -1;
     std::string output_directory;
-    std::string root_compression_algorithm = "LZMA";
     bool version_flag = false;
+    bool fast_compression = false;
 
     CLI::App app{"feminos-daq"};
 
@@ -155,9 +155,7 @@ int main(int argc, char** argv) {
     app.add_flag("--read-only", readOnly, "Read-only mode")
             ->group("General");
     app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
-    app.add_option("--root-compression-algorithm", root_compression_algorithm, "Root compression algorithm. Use LZMA (default) for best compression or LZ4 for speed when the event rate very high")
-            ->group("File Options")
-            ->check(CLI::IsMember({"ZLIB", "LZMA", "LZ4"}));
+    app.add_flag("--fast-compression", fast_compression, "Disable maximum compression in output file to improve performance. This should only be enabled when the event rate is so high that the default compression cannot keep up. This will increase output file size")->group("File Options");
     app.add_flag("--version", version_flag, "Print the version");
 
     CLI11_PARSE(app, argc, argv);
@@ -179,7 +177,7 @@ int main(int argc, char** argv) {
     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     storage_manager.SetOutputDirectory(output_directory);
-    storage_manager.compression_algorithm = root_compression_algorithm;
+    storage_manager.fast_compression = fast_compression;
 
     stringIpToArray(server_ip, femarray.rem_ip_beg);
     stringIpToArray(local_ip, femarray.loc_ip);
