@@ -1936,7 +1936,7 @@ class EventViewer:
         self.load_file()
         self.plot_graph()
 
-        self.auto_update.select()
+        self.auto_update_button.select()
 
     def load_file(self):
         if self.filepath is None:
