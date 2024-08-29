@@ -314,7 +314,7 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
             const auto number_of_events = feminos_daq_storage::StorageManager::Instance().GetNumberOfEntries();
 
             auto& storageManager = feminos_daq_storage::StorageManager::Instance();
-            const auto queueUsagePercent = storageManager.GetQueueUsage() * 100.0;
+            const auto queueUsage = storageManager.GetQueueUsage();
 
             time_t now_time = time(nullptr);
             tm* now_tm = gmtime(&now_time);
@@ -322,18 +322,19 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
             strftime(time_str, 80, "[%Y-%m-%dT%H:%M:%SZ]", now_tm);
 
             string q_fill_string;
-            if (queueUsagePercent > 5.0) {
+            if (queueUsage > 0.05) {
                 std::stringstream ss;
-                ss << std::fixed << std::setprecision(1) << queueUsagePercent;
+                ss << std::fixed << std::setprecision(1) << queueUsage * 100.0;
                 q_fill_string = " | ⚠\uFE0F Queue at " + ss.str() + "% Capacity ⚠\uFE0F";
             }
 
             cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entry/s (" << daq_speed << " MB/s)" << q_fill_string << endl;
 
-            auto& prometheusManager = feminos_daq_prometheus::PrometheusManager::Instance();
+            auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
 
-            prometheusManager.SetDaqSpeedMB(daq_speed);
-            prometheusManager.SetDaqSpeedEvents(speed_events_per_second);
+            prometheus_manager.SetDaqSpeedMB(daq_speed);
+            prometheus_manager.SetDaqSpeedEvents(speed_events_per_second);
+            prometheus_manager.SetFrameQueueFillLevel(queueUsage);
 
             // Update the new time and size of received data
             fa->daq_last_time = now;

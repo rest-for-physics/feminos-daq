@@ -86,6 +86,26 @@ feminos_daq_prometheus::PrometheusManager::PrometheusManager() {
                                                        {0.99, 0.02},
                                                });
 
+    frame_queue_fill_level_now = &BuildGauge()
+                                          .Name("frame_queue_fill_level_now")
+                                          .Help("Frame queue fill level (0 empty, 1 full)")
+                                          .Register(*registry)
+                                          .Add({});
+
+    frame_queue_fill_level = &BuildSummary()
+                                      .Name("frame_queue_fill_level_now")
+                                      .Help("Frame queue fill level (0 empty, 1 full)")
+                                      .Register(*registry)
+                                      .Add({}, Summary::Quantiles{
+                                                       {0.01, 0.02},
+                                                       {0.1, 0.02},
+                                                       {0.25, 0.02},
+                                                       {0.5, 0.02},
+                                                       {0.75, 0.02},
+                                                       {0.9, 0.02},
+                                                       {0.99, 0.02},
+                                               });
+
     run_number = &BuildGauge()
                           .Name("run_number")
                           .Help("Run number")
@@ -205,6 +225,16 @@ void feminos_daq_prometheus::PrometheusManager::UpdateOutputRootFileSize() {
 
         auto size = std::filesystem::file_size(output_root_filename);
         output_root_file_size->Set(double(size) / (1024 * 1024));
+    }
+}
+
+void feminos_daq_prometheus::PrometheusManager::SetFrameQueueFillLevel(double fill_level) {
+    if (frame_queue_fill_level_now) {
+        daq_speed_events_per_s_now->Set(fill_level);
+    }
+
+    if (frame_queue_fill_level) {
+        frame_queue_fill_level->Observe(fill_level);
     }
 }
 
