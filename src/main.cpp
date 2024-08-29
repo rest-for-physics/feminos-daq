@@ -155,7 +155,7 @@ int main(int argc, char** argv) {
     app.add_flag("--read-only", readOnly, "Read-only mode")
             ->group("General");
     app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
-    app.add_option("--root-compression-algorithm", root_compression_algorithm, "Root compression algorithm (default: LZMA)")
+    app.add_option("--root-compression-algorithm", root_compression_algorithm, "Root compression algorithm. Use LZMA (default) for best compression or LZ4 for speed when the event rate very high")
             ->group("File Options")
             ->check(CLI::IsMember({"ZLIB", "LZMA", "LZ4"}));
     app.add_flag("--version", version_flag, "Print the version");
