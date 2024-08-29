@@ -221,7 +221,7 @@ void StorageManager::Initialize(const string& filename) {
 
             if (frame.empty()) {
                 // PopFrame does not block since it requires locking the mutex. If there are no frames in the queue, it should return an empty frame
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             } else if (frame.size() == 1 && frame[0] == 0) {
                 // special frame signaling end of built event
                 auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
