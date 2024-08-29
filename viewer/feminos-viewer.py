@@ -2280,7 +2280,7 @@ class EventViewer:
 if __name__ == "__main__":
     root = tk.Tk()
 
-    global_font = font.Font(family="*Font", size=9)
+    global_font = font.Font(family="*Font", size=8)
     root.option_add('*Font', global_font)
 
     app = EventViewer(root)
