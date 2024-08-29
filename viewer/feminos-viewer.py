@@ -1970,7 +1970,7 @@ class EventViewer:
             return
 
         filename_text = self.filepath
-        max_file_length = 50
+        max_file_length = 100
         if len(filename_text) > max_file_length:
             filename_text = filename_text.split("/")[-1]
         if len(filename_text) > max_file_length:
