@@ -17,6 +17,7 @@ from collections import OrderedDict, defaultdict
 import time
 import mplhep as hep
 from tkinter import simpledialog
+from numba import njit
 
 hep.style.use(hep.style.CMS)
 
@@ -1647,6 +1648,25 @@ def get_event(tree: uproot.TTree, entry: int):
     return event
 
 
+@njit
+def compute_energy_estimate(event: ak.highlevel.Record, signal_ids_allowed: set[int],
+                            baseline_range: float = 0.4) -> float:
+    energy = 0.0
+    baseline_factor = int(baseline_range * len(event.signals.values[0]))
+
+    for i in range(len(event.signals.id)):
+        signal_id = int(event.signals.id[i])
+
+        if signal_id not in signal_ids_allowed:
+            continue
+
+        values = np.asarray(event.signals.values[i])
+
+        energy += np.max(values) - np.mean(values[: baseline_factor])
+
+    return energy
+
+
 class EventViewer:
     def __init__(self, _root):
         self.file = None
@@ -1851,7 +1871,6 @@ class EventViewer:
         self.plot_graph()
 
     def on_observable_mode(self):
-        print(f"Observable mode: {self.observable_mode_variable.get()}")
         if self.thread_observables is None and self.observable_mode_variable.get():
             def worker():
                 while True:
@@ -2010,22 +2029,10 @@ class EventViewer:
                 for signal_id in event.signals.id:
                     self.observable_channel_activity[int(signal_id)] += 1
 
-                # TODO: Try to speed up the computation using numba
-                # Process the event to calculate the observable energy estimate (only for signals in the readout)
-                signal_values = [
-                    values
-                    for signal_id, values in zip(event.signals.id, event.signals.values)
-                    if int(signal_id) in self.readout_signal_ids
-                ]
-
-                # Calculate the energy estimate for each signal subtracting the mean of the first 40% of the signal
-                baseline_range = 0.4
-                energy_estimate = np.sum(
-                    [
-                        np.max(values) - np.mean(values[: int(len(values) * baseline_range)])
-                        for values in signal_values
-                    ]
+                energy_estimate = compute_energy_estimate(
+                    event, self.readout_signal_ids
                 )
+
                 self.observable_energy_estimate = np.append(
                     self.observable_energy_estimate, energy_estimate
                 )
@@ -2097,7 +2104,6 @@ class EventViewer:
         for signal_id, values in zip(event.signals.id, event.signals.values):
             signal_id = int(signal_id)
             if signal_id not in readouts[self.readout]["mapping"]:
-                # print(f"Signal {signal_id} not found in mapping.")
                 continue
             signal_type, position = readouts[self.readout]["mapping"][signal_id]
             is_x_signal = signal_type == "X"
