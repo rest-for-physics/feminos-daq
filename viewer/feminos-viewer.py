@@ -18,10 +18,11 @@ import time
 import mplhep as hep
 from tkinter import simpledialog
 from numba import njit
+from tkinter import font
 
 hep.style.use(hep.style.CMS)
 
-plt.rcParams.update({'font.size': 18})
+plt.rcParams.update({'font.size': 14})
 
 lock = threading.Lock()
 
@@ -2278,5 +2279,9 @@ class EventViewer:
 
 if __name__ == "__main__":
     root = tk.Tk()
+
+    global_font = font.Font(family="*Font", size=9)
+    root.option_add('*Font', global_font)
+
     app = EventViewer(root)
     root.mainloop()
