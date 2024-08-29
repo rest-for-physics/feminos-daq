@@ -93,7 +93,7 @@ feminos_daq_prometheus::PrometheusManager::PrometheusManager() {
                                           .Add({});
 
     frame_queue_fill_level = &BuildSummary()
-                                      .Name("frame_queue_fill_level_now")
+                                      .Name("frame_queue_fill_level")
                                       .Help("Frame queue fill level (0 empty, 1 full)")
                                       .Register(*registry)
                                       .Add({}, Summary::Quantiles{
