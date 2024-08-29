@@ -37,6 +37,7 @@ and timestamps depending on event builder mode
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
+#include <thread>
 
 #include "prometheus.h"
 #include "storage.h"
@@ -732,7 +733,6 @@ int EventBuilder_Loop(EventBuilder* eb) {
                 } else {
                     eb->had_sobe = 0;
 
-                    auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
                     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
                     if (storage_manager.IsInitialized()) {
@@ -744,12 +744,13 @@ int EventBuilder_Loop(EventBuilder* eb) {
                             storage_manager.millisSinceEpochForSpeedCalculation = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         }
 
-                        prometheus_manager.SetNumberOfSignalsInEvent(storage_manager.event.size());
-                        prometheus_manager.SetNumberOfEvents(storage_manager.event_tree->GetEntries());
-
-                        prometheus_manager.UpdateOutputRootFileSize();
-
-                        storage_manager.Clear();
+                        if (storage_manager.GetNumberOfFramesInQueue() > 10000) {
+                            cout << "WARNING: Too many frames in processing queue, stopping main thread to catch up" << endl;
+                            while (storage_manager.GetNumberOfFramesInQueue() > 1000) {
+                                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                            }
+                            cout << "Resuming main thread" << endl;
+                        }
                     }
                 }
 

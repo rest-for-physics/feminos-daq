@@ -225,6 +225,7 @@ void StorageManager::Initialize(const string& filename) {
             } else if (frame.size() == 1 && frame[0] == 0) {
                 // special frame signaling end of built event
                 auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
+                auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
 
                 if (storage_manager.IsInitialized()) {
 
@@ -232,6 +233,11 @@ void StorageManager::Initialize(const string& filename) {
                     storage_manager.event_tree->Fill();
 
                     storage_manager.Checkpoint();
+
+                    prometheus_manager.SetNumberOfSignalsInEvent(storage_manager.event.size());
+                    prometheus_manager.SetNumberOfEvents(storage_manager.event_tree->GetEntries());
+
+                    prometheus_manager.UpdateOutputRootFileSize();
                 }
 
                 storage_manager.Clear();
