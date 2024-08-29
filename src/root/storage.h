@@ -5,6 +5,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <array>
+#include <atomic>
 #include <queue>
 #include <string>
 #include <vector>
@@ -112,7 +113,8 @@ public:
 
     void AddFrame(const std::vector<unsigned short>& frame);
     std::vector<unsigned short> PopFrame();
-    unsigned int GetNumberOfFrames();
+    unsigned int GetNumberOfFramesInQueue();
+    unsigned int GetNumberOfFramesInserted() const;
 
 private:
     // make it a point in the past to force a checkpoint on the first event
@@ -121,6 +123,7 @@ private:
     std::string output_directory;
 
     std::queue<std::vector<unsigned short>> frames;
+    std::atomic<unsigned long long> frames_count = 0;
     std::mutex frames_mutex;
 };
 

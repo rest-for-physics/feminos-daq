@@ -2,6 +2,7 @@
 #include "storage.h"
 #include "prometheus.h"
 #include <iostream>
+#include <thread>
 
 using namespace std;
 using namespace feminos_daq_storage;
@@ -76,6 +77,18 @@ void StorageManager::Initialize(const string& filename) {
     prometheus_manager.ExposeRootOutputFilename(filename);
 
     prometheus_manager.UpdateOutputRootFileSize();
+
+    // create a thread that pops frames
+    thread([this]() {
+        while (true) {
+            auto frame = PopFrame();
+
+            if (frame.empty()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                continue;
+            }
+        }
+    }).detach();
 }
 
 void StorageManager::SetOutputDirectory(const string& directory) {
@@ -108,9 +121,10 @@ void StorageManager::SetOutputDirectory(const string& directory) {
 void StorageManager::AddFrame(const vector<unsigned short>& frame) {
     lock_guard<mutex> lock(frames_mutex);
     frames.push(frame);
+    frames_count++;
 
     // pop oldest frames if we have too many
-    while (frames.size() > 10000) {
+    while (frames.size() > 100000) {
         frames.pop();
     }
 }
@@ -125,7 +139,11 @@ std::vector<unsigned short> StorageManager::PopFrame() {
     return frame;
 }
 
-unsigned int StorageManager::GetNumberOfFrames() {
+unsigned int StorageManager::GetNumberOfFramesInserted() const {
+    return frames_count;
+}
+
+unsigned int StorageManager::GetNumberOfFramesInQueue() {
     lock_guard<mutex> lock(frames_mutex);
     return frames.size();
 }

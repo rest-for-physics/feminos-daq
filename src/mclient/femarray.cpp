@@ -320,14 +320,17 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
 
             cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s)" << endl;
 
-            auto& manager = feminos_daq_prometheus::PrometheusManager::Instance();
+            auto& prometheusManager = feminos_daq_prometheus::PrometheusManager::Instance();
 
-            manager.SetDaqSpeedMB(daq_speed);
-            manager.SetDaqSpeedEvents(speed_events_per_second);
+            prometheusManager.SetDaqSpeedMB(daq_speed);
+            prometheusManager.SetDaqSpeedEvents(speed_events_per_second);
 
             // Update the new time and size of received data
             fa->daq_last_time = now;
             fa->daq_size_lst = daq_size_rcv;
+
+            auto& storageManager = feminos_daq_storage::StorageManager::Instance();
+            cout << "N Frames in Q: " << storageManager.GetNumberOfFramesInQueue() << " - In Total: " << storageManager.GetNumberOfFramesInserted() << endl;
         }
 
         return 0;
