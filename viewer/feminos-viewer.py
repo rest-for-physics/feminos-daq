@@ -26,8 +26,6 @@ plt.rcParams.update({'font.size': 18})
 lock = threading.Lock()
 
 
-# ssh://lobis@sultan.unizar.es:22/home/lobis/R02286_Calibration_109Cd_Vm_260_Vd_94_Pr_1.1_Gain_0x1_Shape_0xF_Clock_0x4.root
-
 class LimitedOrderedDict(OrderedDict):
     # An OrderedDict that has a maximum size and removes the oldest item when the size is exceeded
     def __init__(self, max_size):
