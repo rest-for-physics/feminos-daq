@@ -126,7 +126,7 @@ private:
     std::queue<std::vector<unsigned short>> frames;
     std::atomic<unsigned long long> frames_count = 0;
     std::mutex frames_mutex;
-    const size_t max_frames = 500000; // this should be about 2GB when full (depends on frame size)
+    const size_t max_frames = 1000000; // this should be about 2GB when full (depends on frame size)
 };
 
 } // namespace feminos_daq_storage
