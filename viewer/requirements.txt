@@ -7,3 +7,4 @@ aiohttp
 paramiko
 numpy
 numba
+xxhash
