@@ -1718,7 +1718,7 @@ class EventViewer:
         self.selected_readout = tk.StringVar()
 
         self.readout_menu = tk.OptionMenu(self.top_menu, self.selected_readout, *self.readout_options,
-                                          command=self.on_select_readout)
+                                          command=self.on_readout_select)
         self.readout_menu.pack(side=tk.LEFT, padx=20, pady=5)
         self.selected_readout.set("IAXO-D1")
         assert self.selected_readout.get() in readouts, f"Invalid readout {self.selected_readout.get()}. Available readouts are {readouts.keys()}"
@@ -1858,11 +1858,13 @@ class EventViewer:
     def readout(self):
         return self.selected_readout.get()
 
-    def on_select_readout(self, _):
+    def on_readout_select(self, _):
         self.readout_signal_ids = set(readouts[self.readout]["mapping"].keys())
         self.reset_event_and_observable_data()
-        self.load_file()
-        self.plot_graph()
+
+        if self.check_file(silent=True):
+            self.load_file()
+            self.plot_graph()
 
     def on_reload(self):
         self.load_file()
