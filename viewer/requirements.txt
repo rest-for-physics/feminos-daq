@@ -6,3 +6,4 @@ mplhep
 aiohttp
 paramiko
 numpy
+numba
