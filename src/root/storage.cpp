@@ -30,7 +30,7 @@ double StorageManager::GetSpeedEventsPerSecond() const {
     return 1000.0 * GetNumberOfEntries() / millis;
 }
 
-void ReadFrame(const std::vector<unsigned short>& frame_data, feminos_daq_storage::Event& event) {
+bool ReadFrame(const std::vector<unsigned short>& frame_data, feminos_daq_storage::Event& event) {
     unsigned short r0, r1, r2;
     unsigned short n0, n1;
     unsigned short cardNumber, chipNumber, daqChannel;
@@ -39,7 +39,9 @@ void ReadFrame(const std::vector<unsigned short>& frame_data, feminos_daq_storag
     int si = 0;
 
     auto p = const_cast<unsigned short*>(frame_data.data());
+    auto start = p;
 
+    bool end_of_event = false;
     bool done = false;
 
     unsigned int signal_id = 0;
@@ -131,11 +133,20 @@ void ReadFrame(const std::vector<unsigned short>& frame_data, feminos_daq_storag
                 event.add_signal(signal_id, signal_data);
             }
 
-            p++;
             done = true;
+
+            if (end_of_event) {
+                cout << "End of frame fount at " << p - start << endl;
+            }
+
+            p++;
+
         } else if (*p == PFX_START_OF_BUILT_EVENT) {
+            cout << "Start of built event fount at " << p - start << endl;
             p++;
         } else if (*p == PFX_END_OF_BUILT_EVENT) {
+            end_of_event = true;
+            cout << "End of event fount at " << p - start << endl;
             p++;
         } else if (*p == PFX_SOBE_SIZE) {
             // Skip header
@@ -152,6 +163,7 @@ void ReadFrame(const std::vector<unsigned short>& frame_data, feminos_daq_storag
             p++;
         }
     }
+    return end_of_event;
 }
 
 void StorageManager::Initialize(const string& filename) {
@@ -203,11 +215,11 @@ void StorageManager::Initialize(const string& filename) {
 
     prometheus_manager.UpdateOutputRootFileSize();
 
-    // create a thread that pops frames
     thread([this]() {
         while (true) {
             auto frame = PopFrame();
 
+            // PopFrame should not block since it requires locking the mutex. If there are no frames in the queue, it should return an empty frame
             if (frame.empty()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 continue;
@@ -264,7 +276,7 @@ std::vector<unsigned short> StorageManager::PopFrame() {
     }
     auto frame = frames.front();
     frames.pop();
-    return frame;
+    return std::move(frame);
 }
 
 unsigned int StorageManager::GetNumberOfFramesInserted() const {
