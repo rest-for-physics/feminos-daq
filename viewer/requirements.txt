@@ -2,3 +2,7 @@ matplotlib
 requests
 tk
 uproot
+mplhep
+aiohttp
+paramiko
+numpy
