@@ -911,6 +911,7 @@ int EventBuilder_Loop(EventBuilder* eb) {
                             storage_manager.millisSinceEpochForSpeedCalculation = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         }
 
+                        /*
                         storage_manager.event.id = storage_manager.event_tree->GetEntries();
 
                         prometheus_manager.SetNumberOfSignalsInEvent(storage_manager.event.size());
@@ -921,7 +922,7 @@ int EventBuilder_Loop(EventBuilder* eb) {
                         storage_manager.Checkpoint();
 
                         prometheus_manager.UpdateOutputRootFileSize();
-
+*/
                         storage_manager.Clear();
                     }
                 }
