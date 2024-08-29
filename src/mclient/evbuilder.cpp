@@ -403,6 +403,7 @@ int EventBuilder_CheckBuffer(EventBuilder* eb, int src,
     return (err);
 }
 
+/*
 void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
     unsigned short r0, r1, r2;
     unsigned short n0, n1;
@@ -533,7 +534,7 @@ void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
     }
     cout << "READ FRAME DONE" << endl;
 }
-
+*/
 /*******************************************************************************
  EventBuilder_ProcessBuffer
 *******************************************************************************/
