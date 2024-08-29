@@ -435,7 +435,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     }
 
     // Save data to file
-    if (!readOnly && eb->savedata) {
+    if (!readOnly && eb->savedata && !feminos_daq_storage::StorageManager::Instance().disable_aqs) {
         // Should we close the current file and open a new one?
         if ((eb->byte_wr + sz) > eb->file_max_size) {
             if ((err = EventBuilder_FileAction(
@@ -914,7 +914,7 @@ int EventBuilder_GetBufferToRecycle(EventBuilder* eb,
 int EventBuilder_FileAction(EventBuilder* eb,
                             EBFileActions action,
                             int format) {
-    if (readOnly) return 0;
+    if (readOnly || feminos_daq_storage::StorageManager::Instance().disable_aqs) { return 0; }
 
     struct tm* now;
     char name[120];
@@ -974,7 +974,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
     }
     // Close the current file
     else if (action == EBFA_CloseCurrentOpenNext) {
-        if (eb->fout == 0) {
+        if (eb->fout == nullptr) {
         } else {
             fflush(eb->fout);
             fclose(eb->fout);

@@ -84,6 +84,7 @@ public:
     Event event;
 
     bool fast_compression = false;
+    bool disable_aqs = false;
 
     unsigned long long run_number = 0;
     unsigned long long run_time_start = 0;

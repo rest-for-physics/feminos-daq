@@ -179,6 +179,7 @@ int main(int argc, char** argv) {
 
     storage_manager.SetOutputDirectory(output_directory);
     storage_manager.fast_compression = fast_compression;
+    storage_manager.disable_aqs = disable_aqs;
 
     stringIpToArray(server_ip, femarray.rem_ip_beg);
     stringIpToArray(local_ip, femarray.loc_ip);
@@ -271,11 +272,6 @@ int main(int argc, char** argv) {
         printf("Thread_Create failed %d\n", err);
         goto cleanup;
     }
-    // printf("femarray Thread_Create done\n" );
-
-    if (disable_aqs) {
-        eventbuilder.savedata = 0;
-    }
 
     // Create Event Builder thread
     eventbuilder.thread.routine = reinterpret_cast<void (*)()>(EventBuilder_Loop);
@@ -285,7 +281,6 @@ int main(int argc, char** argv) {
         printf("Thread_Create failed %d\n", err);
         goto cleanup;
     }
-    // printf("eventbuilder Thread_Create done\n" );
 
     // Run the main loop of the command interpreter
     CmdFetcher_Main(&cmdfetcher);
