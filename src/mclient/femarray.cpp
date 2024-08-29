@@ -321,7 +321,7 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
             char time_str[80];
             strftime(time_str, 80, "[%Y-%m-%dT%H:%M:%SZ]", now_tm);
 
-            auto q_fill_string = (queueUsagePercent > 1.0) ? " | ⚠\uFE0F Q Fill: " + std::to_string(queueUsagePercent) + "%" : "";
+            auto q_fill_string = (queueUsagePercent > 1.0) ? " | ⚠\uFE0F Queue Fill: " + std::to_string(queueUsagePercent) + "%" : "";
             cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s)" << q_fill_string << endl;
 
             auto& prometheusManager = feminos_daq_prometheus::PrometheusManager::Instance();
