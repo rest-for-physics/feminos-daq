@@ -217,16 +217,28 @@ void StorageManager::Initialize(const string& filename) {
 
     thread([this]() {
         while (true) {
-            auto frame = PopFrame();
+            const auto frame = PopFrame();
 
-            // PopFrame should not block since it requires locking the mutex. If there are no frames in the queue, it should return an empty frame
             if (frame.empty()) {
+                // PopFrame does not block since it requires locking the mutex. If there are no frames in the queue, it should return an empty frame
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                continue;
-            }
+            } else if (frame.size() == 1 && frame[0] == 0) {
+                // special frame signaling end of built event
+                auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
-            ReadFrame(frame, event);
-            event.clear();
+                if (storage_manager.IsInitialized()) {
+
+                    storage_manager.event.id = storage_manager.event_tree->GetEntries();
+                    storage_manager.event_tree->Fill();
+
+                    storage_manager.Checkpoint();
+                }
+
+                storage_manager.Clear();
+            } else {
+                // read frame data into event
+                ReadFrame(frame, event);
+            }
         }
     }).detach();
 }

@@ -403,141 +403,6 @@ int EventBuilder_CheckBuffer(EventBuilder* eb, int src,
     return (err);
 }
 
-/*
-void ReadFrame(void* fr, int fr_sz, feminos_daq_storage::Event& event) {
-    unsigned short r0, r1, r2;
-    unsigned short n0, n1;
-    unsigned short cardNumber, chipNumber, daqChannel;
-    unsigned int tmp;
-    int tmp_i[10];
-    int si = 0;
-
-    auto* p = static_cast<unsigned short*>(fr);
-
-    auto start = static_cast<unsigned short*>(fr);
-
-    bool done = false;
-
-    unsigned int signal_id = 0;
-    std::array<unsigned short, 512> signal_data = {};
-
-    cout << "READ FRAME START" << endl;
-    while (!done) {
-        cout << "READ FRAME COUNTER: " << (p - start) << " / " << fr_sz << endl;
-        // Is it a prefix for 14-bit content?
-        if ((*p & PFX_14_BIT_CONTENT_MASK) == PFX_CARD_CHIP_CHAN_HIT_IX) {
-            // if (sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints) {                fSignalEvent->AddSignal(sgnl);            }
-
-            if (si > 0) {
-                event.add_signal(signal_id, signal_data);
-            }
-
-            cardNumber = GET_CARD_IX(*p);
-            chipNumber = GET_CHIP_IX(*p);
-            daqChannel = GET_CHAN_IX(*p);
-
-            if (daqChannel >= 0) {
-                daqChannel += cardNumber * 4 * 72 + chipNumber * 72;
-            }
-
-            p++;
-            si = 0;
-
-            signal_id = daqChannel;
-        }
-        // Is it a prefix for 12-bit content?
-        else if ((*p & PFX_12_BIT_CONTENT_MASK) == PFX_ADC_SAMPLE) {
-            r0 = GET_ADC_DATA(*p);
-
-            signal_data[si] = r0;
-
-            p++;
-            si++;
-        }
-        // Is it a prefix for 4-bit content?
-        else if ((*p & PFX_4_BIT_CONTENT_MASK) == PFX_START_OF_EVENT) {
-            // cout << " + Start of event" << endl;
-            r0 = GET_EVENT_TYPE(*p);
-            p++;
-
-            // Time Stamp lower 16-bit
-            r0 = *p;
-            p++;
-
-            // Time Stamp middle 16-bit
-            r1 = *p;
-            p++;
-
-            // Time Stamp upper 16-bit
-            r2 = *p;
-            p++;
-
-            // Set timestamp and event ID
-
-            // Event Count lower 16-bit
-            n0 = *p;
-            p++;
-
-            // Event Count upper 16-bit
-            n1 = *p;
-            p++;
-
-            tmp = (((unsigned int) n1) << 16) | ((unsigned int) n0);
-
-            // auto time = 0 + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8;
-
-            // milliseconds unix time
-
-            if (event.timestamp == 0) {
-                auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                event.timestamp = milliseconds;
-            }
-
-        } else if ((*p & PFX_4_BIT_CONTENT_MASK) == PFX_END_OF_EVENT) {
-            tmp = ((unsigned int) GET_EOE_SIZE(*p)) << 16;
-            p++;
-            tmp = tmp + (unsigned int) *p;
-            p++;
-
-            // if (fElectronicsType == "SingleFeminos") endOfEvent = true;
-            // cout << " - End of event" << endl;
-            cout << " - End of event" << endl;
-        }
-
-        // Is it a prefix for 0-bit content?
-        else if ((*p & PFX_0_BIT_CONTENT_MASK) == PFX_END_OF_FRAME) {
-            // if (sgnl.GetSignalID() >= 0 && sgnl.GetNumberOfPoints() >= fMinPoints) { fSignalEvent->AddSignal(sgnl); }
-            if (si > 0) {
-                event.add_signal(signal_id, signal_data);
-            }
-
-            p++;
-            done = true;
-        } else if (*p == PFX_START_OF_BUILT_EVENT) {
-            p++;
-        } else if (*p == PFX_END_OF_BUILT_EVENT) {
-            p++;
-        } else if (*p == PFX_SOBE_SIZE) {
-            // Skip header
-            p++;
-
-            // Built Event Size lower 16-bit
-            r0 = *p;
-            p++;
-            // Built Event Size upper 16-bit
-            r1 = *p;
-            p++;
-            tmp_i[0] = (int) ((r1 << 16) | (r0));
-        } else {
-            p++;
-        }
-    }
-    cout << "READ FRAME DONE" << endl;
-}
-*/
-/*******************************************************************************
- EventBuilder_ProcessBuffer
-*******************************************************************************/
 int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     int err = 0;
     unsigned short* bu_s;
@@ -605,6 +470,7 @@ int EventBuilder_ProcessBuffer(EventBuilder* eb, void* bu) {
     if (storage_manager.IsInitialized()) {
         // ReadFrame((void*) bu_s, (int) sz, storage_manager.event);
 
+        // Insert frame
         std::vector<unsigned short> data;
         data.reserve(sz); // Reserve space to avoid reallocations
         std::copy(bu_s, bu_s + sz, std::back_inserter(data));
@@ -871,22 +737,18 @@ int EventBuilder_Loop(EventBuilder* eb) {
 
                     if (storage_manager.IsInitialized()) {
 
+                        // Send a special frame signaling the end of a built event
+                        storage_manager.AddFrame({0});
+
                         if (storage_manager.GetNumberOfEntries() == 0) {
                             storage_manager.millisSinceEpochForSpeedCalculation = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         }
 
-                        /*
-                        storage_manager.event.id = storage_manager.event_tree->GetEntries();
-
                         prometheus_manager.SetNumberOfSignalsInEvent(storage_manager.event.size());
                         prometheus_manager.SetNumberOfEvents(storage_manager.event_tree->GetEntries());
 
-                        storage_manager.event_tree->Fill();
-
-                        storage_manager.Checkpoint();
-
                         prometheus_manager.UpdateOutputRootFileSize();
-*/
+
                         storage_manager.Clear();
                     }
                 }
