@@ -127,9 +127,11 @@ int main(int argc, char** argv) {
     std::string output_directory;
     bool version_flag = false;
     bool fast_compression = false;
+    bool disable_aqs = false;
 
     CLI::App app{"feminos-daq"};
 
+    app.add_flag("--version", version_flag, "Print the version");
     app.add_option("-s,--server", server_ip, "Base IP address of remote server(s) in dotted decimal")
             ->group("Connection Options")
             ->check(CLI::ValidIPV4);
@@ -155,7 +157,7 @@ int main(int argc, char** argv) {
             ->group("General");
     app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
     app.add_flag("--fast-compression", fast_compression, "Disable maximum compression in output file to improve performance. This should only be enabled when the event rate is so high that the default compression cannot keep up. This will increase output file size")->group("File Options");
-    app.add_flag("--version", version_flag, "Print the version");
+    app.add_flag("--disable-aqs", disable_aqs, "Do not store data in aqs format")->group("File Options");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -270,6 +272,10 @@ int main(int argc, char** argv) {
         goto cleanup;
     }
     // printf("femarray Thread_Create done\n" );
+
+    if (disable_aqs) {
+        eventbuilder.savedata = 0;
+    }
 
     // Create Event Builder thread
     eventbuilder.thread.routine = reinterpret_cast<void (*)()>(EventBuilder_Loop);

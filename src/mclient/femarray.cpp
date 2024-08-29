@@ -328,7 +328,7 @@ int FemArray_SendDaq(FemArray* fa, unsigned int fem_beg, unsigned int fem_end, u
                 q_fill_string = " | ⚠\uFE0F Queue at " + ss.str() + "% Capacity ⚠\uFE0F";
             }
 
-            cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entries/s (" << daq_speed << " MB/s)" << q_fill_string << endl;
+            cout << time_str << " | # Entries: " << number_of_events << " | 🏃 Speed: " << speed_events_per_second << " entry/s (" << daq_speed << " MB/s)" << q_fill_string << endl;
 
             auto& prometheusManager = feminos_daq_prometheus::PrometheusManager::Instance();
 
