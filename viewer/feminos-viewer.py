@@ -26,8 +26,6 @@ plt.rcParams.update({'font.size': 18})
 lock = threading.Lock()
 
 
-# ssh://lobis@sultan.unizar.es:22/home/lobis/R02286_Calibration_109Cd_Vm_260_Vd_94_Pr_1.1_Gain_0x1_Shape_0xF_Clock_0x4.root
-
 class LimitedOrderedDict(OrderedDict):
     # An OrderedDict that has a maximum size and removes the oldest item when the size is exceeded
     def __init__(self, max_size):
@@ -535,7 +533,7 @@ readouts = {
             4604: ("X", 2),
         }
     },
-    "TREX-DM-LEFT": {"mapping": {
+    "TREX-DM-L": {"mapping": {
         2: ("Y", -115.92),
         3: ("Y", -117.84),
         4: ("Y", -119.76),
@@ -1048,7 +1046,7 @@ readouts = {
         572: ("X", -117.12),
         573: ("X", -115.2),
     }},
-    "TREX-DM-RIGHT": {"mapping": {
+    "TREX-DM-R": {"mapping": {
         578: ("Y", -115.92),
         579: ("Y", -117.84),
         580: ("Y", -119.76),
@@ -1907,6 +1905,7 @@ class EventViewer:
                         time.sleep(0.1)
 
                     if self.check_file(silent=True):
+                        self.load_file()
                         self.update_entry(self.event_tree.num_entries - 1)
                         self.plot_graph()
 
@@ -1936,7 +1935,7 @@ class EventViewer:
 
         self.load_file()
         self.plot_graph()
-        
+
         self.auto_update.select()
 
     def load_file(self):
