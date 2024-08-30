@@ -2295,15 +2295,16 @@ class EventViewer:
 
             self.ax_left.hist(
                 observable_energy_estimate,
-                bins=80,
-                histtype="step",
-                color="red",
-                linewidth=2.5,
+                bins=50,
+                linewidth=2.0,
                 label="Energy Estimate",
+                color="red",
+                edgecolor="black",
+                alpha=0.7,
             )
 
             # hit map
-            n_bins = 200
+            n_bins = 100
             bins_x = np.linspace(
                 readouts[self.readout]["limits"]["x"][0],
                 readouts[self.readout]["limits"]["x"][1],
