@@ -42,9 +42,8 @@ target_compile_definitions(
             LINUX
             JUMBO_POOL)
 
-target_compile_definitions(
-    ${PROJECT_NAME}
-    PRIVATE FEMINOS_DAQ_VERSION="${feminos-daq_VERSION}")
+target_compile_definitions(${PROJECT_NAME}
+                           PRIVATE FEMINOS_DAQ_VERSION="${feminos-daq_VERSION}")
 
 target_include_directories(
     ${PROJECT_NAME}
