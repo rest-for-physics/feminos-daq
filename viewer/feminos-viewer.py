@@ -1720,9 +1720,9 @@ class EventViewer:
         self.observables_compute.set(False)
 
         self.display_menu_options = [
-            "Event Waveforms / Readout",
-            "Event Time",
-            "Readout Observables",
+            "Event Waveforms",
+            "Event Position vs Time",
+            "Readout Energy / Position",
             "Readout Activity X/Y",
             "Channel Activity",
         ]
@@ -2268,11 +2268,76 @@ class EventViewer:
 
         self.clear_plots()
 
+        bins_time = np.array(range(0, 512))
+        n_bins = 100
+        bins_x = np.linspace(
+            readouts[self.readout]["limits"]["x"][0],
+            readouts[self.readout]["limits"]["x"][1],
+            n_bins,
+        )
+        bins_y = np.linspace(
+            readouts[self.readout]["limits"]["y"][0],
+            readouts[self.readout]["limits"]["y"][1],
+            n_bins,
+        )
+
+        times_x = []
+        times_y = []
+        position_x = []
+        position_y = []
+        weights_x = []
+        weights_y = []
+
         for signal_id, values in zip(event.signals.id, event.signals.values):
             if int(signal_id) not in self.readout_signal_ids:
                 continue
 
-            self.ax_left.plot(values, label=f"{signal_id}", alpha=0.8, linewidth=2.5)
+            signal_type = readouts[self.readout]["mapping"][int(signal_id)][0]
+            assert (
+                len(values) == 512
+            ), f"Signal {signal_id} has {len(values)} bins, not 512"
+            for i in range(len(values)):
+                if signal_type == "X":
+                    times_x.append(i)
+                    position_x.append(
+                        readouts[self.readout]["mapping"][int(signal_id)][1]
+                    )
+                    weights_x.append(values[i])
+                else:
+                    times_y.append(i)
+                    position_y.append(
+                        readouts[self.readout]["mapping"][int(signal_id)][1]
+                    )
+                    weights_y.append(values[i])
+
+        self.ax_left.hist2d(
+            position_x,
+            times_x,
+            bins=[bins_x, bins_time],
+            weights=weights_x,
+            cmap="jet",
+        )
+
+        self.ax_right.hist2d(
+            position_y,
+            times_y,
+            bins=[bins_y, bins_time],
+            weights=weights_y,
+            cmap="jet",
+        )
+
+        self.figure.suptitle(f"Event {entry} - Position (X/Y) vs Time (Z)")
+
+        self.ax_left.set_xlabel("X (mm)")
+        self.ax_left.set_ylabel("Time bins")
+
+        self.ax_right.set_xlabel("Y (mm)")
+        self.ax_right.set_ylabel("Time bins")
+
+        for ax in [self.ax_left, self.ax_right]:
+            ax.set_ylim(0, 512)
+            ax.set_yticks(range(0, 512 + 1, 64))
+            ax.set_yticks(range(0, 512 + 1, 16), minor=True)
 
         self.canvas.draw()
 
@@ -2297,10 +2362,9 @@ class EventViewer:
                 observable_energy_estimate,
                 bins=50,
                 linewidth=2.0,
+                histtype="step",
                 label="Energy Estimate",
                 color="red",
-                edgecolor="black",
-                alpha=0.7,
             )
 
             # hit map
