@@ -11,7 +11,6 @@ import awkward as ak
 import requests
 import re
 import numpy as np
-import matplotlib.colors as mcolors
 import threading
 from collections import OrderedDict, defaultdict
 import time

@@ -1,10 +1,10 @@
+aiohttp
 matplotlib
+mplhep
+numba
+numpy
+paramiko
 requests
 tk
 uproot
-mplhep
-aiohttp
-paramiko
-numpy
-numba
 xxhash
