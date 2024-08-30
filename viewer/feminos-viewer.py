@@ -1672,6 +1672,14 @@ def compute_energy_estimate(
     return energy
 
 
+@njit
+def compute_energy_of_waveform(
+    waveform: np.ndarray, baseline_range: float = 0.2
+) -> float:
+    baseline_factor = int(baseline_range * len(waveform))
+    return np.max(waveform) - np.mean(waveform[:baseline_factor])
+
+
 class EventViewer:
     def __init__(self, _root):
         self.file = None
@@ -1825,6 +1833,8 @@ class EventViewer:
         self.observable_entries_processed = set()
         self.observable_energy_estimate = np.array([])
         self.observable_channel_activity = defaultdict(int)
+        self.observable_hit_map_position_x = np.array([])
+        self.observable_hit_map_position_y = np.array([])
 
         def rgb_to_hex(rgb):
             """Convert an RGB tuple to a hex color string."""
@@ -2095,33 +2105,63 @@ class EventViewer:
                 for signal_id in event.signals.id:
                     self.observable_channel_activity[int(signal_id)] += 1
 
-                energy_estimate = compute_energy_estimate(
-                    event, self.readout_signal_ids
-                )
+                total_energy = 0
+                position_average_x = 0
+                position_average_y = 0
+                for signal_id, values in zip(event.signals.id, event.signals.values):
+                    signal_id = int(signal_id)
+                    if signal_id not in self.readout_signal_ids:
+                        continue
+                    energy = compute_energy_of_waveform(np.array(values))
+                    total_energy += energy
+                    channel_type = readouts[self.readout]["mapping"][signal_id][0]
+                    channel_position = readouts[self.readout]["mapping"][signal_id][1]
+                    if channel_type == "X":
+                        position_average_x += energy * channel_position
+                    else:
+                        position_average_y += energy * channel_position
 
                 self.observable_energy_estimate = np.append(
-                    self.observable_energy_estimate, energy_estimate
+                    self.observable_energy_estimate, total_energy
                 )
+
+                if total_energy > 0:
+                    # Energy in readout observable can be 0 but position average cannot be computed in that case
+
+                    position_average_x /= total_energy
+                    position_average_y /= total_energy
+
+                    self.observable_hit_map_position_x = np.append(
+                        self.observable_hit_map_position_x, position_average_x
+                    )
+                    self.observable_hit_map_position_y = np.append(
+                        self.observable_hit_map_position_y, position_average_y
+                    )
 
                 self.observable_entries_processed.add(entry)
 
             return event
 
-    def plot_event(self):
-        entry = int(self.entry_textbox.get())
-        self.current_entry = entry
-
-        event = self.get_event_and_process(entry)
-
+    def clear_plots(self):
         if self.ax_left is None:
             self.ax_left = self.figure.add_subplot(121)
 
         self.ax_left.clear()
+        self.ax_left.set_aspect("auto")
 
         if self.ax_right is None:
             self.ax_right = self.figure.add_subplot(122)
 
         self.ax_right.clear()
+        self.ax_right.set_aspect("auto")
+
+    def plot_waveforms(self):
+        entry = int(self.entry_textbox.get())
+        self.current_entry = entry
+
+        event = self.get_event_and_process(entry)
+
+        self.clear_plots()
 
         for signal_id, values in zip(event.signals.id, event.signals.values):
             if int(signal_id) not in self.readout_signal_ids:
@@ -2220,18 +2260,21 @@ class EventViewer:
 
         self.canvas.draw()
 
-    def clear_plots(self):
-        if self.ax_left is None:
-            self.ax_left = self.figure.add_subplot(121)
+    def plot_event_time(self):
+        entry = int(self.entry_textbox.get())
+        self.current_entry = entry
 
-        self.ax_left.clear()
-        self.ax_left.set_aspect("auto")
+        event = self.get_event_and_process(entry)
 
-        if self.ax_right is None:
-            self.ax_right = self.figure.add_subplot(122)
+        self.clear_plots()
 
-        self.ax_right.clear()
-        self.ax_right.set_aspect("auto")
+        for signal_id, values in zip(event.signals.id, event.signals.values):
+            if int(signal_id) not in self.readout_signal_ids:
+                continue
+
+            self.ax_left.plot(values, label=f"{signal_id}", alpha=0.8, linewidth=2.5)
+
+        self.canvas.draw()
 
     def plot_readout_observables(self):
         self.figure.suptitle(
@@ -2259,9 +2302,44 @@ class EventViewer:
                 label="Energy Estimate",
             )
 
+            # hit map
+            n_bins = 200
+            bins_x = np.linspace(
+                readouts[self.readout]["limits"]["x"][0],
+                readouts[self.readout]["limits"]["x"][1],
+                n_bins,
+            )
+            bins_y = np.linspace(
+                readouts[self.readout]["limits"]["y"][0],
+                readouts[self.readout]["limits"]["y"][1],
+                n_bins,
+            )
+
+            self.ax_right.hist2d(
+                self.observable_hit_map_position_x,
+                self.observable_hit_map_position_y,
+                bins=[bins_x, bins_y],
+                cmap="jet",
+            )
+
         self.ax_left.set_xlabel("Energy (ADC)")
         self.ax_left.set_title("Energy in Readout (99th percentile)")
         self.ax_left.set_ylabel("Counts")
+
+        self.ax_right.set_xlabel("X (mm)")
+        self.ax_right.set_ylabel("Y (mm)")
+        self.ax_right.set_title("Readout Hit Map")
+
+        extra_space = 1.0
+        self.ax_right.set_xlim(
+            readouts[self.readout]["limits"]["x"][0] - extra_space,
+            readouts[self.readout]["limits"]["x"][1] + extra_space,
+        )
+        self.ax_right.set_ylim(
+            readouts[self.readout]["limits"]["y"][0] - extra_space,
+            readouts[self.readout]["limits"]["y"][1] + extra_space,
+        )
+        self.ax_right.set_aspect("equal")
 
         self.canvas.draw()
 
@@ -2406,10 +2484,10 @@ class EventViewer:
             selected = self.display_menu_selected.get()
             if selected == self.display_menu_options[0]:
                 # Waveforms
-                self.plot_event()
+                self.plot_waveforms()
             elif selected == self.display_menu_options[1]:
                 # Event Time
-                self.plot_event()
+                self.plot_event_time()
             elif selected == self.display_menu_options[2]:
                 # Readout Observables
                 self.plot_readout_observables()
