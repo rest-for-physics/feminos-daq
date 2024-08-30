@@ -1704,14 +1704,17 @@ class EventViewer:
         )
         self.reload_file_button.pack(side=tk.LEFT, padx=20, pady=5)
 
-        self.observable_mode_variable = tk.BooleanVar()
-        self.observable_background_calculation = tk.Checkbutton(
-            self.top_menu,
-            text="Observables",
-            variable=self.observable_mode_variable,
-            command=self.on_observable_mode,
-        )
-        self.observable_background_calculation.pack(side=tk.LEFT, padx=20, pady=5)
+        self.observables_compute = tk.BooleanVar()
+        self.observables_compute.set(False)
+
+        self.display_menu_options = ["Event Waveforms / Readout", "Event Time", "Readout Observables",
+                                     "Channel Activity"]
+        self.display_menu_selected = tk.StringVar()
+        self.display_menu = tk.OptionMenu(self.top_menu, self.display_menu_selected,
+                                          *self.display_menu_options,
+                                          command=self.on_display_menu)
+        self.display_menu.pack(side=tk.LEFT, padx=20, pady=5)
+        self.display_menu_selected.set(self.display_menu_options[0])
 
         self.readout_options = list(readouts.keys())
         self.selected_readout = tk.StringVar()
@@ -1853,6 +1856,8 @@ class EventViewer:
         self.thread_observables = None
         self.thread_auto_update = None
 
+        self.start_observables_compute()
+
     @property
     def readout(self):
         return self.selected_readout.get()
@@ -1873,13 +1878,21 @@ class EventViewer:
         self.load_file()
         self.plot_graph()
 
-    def on_observable_mode(self):
-        if self.thread_observables is None and self.observable_mode_variable.get():
+    def start_observables_compute(self):
+        if self.thread_observables is None:
             def worker():
                 while True:
+                    if not self.check_file(silent=True):
+                        time.sleep(1)
+                        continue
+
                     for i in range(0, self.event_tree.num_entries):
-                        while not self.observable_mode_variable.get():
+                        while not self.observables_compute.get():
                             time.sleep(0.1)
+
+                        if not self.check_file(silent=True):
+                            time.sleep(1)
+                            continue
 
                         if i >= self.event_tree.num_entries:
                             # Event tree has been reloaded
@@ -1894,6 +1907,24 @@ class EventViewer:
             self.thread_observables = threading.Thread(target=worker)
             self.thread_observables.daemon = True
             self.thread_observables.start()
+
+        if self.check_file(silent=True):
+            self.plot_graph()
+
+    def on_display_menu(self, _):
+        selected = self.display_menu_selected.get()
+        if selected == self.display_menu_options[0]:
+            # Waveforms
+            self.observables_compute.set(False)
+        elif selected == self.display_menu_options[1]:
+            # Event Time
+            self.observables_compute.set(False)
+        elif selected == self.display_menu_options[2]:
+            # Readout Observables
+            self.observables_compute.set(True)
+        elif selected == self.display_menu_options[3]:
+            # Channel Activity
+            self.observables_compute.set(True)
 
         if self.check_file(silent=True):
             self.plot_graph()
@@ -2213,10 +2244,19 @@ class EventViewer:
             return
 
         try:
-            if self.observable_mode_variable.get():
-                self.plot_observables()
-            else:
+            selected = self.display_menu_selected.get()
+            if selected == self.display_menu_options[0]:
+                # Waveforms
                 self.plot_event()
+            elif selected == self.display_menu_options[1]:
+                # Event Time
+                self.plot_event()
+            elif selected == self.display_menu_options[2]:
+                # Readout Observables
+                self.plot_observables()
+            elif selected == self.display_menu_options[3]:
+                # Channel Activity
+                self.plot_observables()
 
         except ValueError as e:
             messagebox.showerror("Error", f"Invalid entry: {str(e)}")
