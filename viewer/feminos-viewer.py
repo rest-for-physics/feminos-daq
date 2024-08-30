@@ -2308,11 +2308,11 @@ class EventViewer:
                 for signal_id in signal_ids_y
             ]
 
-            self.ax_left.scatter(
-                positions_x, activity_x, color="blue", label="X", marker="."
+            self.ax_left.bar(
+                positions_x, activity_x, color="blue", label="X", width=0.2
             )
-            self.ax_right.scatter(
-                positions_y, activity_y, color="red", label="Y", marker="."
+            self.ax_right.bar(
+                positions_y, activity_y, color="red", label="Y", width=0.2
             )
 
         self.ax_left.set_xlabel("X (mm)")
@@ -2322,6 +2322,16 @@ class EventViewer:
         self.ax_right.set_xlabel("Y (mm)")
         self.ax_right.set_ylabel("Counts")
         self.ax_right.set_title("Readout Activity in Y")
+
+        extra_space = 2.0
+        self.ax_left.set_xlim(
+            readouts[self.readout]["limits"]["x"][0] - extra_space,
+            readouts[self.readout]["limits"]["x"][1] + extra_space,
+        )
+        self.ax_right.set_xlim(
+            readouts[self.readout]["limits"]["y"][0] - extra_space,
+            readouts[self.readout]["limits"]["y"][1] + extra_space,
+        )
 
         self.canvas.draw()
 
@@ -2334,37 +2344,51 @@ class EventViewer:
 
         with lock:
             # all channel ids for X
-            signal_ids = set(self.observable_channel_activity.keys())
+            signal_ids_all = set(self.observable_channel_activity.keys())
             # combine with signal ids from readout
-            signal_ids = signal_ids.union(self.readout_signal_ids)
-            signal_ids = list(signal_ids)
-            signal_ids.sort()
+            signal_ids_all = signal_ids_all.union(self.readout_signal_ids)
+            signal_ids_all = list(signal_ids_all)
 
             signal_ids_readout = list(self.readout_signal_ids)
-            signal_ids_readout.sort()
 
-            activity_all_signal_ids = [
-                self.observable_channel_activity[signal_id] for signal_id in signal_ids
+            # start in min, end in max and space 1
+            signal_ids_all_range = list(
+                range(min(signal_ids_all), max(signal_ids_all) + 1, 1)
+            )
+
+            signal_ids_readout_range = list(
+                range(min(signal_ids_readout), max(signal_ids_readout) + 1, 1)
+            )
+
+            activity_signal_ids_all = [
+                self.observable_channel_activity.get(signal_id, 0)
+                for signal_id in signal_ids_all_range
             ]
 
             activity_readout = [
-                self.observable_channel_activity[signal_id]
-                for signal_id in signal_ids_readout
+                (
+                    self.observable_channel_activity.get(signal_id, 0)
+                    if signal_id in self.readout_signal_ids
+                    else 0
+                )
+                for signal_id in signal_ids_readout_range
             ]
 
-            self.ax_left.scatter(
-                signal_ids_readout,
+            self.ax_left.step(
+                signal_ids_readout_range,
                 activity_readout,
                 color="green",
                 label="Readout",
-                marker=".",
+                where="mid",
+                linewidth=1,
             )
-            self.ax_right.scatter(
-                signal_ids,
-                activity_all_signal_ids,
+            self.ax_right.step(
+                signal_ids_all_range,
+                activity_signal_ids_all,
                 color="orange",
                 label="All",
-                marker=".",
+                where="mid",
+                linewidth=1,
             )
 
         self.ax_left.set_xlabel("Signal ID")
