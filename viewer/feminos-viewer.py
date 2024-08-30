@@ -41,9 +41,7 @@ class LimitedOrderedDict(OrderedDict):
 
 plt.rcParams["axes.prop_cycle"] = plt.cycler(color=plt.cm.Set1.colors)
 
-# TODO: Both TREX-DM readouts are wrong since they only have 511 unique daq ids each (instead of 512).
-# There is some issue in the REST-for-Physics readout for TREX-DM.
-# When this is addressed the mapping should be updated.
+# TODO: https://github.com/rest-for-physics/feminos-daq/issues/3
 readouts = {
     "IAXO-D0": {
         "mapping": {
