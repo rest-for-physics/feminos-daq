@@ -1651,7 +1651,7 @@ def get_event(tree: uproot.TTree, entry: int):
 
 @njit
 def compute_energy_estimate(event: ak.highlevel.Record, signal_ids_allowed: set[int],
-                            baseline_range: float = 0.4) -> float:
+                            baseline_range: float = 0.2) -> float:
     energy = 0.0
     baseline_factor = int(baseline_range * len(event.signals.values[0]))
 
