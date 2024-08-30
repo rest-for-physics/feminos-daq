@@ -2288,27 +2288,39 @@ class EventViewer:
         weights_x = []
         weights_y = []
 
+        baseline_range = 0.2
+        baseline_factor = int(baseline_range * len(event.signals.values[0]))
+
         for signal_id, values in zip(event.signals.id, event.signals.values):
             if int(signal_id) not in self.readout_signal_ids:
                 continue
+
+            values = np.asarray(values)
+            baseline = values[:baseline_factor]
+            baseline_level = np.mean(values[:baseline_factor])
+            baseline_sigma = np.std(values[:baseline_factor])
 
             signal_type = readouts[self.readout]["mapping"][int(signal_id)][0]
             assert (
                 len(values) == 512
             ), f"Signal {signal_id} has {len(values)} bins, not 512"
             for i in range(len(values)):
+                value = values[i]
+                if not value > baseline_level + 2.0 * baseline_sigma:
+                    continue
+
                 if signal_type == "X":
                     times_x.append(i)
                     position_x.append(
                         readouts[self.readout]["mapping"][int(signal_id)][1]
                     )
-                    weights_x.append(values[i])
+                    weights_x.append(value)
                 else:
                     times_y.append(i)
                     position_y.append(
                         readouts[self.readout]["mapping"][int(signal_id)][1]
                     )
-                    weights_y.append(values[i])
+                    weights_y.append(value)
 
         self.ax_left.hist2d(
             position_x,
