@@ -18,6 +18,7 @@ import mplhep as hep
 from tkinter import simpledialog
 from numba import njit
 from tkinter import font
+from matplotlib import colors as mcolors
 
 hep.style.use(hep.style.CMS)
 
@@ -40,6 +41,27 @@ class LimitedOrderedDict(OrderedDict):
 
 
 plt.rcParams["axes.prop_cycle"] = plt.cycler(color=plt.cm.Set1.colors)
+
+jet = plt.get_cmap("jet")
+
+
+# Create a new colormap that starts with white and then transitions to 'jet'
+def white_to_jet(n):
+    # n is the number of colors in the colormap
+    # Create an array of colors with the same length as n
+    colors = np.zeros((n, 4))  # RGBA
+
+    # Fill the first row with white
+    colors[0] = [1, 1, 1, 1]
+
+    # Fill the rest with the 'jet' colormap
+    for i in range(1, n):
+        colors[i] = jet(i / (n - 1))
+
+    return mcolors.ListedColormap(colors)
+
+
+white_jet = white_to_jet(256)
 
 # TODO: https://github.com/rest-for-physics/feminos-daq/issues/3
 readouts = {
@@ -2296,7 +2318,6 @@ class EventViewer:
                 continue
 
             values = np.asarray(values)
-            baseline = values[:baseline_factor]
             baseline_level = np.mean(values[:baseline_factor])
             baseline_sigma = np.std(values[:baseline_factor])
 
@@ -2327,7 +2348,7 @@ class EventViewer:
             times_x,
             bins=[bins_x, bins_time],
             weights=weights_x,
-            cmap="jet",
+            cmap=white_jet,
         )
 
         self.ax_right.hist2d(
@@ -2335,7 +2356,7 @@ class EventViewer:
             times_y,
             bins=[bins_y, bins_time],
             weights=weights_y,
-            cmap="jet",
+            cmap=white_jet,
         )
 
         self.figure.suptitle(f"Event {entry} - Position (X/Y) vs Time (Z)")
