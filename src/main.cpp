@@ -157,9 +157,9 @@ int main(int argc, char** argv) {
             ->group("General");
     app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
     app.add_flag("--compression", compression_option,
-                 R"(Select the compression settings for the output root file:
+                 R"(Select the compression settings for the output root file. Data must be written to disk faster than it is acquired. Frames are never dropped, if the rate is too high (or the disk too slow) a queue will begin to fill up and a warning message will appear.
 - fast: fastest compression, use when the acquisition rate is very high (e.g. calibration runs)
-- highest: best compression, use when the acquisition rate is low (e.g. background runs)
+- highest: best compression, use when the acquisition rate is low (e.g. background runs). To use whenever possible
 - default: default compression settings, a balance between speed and compression)")
             ->group("File Options")
             ->check(CLI::IsMember(feminos_daq_storage::StorageManager::GetCompressionOptions()));
