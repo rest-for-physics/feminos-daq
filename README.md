@@ -116,7 +116,7 @@ Storing data in a root file as opposed to the old binary files has several advan
 * The data is stored in a more efficient way (less disk space is required). This is due to the fact that the data is
   stored in a more compact way and the file is compressed.
   `ROOT` provides some user configuration regarding compression. The default mode of `feminos-daq` is to use a high
-  compression algorithm (`LZMA`) but a faster algorithm (root's default) can be selected with the `--fast-compression`
+  compression algorithm (`LZMA`) but a faster algorithm (root's default) can be selected with the `--compression=fast`
   option.
   From our tests we measured a compression factor between 2.5 and 8 with respect to the old binary files.
 * The data is more straightforward to read and write. The data can be read and written using `ROOT` or `uproot` without
@@ -137,7 +137,7 @@ terminal next to the speed of the data acquisition as long as the queue is above
 
 In general the user shouldn't worry about this as the queue takes a long time to fill up even for high data rates.
 The only scenario where this could be a problem is on high intensity calibrations.
-In this case the user can select the `--fast-compression` option which will significantly speed up the rate at which the
+In this case the user can select the `--compression=fast` option which will significantly speed up the rate at which the
 queue is emptied. Remember that this will increase the size of the root file so it's not recommended unless it's
 unavoidable.
 
@@ -149,7 +149,7 @@ the [TRestRawFeminosRootToSignalProcess](https://github.com/rest-for-physics/raw
 This process has no options and will read the root file and output a `TRestRawSignalEvent` for each event in the input
 feminos-root file.
 
-Even though the `--fast-compression` files and the regular more compressed files are different in size and take
+Even though the `--compression=fast` files and the regular more compressed files are different in size and take
 different
 times to write, we have measured no difference in the time it takes to process the files with the
 `TRestRawFeminosRootToSignalProcess`.

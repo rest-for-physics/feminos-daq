@@ -174,11 +174,16 @@ void StorageManager::Initialize(const string& filename) {
 
     file = std::make_unique<TFile>(filename.c_str(), "RECREATE");
 
-    if (!fast_compression) {
+    if (compression_option == "default") {
         file->SetCompressionAlgorithm(ROOT::kLZMA); // biggest compression ratio but slowest
+    } else if (compression_option == "fast") {
+        // use root default compression
+    } else if (compression_option == "highest") {
+        file->SetCompressionAlgorithm(ROOT::kLZMA); // biggest compression ratio but slowest
+        file->SetCompressionLevel(9);
+    } else {
+        throw std::runtime_error("Invalid compression option: " + compression_option);
     }
-
-    // file->SetCompressionLevel(9);               // max compression level, but it's very slow, probably not worth it
 
     cout << "ROOT file will be saved to " << file->GetName() << endl;
 

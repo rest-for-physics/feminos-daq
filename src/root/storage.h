@@ -7,6 +7,7 @@
 #include <array>
 #include <atomic>
 #include <queue>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -83,8 +84,12 @@ public:
     std::unique_ptr<TTree> run_tree;
     Event event;
 
-    bool fast_compression = false;
+    std::string compression_option;
     bool disable_aqs = false;
+
+    static std::set<std::string> GetCompressionOptions() {
+        return {"default", "fast", "highest"};
+    }
 
     unsigned long long run_number = 0;
     unsigned long long run_time_start = 0;

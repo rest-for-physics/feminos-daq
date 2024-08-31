@@ -126,8 +126,8 @@ int main(int argc, char** argv) {
     int verbose_level = -1;
     std::string output_directory;
     bool version_flag = false;
-    bool fast_compression = false;
     bool disable_aqs = false;
+    std::string compression_option = "default";
 
     CLI::App app{"feminos-daq"};
 
@@ -153,10 +153,16 @@ int main(int argc, char** argv) {
     app.add_option("-v,--verbose", verbose_level, "Verbose level")
             ->group("General")
             ->check(CLI::Range(0, 4));
-    app.add_flag("--read-only", readOnly, "Read-only mode")
+    app.add_flag("--read-only", readOnly, ("Read-only mode"))
             ->group("General");
     app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
-    app.add_flag("--fast-compression", fast_compression, "Disable maximum compression in output file to improve performance. This should only be enabled when the event rate is so high that the default compression cannot keep up. This will increase output file size")->group("File Options");
+    app.add_flag("--compression", compression_option,
+                 R"(Select the compression settings for the output root file:
+- fast: fastest compression, use when the acquisition rate is very high (e.g. calibration runs)
+- highest: best compression, use when the acquisition rate is low (e.g. background runs)
+- default: default compression settings, a balance between speed and compression)")
+            ->group("File Options")
+            ->check(CLI::IsMember(feminos_daq_storage::StorageManager::GetCompressionOptions()));
     app.add_flag("--disable-aqs", disable_aqs, "Do not store data in aqs format. NOTE: aqs files may be created anyways but they will not have data")->group("File Options");
 
     CLI11_PARSE(app, argc, argv);
@@ -178,7 +184,7 @@ int main(int argc, char** argv) {
     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     storage_manager.SetOutputDirectory(output_directory);
-    storage_manager.fast_compression = fast_compression;
+    storage_manager.compression_option = compression_option;
     storage_manager.disable_aqs = disable_aqs;
 
     stringIpToArray(server_ip, femarray.rem_ip_beg);
