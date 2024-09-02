@@ -307,7 +307,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             fclose(fRunInfo);
 
                             const bool skip_run_info = storage_manager.skip_run_info;
-                            if (skip_run_info){
+                            if (skip_run_info) {
                                 sprintf(tmpStr, "\n");
                             }
 
@@ -316,7 +316,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             printf("Run number : %d\n", runNumber + 1);
 
                             printf("\nDrift field (%s V/cm/bar) : ", driftFieldStr);
-                            if (!skip_run_info){
+                            if (!skip_run_info) {
                                 fgets(tmpStr, 100, stdin);
                             }
                             strtok(tmpStr, "\n");
@@ -326,7 +326,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             printf("\nDrift field set to : %s V/cm/bar\n", driftFieldStr);
 
                             printf("\nMesh voltage (%s V) : ", meshVoltageStr);
-                            if (!skip_run_info){
+                            if (!skip_run_info) {
                                 fgets(tmpStr, 100, stdin);
                             }
                             strtok(tmpStr, "\n");
@@ -336,18 +336,20 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             printf("\nMesh voltage set to : %s V\n", meshVoltageStr);
 
                             printf("\nDetector pressure (%s bar) : ", detectorPressureStr);
-                            if (!skip_run_info){
+                            if (!skip_run_info) {
                                 fgets(tmpStr, 100, stdin);
-                            }                            strtok(tmpStr, "\n");
+                            }
+                            strtok(tmpStr, "\n");
                             if (strcmp(tmpStr, "\n") != 0) {
                                 sprintf(detectorPressureStr, "%s", tmpStr);
                             }
                             printf("\nPressure set to : %s bar\n", detectorPressureStr);
 
                             printf("\nRun tag (%s) : ", runTagStr);
-                            if (!skip_run_info){
+                            if (!skip_run_info) {
                                 fgets(tmpStr, 100, stdin);
-                            }                            strtok(tmpStr, "\n");
+                            }
+                            strtok(tmpStr, "\n");
                             if (strcmp(tmpStr, "\n") != 0) {
                                 sprintf(runTagStr, "%s", tmpStr);
                             }
@@ -356,18 +358,20 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             printf("Run tag set to : %s\n", runTagStr);
 
                             printf("\nDetector (%s) : ", detectorStr);
-                            if (!skip_run_info){
+                            if (!skip_run_info) {
                                 fgets(tmpStr, 100, stdin);
-                            }                            strtok(tmpStr, "\n");
+                            }
+                            strtok(tmpStr, "\n");
                             if (strcmp(tmpStr, "\n") != 0) {
                                 sprintf(detectorStr, "%s", tmpStr);
                             }
                             printf("\nDetector set to : %s\n", detectorStr);
 
                             printf("\nComments : ");
-                            if (!skip_run_info){
+                            if (!skip_run_info) {
                                 fgets(tmpStr, 100, stdin);
-                            }                            sprintf(runComments, "%s", tmpStr);
+                            }
+                            sprintf(runComments, "%s", tmpStr);
                             printf("\n");
 
                             sprintf(tmpStr, "%s/%s", getenv("DAQ_CONFIG"), "run.info");
