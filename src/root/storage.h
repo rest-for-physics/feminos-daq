@@ -89,6 +89,7 @@ public:
     unsigned int stop_run_after_entries = 0;
     bool allow_losing_events = false;
     bool disable_aqs = false;
+    bool skip_run_info = false;
 
     static std::set<std::string> GetCompressionOptions() {
         return {"default", "fast", "highest"};

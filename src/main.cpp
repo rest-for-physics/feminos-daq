@@ -131,6 +131,7 @@ int main(int argc, char** argv) {
     double stop_run_after_seconds = 0;
     unsigned int stop_run_after_entries = 0;
     bool allow_losing_events = false;
+    bool skip_run_info = false;
 
     CLI::App app{"feminos-daq"};
 
@@ -174,6 +175,7 @@ int main(int argc, char** argv) {
             ->group("File Options")
             ->check(CLI::IsMember(feminos_daq_storage::StorageManager::GetCompressionOptions()));
     app.add_flag("--disable-aqs", disable_aqs, "Do not store data in aqs format. NOTE: aqs files may be created anyways but they will not have data")->group("File Options");
+    app.add_flag("--skip-run-info", skip_run_info, "Skip asking for run information and use default values (same as pressing enter)")->group("General");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -199,6 +201,7 @@ int main(int argc, char** argv) {
     storage_manager.stop_run_after_seconds = stop_run_after_seconds;
     storage_manager.stop_run_after_entries = stop_run_after_entries;
     storage_manager.allow_losing_events = allow_losing_events;
+    storage_manager.skip_run_info = skip_run_info;
 
     stringIpToArray(server_ip, femarray.rem_ip_beg);
     stringIpToArray(local_ip, femarray.loc_ip);
