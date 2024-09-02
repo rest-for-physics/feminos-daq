@@ -128,6 +128,9 @@ int main(int argc, char** argv) {
     bool version_flag = false;
     bool disable_aqs = false;
     std::string compression_option = "default";
+    double stop_run_after_seconds = 0;
+    unsigned int stop_run_after_entries = 0;
+    bool allow_losing_events = false;
 
     CLI::App app{"feminos-daq"};
 
@@ -153,7 +156,14 @@ int main(int argc, char** argv) {
     app.add_option("-v,--verbose", verbose_level, "Verbose level")
             ->group("General")
             ->check(CLI::Range(0, 4));
+    app.add_option("-t,--time", stop_run_after_seconds, "Stop the acquisition after the specified time in seconds")
+            ->group("General")
+            ->check(CLI::Range(0.0, 1e6));
+    app.add_option("-e,--entries", stop_run_after_entries, "Stop the acquisition after reaching the specified number of entries")
+            ->group("General");
     app.add_flag("--read-only", readOnly, ("Read-only mode"))
+            ->group("General");
+    app.add_flag("--allow-losing-events", allow_losing_events, "Allow losing events if the buffer is full (acceptable for calibrations, not for background runs)")
             ->group("General");
     app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
     app.add_flag("--compression", compression_option,
@@ -186,6 +196,9 @@ int main(int argc, char** argv) {
     storage_manager.SetOutputDirectory(output_directory);
     storage_manager.compression_option = compression_option;
     storage_manager.disable_aqs = disable_aqs;
+    storage_manager.stop_run_after_seconds = stop_run_after_seconds;
+    storage_manager.stop_run_after_entries = stop_run_after_entries;
+    storage_manager.allow_losing_events = allow_losing_events;
 
     stringIpToArray(server_ip, femarray.rem_ip_beg);
     stringIpToArray(local_ip, femarray.loc_ip);

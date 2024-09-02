@@ -85,6 +85,9 @@ public:
     Event event;
 
     std::string compression_option;
+    double stop_run_after_seconds = 0;
+    unsigned int stop_run_after_entries = 0;
+    bool allow_losing_events = false;
     bool disable_aqs = false;
 
     static std::set<std::string> GetCompressionOptions() {
