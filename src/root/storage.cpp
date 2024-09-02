@@ -240,7 +240,7 @@ void StorageManager::Initialize(const string& filename) {
                     const bool exit_due_to_entries = storage_manager.stop_run_after_entries > 0 && storage_manager.event_tree->GetEntries() >= storage_manager.stop_run_after_entries;
                     const bool exit_due_to_time = storage_manager.stop_run_after_seconds > 0 && double(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()) - double(storage_manager.run_time_start_millis) > storage_manager.stop_run_after_seconds * 1000.0;
                     if (exit_due_to_entries || exit_due_to_time) {
-                        cout << "Stopping run at " << storage_manager.stop_run_after_entries << " entries" << endl;
+                        cout << "Stopping run at " << storage_manager.event_tree->GetEntries() << " entries" << endl;
                         early_exit();
                     }
                 }
