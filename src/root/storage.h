@@ -96,7 +96,7 @@ public:
     }
 
     unsigned long long run_number = 0;
-    unsigned long long run_time_start = 0;
+    unsigned long long run_time_start_millis = 0;
 
     std::string run_name;
     std::string run_tag;
@@ -137,6 +137,8 @@ private:
     std::atomic<unsigned long long> frames_count = 0;
     std::mutex frames_mutex;
     const size_t max_frames = 1000000; // this should be about 2GB when full (depends on frame size)
+
+    void early_exit() const;
 };
 
 } // namespace feminos_daq_storage

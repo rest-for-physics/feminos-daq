@@ -15,7 +15,6 @@ void feminos_daq_storage::StorageManager::Checkpoint(bool force) {
 
     if (force || std::chrono::system_clock::now() - checkpoint_last > checkpoint_interval) {
         file->Write("", TObject::kOverwrite);
-        file->Flush();
         checkpoint_last = std::chrono::system_clock::now();
     }
 }
@@ -197,7 +196,7 @@ void StorageManager::Initialize(const string& filename) {
 
     run_tree->Branch("number", &run_number);
     run_tree->Branch("name", &run_name);
-    run_tree->Branch("timestamp", &run_time_start);
+    run_tree->Branch("timestamp", &run_time_start_millis);
     run_tree->Branch("detector", &run_detector_name);
     run_tree->Branch("tag", &run_tag);
     run_tree->Branch("drift_field_V_cm_bar", &run_drift_field_V_cm_bar);
@@ -207,7 +206,7 @@ void StorageManager::Initialize(const string& filename) {
     run_tree->Branch("commands", &run_commands);
 
     // millis since epoch
-    run_time_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    run_time_start_millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     auto& prometheus_manager = feminos_daq_prometheus::PrometheusManager::Instance();
     prometheus_manager.ExposeRootOutputFilename(filename);
@@ -237,6 +236,13 @@ void StorageManager::Initialize(const string& filename) {
                     prometheus_manager.SetNumberOfEvents(storage_manager.event_tree->GetEntries());
 
                     prometheus_manager.UpdateOutputRootFileSize();
+
+                    const bool exit_due_to_entries = storage_manager.stop_run_after_entries > 0 && storage_manager.event_tree->GetEntries() >= storage_manager.stop_run_after_entries;
+                    const bool exit_due_to_time = storage_manager.stop_run_after_seconds > 0 && double(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()) - double(storage_manager.run_time_start_millis) > storage_manager.stop_run_after_seconds * 1000.0;
+                    if (exit_due_to_entries || exit_due_to_time) {
+                        cout << "Stopping run at " << storage_manager.stop_run_after_entries << " entries" << endl;
+                        early_exit();
+                    }
                 }
 
                 storage_manager.Clear();
@@ -306,6 +312,17 @@ unsigned int StorageManager::GetNumberOfFramesInQueue() {
 
 double StorageManager::GetQueueUsage() {
     return GetNumberOfFramesInQueue() / (double) max_frames;
+}
+
+void StorageManager::early_exit() const {
+    // Invoking this from a thread is not the cleanest way to exit the program, but it appears to work
+
+    if (file) {
+        file->Write("", TObject::kOverwrite);
+        file->Close();
+    }
+
+    exit(0);
 }
 
 std::pair<unsigned short, std::array<unsigned short, MAX_POINTS>> Event::get_signal_id_data_pair(size_t index) const {
