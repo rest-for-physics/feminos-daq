@@ -1089,7 +1089,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
     if (!storage_manager.output_filename_manual.empty()) {
         // clear strings (c-string)
-        eb->file_path = {"\0"};
+        eb->file_path[0] = '\0';
         eb->run_str = storage_manager.output_filename_manual;
     }
     char filename_root[200] = {};
