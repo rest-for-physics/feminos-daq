@@ -4,6 +4,9 @@ import time
 import numpy as np
 import subprocess
 import sys
+import uproot
+import os
+import awkward as ak
 
 config_contents = """
 fem * #Apply first to both feminos
@@ -190,14 +193,35 @@ with open(config_filename, "w") as f:
 
 ip = "192.168.10.1"
 output_filename = "./output_file.root"
+run_time = 30  # seconds
+
 result = subprocess.run(
-    [feminos_daq_executable, "-s", ip, "--skip-run-info", "--read-only", "--input", config_filename, "--output",
+    [feminos_daq_executable, "-s", ip, "--time", str(run_time), "--skip-run-info", "--disable-aqs", "--input",
+     config_filename, "--output",
      output_filename])
 
-if result.returncode != 0:
-    print("Error: feminos-daq failed")
-    sys.exit(1)
+# print return code
+print(f"Return code: {result.returncode}")
 
 # check output file exists, print size
 output_file_size = os.path.getsize(output_filename)
 print(f"Output file size: {output_file_size} bytes")
+
+file = uproot.open(output_filename)
+tree = file["events"]
+
+for events in tree.iterate(step_size=1):
+    events["signal_values"] = ak.unflatten(events["signal_values"], 512, axis=1)
+
+    # signals is a record with fields 'id' and 'data'
+    signals = ak.Array({"id": events["signal_ids"], "data": events["signal_values"]})
+    events["signals"] = signals
+
+    events = ak.without_field(events, "signal_ids")
+    events = ak.without_field(events, "signal_values")
+
+    for event in events:
+        for id, data in zip(event.signals.id, event.signals.data):
+            print(f"Signal ID: {id}, data: {data}")
+
+    break
