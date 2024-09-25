@@ -79,7 +79,6 @@ int timeStart = 0;
 
 char elogCommand[512];
 
-char filenameToCopy[256];
 char command[256];
 
 char fileNameNow[256];
@@ -1089,7 +1088,9 @@ int EventBuilder_FileAction(EventBuilder* eb,
     auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
     if (!storage_manager.output_filename_manual.empty()) {
         // clear strings (c-string)
-        eb->file_path[0] = '\0';
+        eb->file_path[0] = '.';
+        eb->file_path[1] = '/';
+        eb->file_path[2] = '\0';
         storage_manager.output_filename_manual.copy(eb->run_str, storage_manager.output_filename_manual.size());
         eb->run_str[storage_manager.output_filename_manual.size()] = '\0';
     }
