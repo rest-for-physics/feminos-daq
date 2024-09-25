@@ -23,7 +23,7 @@
  Constants types and global variables
 *******************************************************************************/
 #define CMD_ARRAY_SIZE 25000
-#define CMD_LINE_SIZE 120
+#define CMD_LINE_SIZE 200
 
 typedef struct _CmdFetcher {
     int id;

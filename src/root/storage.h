@@ -104,6 +104,8 @@ public:
     std::string run_comments;
     std::string run_commands;
 
+    std::string output_filename_manual;
+
     float run_drift_field_V_cm_bar = 0.0;
     float run_mesh_voltage_V = 0.0;
     float run_detector_pressure_bar = 0.0;

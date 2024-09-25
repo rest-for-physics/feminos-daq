@@ -28,6 +28,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <string>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
@@ -43,8 +44,6 @@ using namespace std;
 /*******************************************************************************
  Constants types and global variables
 *******************************************************************************/
-char res_file[80] = {"\0"};
-int save_res = 0;
 int verbose = 4;
 int format_ver = 2;
 int pending_event = 0;
@@ -73,6 +72,14 @@ int SemaphoreId;
 
 constexpr int MAX_SIGNALS = feminos_daq_storage::MAX_SIGNALS;
 constexpr int MAX_POINTS = feminos_daq_storage::MAX_POINTS;
+
+void removeRootExtension(std::string& filename) {
+    const std::string extension = ".root";
+    std::size_t pos = filename.rfind(extension);
+    if (pos != std::string::npos && pos == filename.length() - extension.length()) {
+        filename.erase(pos); // Remove the extension
+    }
+}
 
 template<typename T>
 void stringIpToArray(const std::string& ip, T* ip_array) {
@@ -150,7 +157,7 @@ int main(int argc, char** argv) {
             ->check(CLI::ValidIPV4);
     app.add_option("-i,--input", input_file, "Read commands from file specified")
             ->group("File Options");
-    app.add_option("-o,--output", output_file, "Save results in file specified (DOES NOT WORK!)")
+    app.add_option("-o,--output", output_file, "Save results in file specified")
             ->group("File Options");
     app.add_option("-d,--output-directory", output_directory, "Output directory. This can also be specified via the environment variable 'FEMINOS_DAQ_OUTPUT_DIRECTORY' or 'RAWDATA_PATH'")
             ->group("File Options");
@@ -207,12 +214,8 @@ int main(int argc, char** argv) {
     stringIpToArray(local_ip, femarray.loc_ip);
 
     if (!output_file.empty()) {
-        if (output_file.length() > 80) {
-            std::cerr << "Output file name is too long" << std::endl;
-            return 1;
-        }
-        strcpy(res_file, output_file.c_str());
-        save_res = 1;
+        removeRootExtension(output_file);
+        storage_manager.output_filename_manual = output_file;
     }
 
     if (!input_file.empty()) {

@@ -917,7 +917,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
     if (readOnly) { return 0; }
 
     struct tm* now;
-    char name[120];
+    char name[200];
     time_t start_time;
     char str_res[4];
     char str_ext[8];
@@ -1026,8 +1026,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
            now->tm_sec);
          */
         sprintf(eb->run_str,
-                "R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%"
-                "s_Clock_%s",
+                "R%05d_%s_Vm_%s_Vd_%s_Pr_%s_Gain_%s_Shape_%s_Clock_%s",
                 runNumber, runTagStr, meshVoltageStr,
                 driftFieldStr, detectorPressureStr, gainStr,
                 shapingStr, clockStr);
@@ -1087,7 +1086,13 @@ int EventBuilder_FileAction(EventBuilder* eb,
     const auto output_directory = feminos_daq_storage::StorageManager::Instance().GetOutputDirectory();
     sprintf(&(eb->file_path[0]), "%s", output_directory.c_str());
 
-    char filename_root[120] = {};
+    auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
+    if (!storage_manager.output_filename_manual.empty()) {
+        // clear strings (c-string)
+        eb->file_path = {"\0"};
+        eb->run_str = storage_manager.output_filename_manual;
+    }
+    char filename_root[200] = {};
     sprintf(filename_root, "%s/%s.%s", &(eb->file_path[0]),
             &(eb->run_str[0]), "root");
     cout << "Root file name : " << filename_root << endl;
@@ -1112,8 +1117,6 @@ int EventBuilder_FileAction(EventBuilder* eb,
     }
 
     printf("Opening file : %s\n", name);
-
-    auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
     // This loop is entered for every subrun, so we need to make sure this is only initialized once
     if (!storage_manager.IsInitialized()) {
