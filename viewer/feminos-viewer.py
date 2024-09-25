@@ -1706,7 +1706,6 @@ class EventViewer:
     def __init__(self, _root):
         self.file = None
         self.event_tree = None
-        self.run_tree = None
         self.current_entry = 0
 
         self.root = _root
@@ -2049,18 +2048,6 @@ class EventViewer:
             self.filepath = None
             return
 
-        try:
-            self.run_tree = self.file["run"]
-        except KeyError:
-            self.update_entry(0)
-
-            messagebox.showerror(
-                "Error",
-                f"File {self.filepath} does not contain the 'run' tree. file keys are {self.file.keys()}",
-            )
-            self.filepath = None
-            return
-
         filename_text = self.filepath
         max_file_length = 100
         if len(filename_text) > max_file_length:
@@ -2109,7 +2096,7 @@ class EventViewer:
         self.plot_graph()
 
     def check_file(self, silent: bool = False) -> bool:
-        if self.filepath is None or self.event_tree is None or self.run_tree is None:
+        if self.filepath is None or self.event_tree is None:
             if not silent:
                 messagebox.showwarning("No File", "Please select a file first!")
             return False
