@@ -1090,7 +1090,8 @@ int EventBuilder_FileAction(EventBuilder* eb,
     if (!storage_manager.output_filename_manual.empty()) {
         // clear strings (c-string)
         eb->file_path[0] = '\0';
-        eb->run_str = storage_manager.output_filename_manual;
+        storage_manager.output_filename_manual.copy(eb->run_str, storage_manager.output_filename_manual.size());
+        eb->run_str[storage_manager.output_filename_manual.size()] = '\0';
     }
     char filename_root[200] = {};
     sprintf(filename_root, "%s/%s.%s", &(eb->file_path[0]),
