@@ -268,6 +268,8 @@ int CmdFetcher_Main(CmdFetcher* cf) {
         }
 
         // use stdin for commands
+        const auto daq_config_directory = getenv("DAQ_CONFIG");
+
         if (cf->use_stdin) {
             cmd_stdin_done = 0;
             while (!cmd_stdin_done) {
@@ -283,8 +285,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                         strcmp(cf->cmd_file, "runTCM") != 0) {
 
                         if (!readOnly) {
-
-                            sprintf(tmpStr, "%s/%s", getenv("DAQ_CONFIG"), "ped.info");
+                            sprintf(tmpStr, "%s/%s", daq_config_directory, "ped.info");
                             fRunInfo = fopen(tmpStr, "rt");
 
                             fscanf(fRunInfo, "%s\n", clockStr);
@@ -295,7 +296,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             printf("Getting info from ped.info\n");
                             printf("Clock divisions : %s shaping : %s gain : %s\n", clockStr, shapingStr, gainStr);
 
-                            sprintf(tmpStr, "%s/%s", getenv("DAQ_CONFIG"), "run.info");
+                            sprintf(tmpStr, "%s/%s", daq_config_directory, "run.info");
                             fRunInfo = fopen(tmpStr, "rt");
                             fscanf(fRunInfo, "%s\n", runNumberStr);
                             runNumber = atoi(runNumberStr);
@@ -374,7 +375,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             sprintf(runComments, "%s", tmpStr);
                             printf("\n");
 
-                            sprintf(tmpStr, "%s/%s", getenv("DAQ_CONFIG"), "run.info");
+                            sprintf(tmpStr, "%s/%s", daq_config_directory, "run.info");
                             fRunInfo = fopen(tmpStr, "wt");
                             runNumber++;
                             fprintf(fRunInfo, "%d\n", runNumber);
@@ -438,7 +439,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             }
                             fclose(fRunInfo);
 
-                            sprintf(tmpStr, "%s/%s", getenv("DAQ_CONFIG"), "ped.info");
+                            sprintf(tmpStr, "%s/%s", daq_config_directory, "ped.info");
                             fRunInfo = fopen(tmpStr, "wt");
 
                             fprintf(fRunInfo, "%s\n", clockStr);
