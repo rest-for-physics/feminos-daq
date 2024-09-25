@@ -90,6 +90,11 @@ install(
     CODE "execute_process(COMMAND chmod +x ${CMAKE_INSTALL_PREFIX}/bin/feminos-viewer)"
 )
 
+install(FILES scripts/feminos-daq-sync.sh DESTINATION bin)
+install(
+    CODE "execute_process(COMMAND chmod +x ${CMAKE_INSTALL_PREFIX}/bin/feminos-daq-sync.sh)"
+)
+
 # Uninstall
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P
                                     ${CMAKE_SOURCE_DIR}/cmake/uninstall.cmake)

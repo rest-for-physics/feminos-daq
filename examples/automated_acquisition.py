@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import time
-import numpy as np
 import subprocess
 import sys
 import uproot
@@ -176,7 +174,9 @@ fclose
 
 # if "feminos-daq" is not globally accessible, add it to FEMINOS_DAQ_EXECUTABLE variable
 if "FEMINOS_DAQ_EXECUTABLE" not in os.environ:
-    feminos_daq_executable = subprocess.check_output("which feminos-daq", shell=True).strip().decode("utf-8")
+    feminos_daq_executable = (
+        subprocess.check_output("which feminos-daq", shell=True).strip().decode("utf-8")
+    )
     os.environ["FEMINOS_DAQ_EXECUTABLE"] = feminos_daq_executable
 else:
     feminos_daq_executable = os.environ["FEMINOS_DAQ_EXECUTABLE"]
@@ -196,9 +196,20 @@ output_filename = "./output_file.root"
 run_time = 30  # seconds
 
 result = subprocess.run(
-    [feminos_daq_executable, "-s", ip, "--time", str(run_time), "--skip-run-info", "--disable-aqs", "--input",
-     config_filename, "--output",
-     output_filename])
+    [
+        feminos_daq_executable,
+        "-s",
+        ip,
+        "--time",
+        str(run_time),
+        "--skip-run-info",
+        "--disable-aqs",
+        "--input",
+        config_filename,
+        "--output",
+        output_filename,
+    ]
+)
 
 # print return code
 print(f"Return code: {result.returncode}")

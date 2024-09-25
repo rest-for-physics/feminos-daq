@@ -206,3 +206,33 @@ This computation is done by the viewer program so it may take significant time t
 of counts. The computations are only performed as long as the `Observables` mode is selected (so it might be a good idea
 to leave this mode selected when performing a long acquisition run). The `Auto-Update` option will periodically refresh
 the observables so it's recommended to enable it when using the `Observables` mode.
+
+### Automatic syncing of output to remote server
+
+It is a frequent requirement that the data acquired by the `feminos-daq` program is stored in a remote server.
+
+This repository includes a script (`/scripts/feminos-daq-sync.sh`) that can be used to sync the data directory to a
+remote host using `rsync`.
+
+```bash
+feminos-daq-sync.sh local_data_directory/ remote_user@remote_host: /remote_data_directory/
+```
+
+It is recommended to setup a systemd service to run this script.
+The user running the service should have password-less ssh access to the remote host.
+
+`/etc/systemd/system/feminos-daq-sync.service`:
+
+```bash
+[Unit]
+Description=File Sync Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/feminos-daq-sync.sh /home/user/data/ user@remote /remote/storage/data/
+Restart=always
+User=useriaxo
+
+[Install]
+WantedBy=multi-user.target
+```
