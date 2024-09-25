@@ -28,6 +28,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <string>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
@@ -43,8 +44,6 @@ using namespace std;
 /*******************************************************************************
  Constants types and global variables
 *******************************************************************************/
-char res_file[80] = {"\0"};
-int save_res = 0;
 int verbose = 4;
 int format_ver = 2;
 int pending_event = 0;
@@ -73,6 +72,14 @@ int SemaphoreId;
 
 constexpr int MAX_SIGNALS = feminos_daq_storage::MAX_SIGNALS;
 constexpr int MAX_POINTS = feminos_daq_storage::MAX_POINTS;
+
+void removeRootExtension(std::string& filename) {
+    const std::string extension = ".root";
+    std::size_t pos = filename.rfind(extension);
+    if (pos != std::string::npos && pos == filename.length() - extension.length()) {
+        filename.erase(pos); // Remove the extension
+    }
+}
 
 template<typename T>
 void stringIpToArray(const std::string& ip, T* ip_array) {
@@ -128,6 +135,10 @@ int main(int argc, char** argv) {
     bool version_flag = false;
     bool disable_aqs = false;
     std::string compression_option = "default";
+    double stop_run_after_seconds = 0;
+    unsigned int stop_run_after_entries = 0;
+    bool allow_losing_events = false;
+    bool skip_run_info = false;
 
     CLI::App app{"feminos-daq"};
 
@@ -146,14 +157,21 @@ int main(int argc, char** argv) {
             ->check(CLI::ValidIPV4);
     app.add_option("-i,--input", input_file, "Read commands from file specified")
             ->group("File Options");
-    app.add_option("-o,--output", output_file, "Save results in file specified (DOES NOT WORK!)")
+    app.add_option("-o,--output", output_file, "Save results in file specified")
             ->group("File Options");
     app.add_option("-d,--output-directory", output_directory, "Output directory. This can also be specified via the environment variable 'FEMINOS_DAQ_OUTPUT_DIRECTORY' or 'RAWDATA_PATH'")
             ->group("File Options");
     app.add_option("-v,--verbose", verbose_level, "Verbose level")
             ->group("General")
             ->check(CLI::Range(0, 4));
+    app.add_option("-t,--time", stop_run_after_seconds, "Stop the acquisition after the specified time in seconds")
+            ->group("General")
+            ->check(CLI::Range(0.0, 1e6));
+    app.add_option("-e,--entries", stop_run_after_entries, "Stop the acquisition after reaching the specified number of entries")
+            ->group("General");
     app.add_flag("--read-only", readOnly, ("Read-only mode"))
+            ->group("General");
+    app.add_flag("--allow-losing-events", allow_losing_events, "Allow losing events if the buffer is full (acceptable for calibrations, not for background runs)")
             ->group("General");
     app.add_flag("--shared-buffer", sharedBuffer, "Store event data in a shared memory buffer")->group("General");
     app.add_flag("--compression", compression_option,
@@ -164,6 +182,7 @@ int main(int argc, char** argv) {
             ->group("File Options")
             ->check(CLI::IsMember(feminos_daq_storage::StorageManager::GetCompressionOptions()));
     app.add_flag("--disable-aqs", disable_aqs, "Do not store data in aqs format. NOTE: aqs files may be created anyways but they will not have data")->group("File Options");
+    app.add_flag("--skip-run-info", skip_run_info, "Skip asking for run information and use default values (same as pressing enter)")->group("General");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -186,17 +205,17 @@ int main(int argc, char** argv) {
     storage_manager.SetOutputDirectory(output_directory);
     storage_manager.compression_option = compression_option;
     storage_manager.disable_aqs = disable_aqs;
+    storage_manager.stop_run_after_seconds = stop_run_after_seconds;
+    storage_manager.stop_run_after_entries = stop_run_after_entries;
+    storage_manager.allow_losing_events = allow_losing_events;
+    storage_manager.skip_run_info = skip_run_info;
 
     stringIpToArray(server_ip, femarray.rem_ip_beg);
     stringIpToArray(local_ip, femarray.loc_ip);
 
     if (!output_file.empty()) {
-        if (output_file.length() > 80) {
-            std::cerr << "Output file name is too long" << std::endl;
-            return 1;
-        }
-        strcpy(res_file, output_file.c_str());
-        save_res = 1;
+        removeRootExtension(output_file);
+        storage_manager.output_filename_manual = output_file;
     }
 
     if (!input_file.empty()) {

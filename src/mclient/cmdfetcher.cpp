@@ -225,6 +225,8 @@ int CmdFetcher_Main(CmdFetcher* cf) {
     // Pass this semaphore to the FemArray
     fa->sem_cur_cmd_done = cf->sem_cur_cmd_done;
 
+    const auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
+
     // Command fetching loop
     while (!alldone) {
         // Get the next command from the local command array
@@ -266,6 +268,8 @@ int CmdFetcher_Main(CmdFetcher* cf) {
         }
 
         // use stdin for commands
+        const auto daq_config_directory = getenv("DAQ_CONFIG");
+
         if (cf->use_stdin) {
             cmd_stdin_done = 0;
             while (!cmd_stdin_done) {
@@ -281,8 +285,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                         strcmp(cf->cmd_file, "runTCM") != 0) {
 
                         if (!readOnly) {
-
-                            sprintf(tmpStr, "%s/%s", getenv("DAQ_CONFIG"), "ped.info");
+                            sprintf(tmpStr, "%s/%s", daq_config_directory, "ped.info");
                             fRunInfo = fopen(tmpStr, "rt");
 
                             fscanf(fRunInfo, "%s\n", clockStr);
@@ -293,7 +296,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             printf("Getting info from ped.info\n");
                             printf("Clock divisions : %s shaping : %s gain : %s\n", clockStr, shapingStr, gainStr);
 
-                            sprintf(tmpStr, "%s/%s", getenv("DAQ_CONFIG"), "run.info");
+                            sprintf(tmpStr, "%s/%s", daq_config_directory, "run.info");
                             fRunInfo = fopen(tmpStr, "rt");
                             fscanf(fRunInfo, "%s\n", runNumberStr);
                             runNumber = atoi(runNumberStr);
@@ -304,53 +307,75 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             fscanf(fRunInfo, "%s\n", detectorStr);
                             fclose(fRunInfo);
 
+                            const bool skip_run_info = storage_manager.skip_run_info;
+                            if (skip_run_info) {
+                                sprintf(tmpStr, "\n");
+                            }
+
                             printf("Enter the run conditions :\n");
                             printf("--------------------------\n");
                             printf("Run number : %d\n", runNumber + 1);
 
                             printf("\nDrift field (%s V/cm/bar) : ", driftFieldStr);
-                            fgets(tmpStr, 100, stdin);
+                            if (!skip_run_info) {
+                                fgets(tmpStr, 100, stdin);
+                            }
                             strtok(tmpStr, "\n");
-                            if (strcmp(tmpStr, "\n") != 0)
+                            if (strcmp(tmpStr, "\n") != 0) {
                                 sprintf(driftFieldStr, "%s", tmpStr);
+                            }
                             printf("\nDrift field set to : %s V/cm/bar\n", driftFieldStr);
 
                             printf("\nMesh voltage (%s V) : ", meshVoltageStr);
-                            fgets(tmpStr, 100, stdin);
+                            if (!skip_run_info) {
+                                fgets(tmpStr, 100, stdin);
+                            }
                             strtok(tmpStr, "\n");
-                            if (strcmp(tmpStr, "\n") != 0)
+                            if (strcmp(tmpStr, "\n") != 0) {
                                 sprintf(meshVoltageStr, "%s", tmpStr);
+                            }
                             printf("\nMesh voltage set to : %s V\n", meshVoltageStr);
 
                             printf("\nDetector pressure (%s bar) : ", detectorPressureStr);
-                            fgets(tmpStr, 100, stdin);
+                            if (!skip_run_info) {
+                                fgets(tmpStr, 100, stdin);
+                            }
                             strtok(tmpStr, "\n");
-                            if (strcmp(tmpStr, "\n") != 0)
+                            if (strcmp(tmpStr, "\n") != 0) {
                                 sprintf(detectorPressureStr, "%s", tmpStr);
+                            }
                             printf("\nPressure set to : %s bar\n", detectorPressureStr);
 
                             printf("\nRun tag (%s) : ", runTagStr);
-                            fgets(tmpStr, 100, stdin);
+                            if (!skip_run_info) {
+                                fgets(tmpStr, 100, stdin);
+                            }
                             strtok(tmpStr, "\n");
-                            if (strcmp(tmpStr, "\n") != 0)
+                            if (strcmp(tmpStr, "\n") != 0) {
                                 sprintf(runTagStr, "%s", tmpStr);
+                            }
                             printf("\n");
                             removeSpaces(runTagStr);
                             printf("Run tag set to : %s\n", runTagStr);
 
                             printf("\nDetector (%s) : ", detectorStr);
-                            fgets(tmpStr, 100, stdin);
+                            if (!skip_run_info) {
+                                fgets(tmpStr, 100, stdin);
+                            }
                             strtok(tmpStr, "\n");
-                            if (strcmp(tmpStr, "\n") != 0)
+                            if (strcmp(tmpStr, "\n") != 0) {
                                 sprintf(detectorStr, "%s", tmpStr);
+                            }
                             printf("\nDetector set to : %s\n", detectorStr);
 
                             printf("\nComments : ");
-                            fgets(tmpStr, 512, stdin);
+                            if (!skip_run_info) {
+                                fgets(tmpStr, 100, stdin);
+                            }
                             sprintf(runComments, "%s", tmpStr);
                             printf("\n");
 
-                            sprintf(tmpStr, "%s/%s", getenv("DAQ_CONFIG"), "run.info");
+                            sprintf(tmpStr, "%s/%s", daq_config_directory, "run.info");
                             fRunInfo = fopen(tmpStr, "wt");
                             runNumber++;
                             fprintf(fRunInfo, "%d\n", runNumber);
@@ -414,7 +439,7 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                             }
                             fclose(fRunInfo);
 
-                            sprintf(tmpStr, "%s/%s", getenv("DAQ_CONFIG"), "ped.info");
+                            sprintf(tmpStr, "%s/%s", daq_config_directory, "ped.info");
                             fRunInfo = fopen(tmpStr, "wt");
 
                             fprintf(fRunInfo, "%s\n", clockStr);

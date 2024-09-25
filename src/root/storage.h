@@ -85,20 +85,26 @@ public:
     Event event;
 
     std::string compression_option;
+    double stop_run_after_seconds = 0;
+    unsigned int stop_run_after_entries = 0;
+    bool allow_losing_events = false;
     bool disable_aqs = false;
+    bool skip_run_info = false;
 
     static std::set<std::string> GetCompressionOptions() {
         return {"default", "fast", "highest"};
     }
 
     unsigned long long run_number = 0;
-    unsigned long long run_time_start = 0;
+    unsigned long long run_time_start_millis = 0;
 
     std::string run_name;
     std::string run_tag;
     std::string run_detector_name;
     std::string run_comments;
     std::string run_commands;
+
+    std::string output_filename_manual;
 
     float run_drift_field_V_cm_bar = 0.0;
     float run_mesh_voltage_V = 0.0;
@@ -133,6 +139,8 @@ private:
     std::atomic<unsigned long long> frames_count = 0;
     std::mutex frames_mutex;
     const size_t max_frames = 1000000; // this should be about 2GB when full (depends on frame size)
+
+    void early_exit() const;
 };
 
 } // namespace feminos_daq_storage

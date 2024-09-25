@@ -51,7 +51,7 @@ typedef struct _EventBuilder {
 
     void* fa; // pointer to FEM Array
 
-    char file_path[120]; // result file path
+    char file_path[200]; // result file path
     int savedata;        // 0: do not save data; 1: save to disk in ASCII; 2: save to disk in binary
     FILE* fout;          // output file pointer
 
