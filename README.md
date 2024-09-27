@@ -215,7 +215,7 @@ This repository includes a script (`/scripts/feminos-daq-sync.sh`) that can be u
 remote host using `rsync`.
 
 ```bash
-feminos-daq-sync.sh local_data_directory/ remote_user@remote_host: /remote_data_directory/
+feminos-daq-sync.sh local_data_directory/ remote_user@remote_host /remote_data_directory/
 ```
 
 It is recommended to setup a systemd service to run this script.
