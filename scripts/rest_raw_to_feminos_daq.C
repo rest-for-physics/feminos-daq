@@ -8,9 +8,9 @@
 
 using namespace std;
 
+/// Input file: A REST file containing a TRestRawSignalEvent
+/// Output file: A root file with signal data stored in a compatible format with feminos-daq
 void rest_raw_to_feminos_daq(const std::string& input_filename, const std::string& output_filename) {
-    std::cout << "Input file: " << input_filename << std::endl;
-
     auto input_file = TFile::Open(input_filename.c_str(), "READ");
     auto input_tree = input_file->Get<TTree>("EventTree");
 
