@@ -1609,7 +1609,7 @@ for readout_name in readouts:
 
 
 def amplitude_to_color(
-        amplitude, min_amplitude=0, max_amplitude=4095, cmap_name="jet", log_scale=True
+    amplitude, min_amplitude=0, max_amplitude=4095, cmap_name="jet", log_scale=True
 ):
     amplitude = max(amplitude, min_amplitude)
 
@@ -1625,7 +1625,7 @@ def amplitude_to_color(
     else:
         # Linear scaling
         normalized_amplitude = (amplitude - min_amplitude) / (
-                max_amplitude - min_amplitude
+            max_amplitude - min_amplitude
         )
 
     # Normalize the value to be between 0 and 1
@@ -1675,9 +1675,9 @@ def get_event(tree: uproot.TTree, entry: int):
 
 @njit
 def compute_energy_estimate(
-        event: ak.highlevel.Record,
-        signal_ids_allowed: set[int],
-        baseline_range: float = 0.2,
+    event: ak.highlevel.Record,
+    signal_ids_allowed: set[int],
+    baseline_range: float = 0.2,
 ) -> float:
     energy = 0.0
     baseline_factor = int(baseline_range * len(event.signals.values[0]))
@@ -1697,7 +1697,7 @@ def compute_energy_estimate(
 
 @njit
 def compute_energy_of_waveform(
-        waveform: np.ndarray, baseline_range: float = 0.2
+    waveform: np.ndarray, baseline_range: float = 0.2
 ) -> float:
     baseline_factor = int(baseline_range * len(waveform))
     return np.max(waveform) - np.mean(waveform[:baseline_factor])
@@ -1770,7 +1770,7 @@ class EventViewer:
         self.readout_menu.pack(side=tk.LEFT, padx=20, pady=5)
         self.selected_readout.set("IAXO-D1")
         assert (
-                self.selected_readout.get() in readouts
+            self.selected_readout.get() in readouts
         ), f"Invalid readout {self.selected_readout.get()}. Available readouts are {readouts.keys()}"
         self.readout_signal_ids = set(readouts[self.readout]["mapping"].keys())
 
@@ -2065,7 +2065,9 @@ class EventViewer:
 
     def open_local_file(self, filename: str | None = None):
         if filename is None:
-            self.filepath = filedialog.askopenfilename(filetypes=[("ROOT files", "*.root")])
+            self.filepath = filedialog.askopenfilename(
+                filetypes=[("ROOT files", "*.root")]
+            )
             if not self.filepath:
                 return
         else:
@@ -2314,7 +2316,7 @@ class EventViewer:
 
             signal_type = readouts[self.readout]["mapping"][int(signal_id)][0]
             assert (
-                    len(values) == 512
+                len(values) == 512
             ), f"Signal {signal_id} has {len(values)} bins, not 512"
             for i in range(len(values)):
                 value = values[i]
@@ -2379,8 +2381,8 @@ class EventViewer:
             energy_estimate_quantile = 0.99
 
             observable_energy_estimate = self.observable_energy_estimate[
-                                         : int(len(self.observable_energy_estimate) * energy_estimate_quantile)
-                                         ]
+                : int(len(self.observable_energy_estimate) * energy_estimate_quantile)
+            ]
 
             self.ax_left.hist(
                 observable_energy_estimate,
@@ -2445,13 +2447,13 @@ class EventViewer:
                 signal_id
                 for signal_id in self.observable_channel_activity.keys()
                 if signal_id in self.readout_signal_ids
-                   and readouts[self.readout]["mapping"][signal_id][0] == "X"
+                and readouts[self.readout]["mapping"][signal_id][0] == "X"
             ]
             signal_ids_y = [
                 signal_id
                 for signal_id in self.observable_channel_activity.keys()
                 if signal_id in self.readout_signal_ids
-                   and readouts[self.readout]["mapping"][signal_id][0] == "Y"
+                and readouts[self.readout]["mapping"][signal_id][0] == "Y"
             ]
 
             positions_x = [
