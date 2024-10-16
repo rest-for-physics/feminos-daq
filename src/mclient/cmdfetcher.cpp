@@ -798,6 +798,9 @@ int CmdFetcher_ParseCmdFile(CmdFetcher* cf) {
 
     // Always append as header clear event counter and timestamp. Only in case we are starting a data taking run
     if (strcmp(cf->cmd_file, "ped") != 0 && strcmp(cf->cmd_file, "start") != 0 && strcmp(cf->cmd_file, "runTCM") != 0) {
+        sprintf(cf->snd[ix], "fem *\n");
+        cf->cmd_cnt++;
+        ix++;
         sprintf(cf->snd[ix], "clr tstamp\n");
         cf->cmd_cnt++;
         ix++;
