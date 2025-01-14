@@ -239,7 +239,7 @@ WantedBy=multi-user.target
 
 Some useful commands (in case the script gets stuck, for example) to run in the `/scripts/` repository:
 
-- `journalctl -u feminos-daq-sync.service`
+- `journalctl -u feminos-daq-sync.service -r`
   This will show the latest executions of the script. This can be useful to check the last time it was correctly run.
 - `systemctl status feminos-daq-sync`
   This will show the status of the script. If there is an error it will show "active: failed".
