@@ -236,3 +236,14 @@ User=useriaxo
 [Install]
 WantedBy=multi-user.target
 ```
+
+Some useful commands (in case the script gets stuck, for example) to run in the `/scripts/` repository:
+
+- `journalctl -u feminos-daq-sync.service -r`
+  This will show the latest executions of the script. This can be useful to check the last time it was correctly run.
+- `systemctl status feminos-daq-sync`
+  This will show the status of the script. If there is an error it will show "active: failed".
+- `systemctl restart feminos-daq-sync`
+  When that happens restarting the script might solve the issue.
+- `systemctl stop feminos-daq-sync`
+  In case you want to stop the script.
