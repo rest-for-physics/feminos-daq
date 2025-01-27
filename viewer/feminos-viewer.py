@@ -1769,9 +1769,9 @@ class EventViewer:
         )
         self.readout_menu.pack(side=tk.LEFT, padx=20, pady=5)
         self.selected_readout.set("IAXO-D1")
-        assert (
-            self.selected_readout.get() in readouts
-        ), f"Invalid readout {self.selected_readout.get()}. Available readouts are {readouts.keys()}"
+        assert self.selected_readout.get() in readouts, (
+            f"Invalid readout {self.selected_readout.get()}. Available readouts are {readouts.keys()}"
+        )
         self.readout_signal_ids = set(readouts[self.readout]["mapping"].keys())
 
         self.auto_update_variable = tk.BooleanVar()
@@ -2315,9 +2315,9 @@ class EventViewer:
             baseline_sigma = np.std(values[:baseline_factor])
 
             signal_type = readouts[self.readout]["mapping"][int(signal_id)][0]
-            assert (
-                len(values) == 512
-            ), f"Signal {signal_id} has {len(values)} bins, not 512"
+            assert len(values) == 512, (
+                f"Signal {signal_id} has {len(values)} bins, not 512"
+            )
             for i in range(len(values)):
                 value = values[i]
                 if not value > baseline_level + 2.0 * baseline_sigma:
