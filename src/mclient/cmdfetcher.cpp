@@ -269,6 +269,10 @@ int CmdFetcher_Main(CmdFetcher* cf) {
 
         // use stdin for commands
         const auto daq_config_directory = getenv("DAQ_CONFIG");
+        if (daq_config_directory == nullptr) {
+            printf("DAQ_CONFIG environment variable not set\n");
+            exit(-1);
+        }
 
         if (cf->use_stdin) {
             cmd_stdin_done = 0;
@@ -287,6 +291,10 @@ int CmdFetcher_Main(CmdFetcher* cf) {
                         if (!readOnly) {
                             sprintf(tmpStr, "%s/%s", daq_config_directory, "ped.info");
                             fRunInfo = fopen(tmpStr, "rt");
+                            if (!fRunInfo) {
+                                printf("Could not open file %s\n", tmpStr);
+                                exit(-1);
+                            }
 
                             fscanf(fRunInfo, "%s\n", clockStr);
                             fscanf(fRunInfo, "%s\n", shapingStr);
@@ -298,6 +306,10 @@ int CmdFetcher_Main(CmdFetcher* cf) {
 
                             sprintf(tmpStr, "%s/%s", daq_config_directory, "run.info");
                             fRunInfo = fopen(tmpStr, "rt");
+                            if (!fRunInfo) {
+                                printf("Could not open file %s\n", tmpStr);
+                                exit(-1);
+                            }
                             fscanf(fRunInfo, "%s\n", runNumberStr);
                             runNumber = atoi(runNumberStr);
                             fscanf(fRunInfo, "%s\n", runTagStr);
@@ -377,6 +389,10 @@ int CmdFetcher_Main(CmdFetcher* cf) {
 
                             sprintf(tmpStr, "%s/%s", daq_config_directory, "run.info");
                             fRunInfo = fopen(tmpStr, "wt");
+                            if (!fRunInfo) {
+                                printf("Could not open file %s\n", tmpStr);
+                                exit(-1);
+                            }
                             runNumber++;
                             fprintf(fRunInfo, "%d\n", runNumber);
                             fprintf(fRunInfo, "%s\n", runTagStr);
@@ -441,6 +457,10 @@ int CmdFetcher_Main(CmdFetcher* cf) {
 
                             sprintf(tmpStr, "%s/%s", daq_config_directory, "ped.info");
                             fRunInfo = fopen(tmpStr, "wt");
+                            if (!fRunInfo) {
+                                printf("Could not open file %s\n", tmpStr);
+                                exit(-1);
+                            }
 
                             fprintf(fRunInfo, "%s\n", clockStr);
                             fprintf(fRunInfo, "%s\n", shapingStr);
