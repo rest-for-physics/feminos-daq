@@ -58,6 +58,12 @@ Only ROOT remains an external dependency (that was not the case in the original 
 The `feminos-daq` executable is only meant to be compiled for a linux target but the `feminos-viewer` python program can
 be run on any platform.
 
+> [!IMPORTANT]
+> Set up the environment variable DAQ_CONFIG to a directory which holds the ped.info and run.info files. For example:
+> ```bash
+> export DAQ_CONFIG=./configs/
+> ```
+
 ### Usage
 
 To get a list of the available options, run the following command:
