@@ -947,7 +947,12 @@ int EventBuilder_FileAction(EventBuilder* eb,
                         fileNameNow);
 
                 anFiles = fopen(fileAnalysis, "wt");
-                fclose(anFiles);
+                if (anFiles) {
+                    fclose(anFiles);
+                } else {
+                    printf("Error adding file to the analysis queue: %s\n",
+                           fileAnalysis);
+                }
 
                 // Adding file to signal the end of the run
                 sprintf(fileAnalysis, "%s/%s",
@@ -955,7 +960,12 @@ int EventBuilder_FileAction(EventBuilder* eb,
                         fileNameEndRun);
 
                 anFiles = fopen(fileAnalysis, "wt");
-                fclose(anFiles);
+                if (anFiles) {
+                    fclose(anFiles);
+                } else {
+                    printf("Error adding end of run file to the analysis queue: %s\n",
+                           fileAnalysis);
+                }
             }
 
             eb->fout = (FILE*) nullptr;
@@ -986,7 +996,12 @@ int EventBuilder_FileAction(EventBuilder* eb,
                         files_to_analyse_path,
                         fileNameNow);
                 anFiles = fopen(fileAnalysis, "wt");
-                fclose(anFiles);
+                if (anFiles) {
+                    fclose(anFiles);
+                } else {
+                    printf("Error adding file to the analysis queue: %s\n",
+                           fileAnalysis);
+                }
             }
 
             eb->fout = (FILE*) nullptr;
