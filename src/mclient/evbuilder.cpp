@@ -928,6 +928,7 @@ int EventBuilder_FileAction(EventBuilder* eb,
 
     FILE* anFiles;
     char fileAnalysis[256];
+    const auto files_to_analyse_path = getenv("FILES_TO_ANALYSE_PATH");
 
     int tt;
 
@@ -939,21 +940,23 @@ int EventBuilder_FileAction(EventBuilder* eb,
             fflush(eb->fout);
             fclose(eb->fout);
 
-            // Adding file to the analysis queue
-            sprintf(fileAnalysis, "%s/%s",
-                    getenv("FILES_TO_ANALYSE_PATH"),
-                    fileNameNow);
+            if (files_to_analyse_path) {
+                // Adding file to the analysis queue
+                sprintf(fileAnalysis, "%s/%s",
+                        files_to_analyse_path,
+                        fileNameNow);
 
-            anFiles = fopen(fileAnalysis, "wt");
-            fclose(anFiles);
+                anFiles = fopen(fileAnalysis, "wt");
+                fclose(anFiles);
 
-            // Adding file to signal the end of the run
-            sprintf(fileAnalysis, "%s/%s",
-                    getenv("FILES_TO_ANALYSE_PATH"),
-                    fileNameEndRun);
+                // Adding file to signal the end of the run
+                sprintf(fileAnalysis, "%s/%s",
+                        files_to_analyse_path,
+                        fileNameEndRun);
 
-            anFiles = fopen(fileAnalysis, "wt");
-            fclose(anFiles);
+                anFiles = fopen(fileAnalysis, "wt");
+                fclose(anFiles);
+            }
 
             eb->fout = (FILE*) nullptr;
 
@@ -978,11 +981,13 @@ int EventBuilder_FileAction(EventBuilder* eb,
             fflush(eb->fout);
             fclose(eb->fout);
 
-            sprintf(fileAnalysis, "%s/%s",
-                    getenv("FILES_TO_ANALYSE_PATH"),
-                    fileNameNow);
-            anFiles = fopen(fileAnalysis, "wt");
-            fclose(anFiles);
+            if (files_to_analyse_path) {
+                sprintf(fileAnalysis, "%s/%s",
+                        files_to_analyse_path,
+                        fileNameNow);
+                anFiles = fopen(fileAnalysis, "wt");
+                fclose(anFiles);
+            }
 
             eb->fout = (FILE*) nullptr;
         }
