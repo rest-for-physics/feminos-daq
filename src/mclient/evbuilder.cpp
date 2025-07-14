@@ -1110,7 +1110,11 @@ int EventBuilder_FileAction(EventBuilder* eb,
     }
 
     // Open result file
-    if (!(eb->fout = fopen(name, str_res))) {
+    if (storage_manager.disable_aqs) {
+        // If AQS is disabled, we don't open the file
+        eb->fout = nullptr;
+        format = 0; // this will be saved in eb->savedata so that it does not try to write into ACII or AQS files
+    } else if (!(eb->fout = fopen(name, str_res))) {
         printf(
                 "EventBuilder_FileAction: could not open file "
                 "%s.\n",
