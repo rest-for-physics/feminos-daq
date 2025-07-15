@@ -107,12 +107,14 @@ bool ReadFrame(const std::vector<unsigned short>& frame_data, feminos_daq_storag
 
             tmp = (((unsigned int) n1) << 16) | ((unsigned int) n0);
 
-            // auto time = 0 + (2147483648 * r2 + 32768 * r1 + r0) * 2e-8;
+            // this is the time (in seconds) since the start of the acquisition by the Feminos
+            auto time = (2147483648 * r2 + 32768 * r1 + r0) * 2e-8; // convert to seconds: 2147483648 = 2^31, 32768 = 2^15 used to scale r2 and r1 to build a 48-bit value and 20ns per clock tick
 
             // milliseconds unix time
 
             if (event.timestamp == 0) {
-                auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                // auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); // old way
+                auto milliseconds = run_time_start_millis + static_cast<unsigned long long>(time * 1000);
                 event.timestamp = milliseconds;
             }
 
