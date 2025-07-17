@@ -114,7 +114,7 @@ bool ReadFrame(const std::vector<unsigned short>& frame_data, feminos_daq_storag
 
             if (event.timestamp == 0) {
                 // auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); // old way
-                auto milliseconds = run_time_start_millis + static_cast<unsigned long long>(time * 1000);
+                auto milliseconds = static_cast<unsigned long long>(time * 1000);
                 event.timestamp = milliseconds;
             }
 
@@ -230,6 +230,7 @@ void StorageManager::Initialize(const string& filename) {
                 if (storage_manager.IsInitialized()) {
 
                     storage_manager.event.id = storage_manager.event_tree->GetEntries();
+                    storage_manager.event.timestamp += storage_manager.run_time_start_millis; // timestamp saved in the frame is relative to the start of the acquisition, so we need to add the run start time
                     storage_manager.event_tree->Fill();
 
                     storage_manager.Checkpoint();
