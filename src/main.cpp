@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
     int verbose_level = -1;
     std::string output_directory;
     bool version_flag = false;
-    bool disable_aqs = false;
+    bool enable_aqs = false;
     std::string compression_option = "default";
     double stop_run_after_seconds = 0;
     unsigned int stop_run_after_entries = 0;
@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
 - default: default compression settings, a balance between speed and compression)")
             ->group("File Options")
             ->check(CLI::IsMember(feminos_daq_storage::StorageManager::GetCompressionOptions()));
-    app.add_flag("--disable-aqs", disable_aqs, "Do not store data in aqs format. NOTE: aqs files may be created anyways but they will not have data")->group("File Options");
+    app.add_flag("--enable-aqs", enable_aqs, "Store data in aqs format")->group("File Options");
     app.add_flag("--skip-run-info", skip_run_info, "Skip asking for run information and use default values (same as pressing enter)")->group("General");
 
     CLI11_PARSE(app, argc, argv);
@@ -204,7 +204,7 @@ int main(int argc, char** argv) {
 
     storage_manager.SetOutputDirectory(output_directory);
     storage_manager.compression_option = compression_option;
-    storage_manager.disable_aqs = disable_aqs;
+    storage_manager.disable_aqs = !enable_aqs;
     storage_manager.stop_run_after_seconds = stop_run_after_seconds;
     storage_manager.stop_run_after_entries = stop_run_after_entries;
     storage_manager.allow_losing_events = allow_losing_events;
