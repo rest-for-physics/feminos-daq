@@ -38,7 +38,7 @@ jobs:
           pyinstaller viewer/feminos-viewer.py --onefile --name feminos-viewer
 
       - name: Upload binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: feminos-viewer-${{ matrix.os }}
           path: dist/feminos-viewer${{ matrix.os == 'windows-latest' && '.exe' || '' }}
