@@ -29,6 +29,7 @@ as 4th or 5th argument in any command
 #include "femarray.h"
 #include "storage.h"
 
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -59,6 +60,13 @@ char dacCoarseStr[16];
 char dacFineStr[16];
 
 extern int readOnly;
+
+// Flag set by the SIGINT handler to break out of the script command loop
+static volatile sig_atomic_t ctrl_c_pressed = 0;
+
+static void CmdFetcher_SigInt(int) {
+    ctrl_c_pressed = 1;
+}
 
 // Function to remove all spaces from a given string
 void removeSpaces(char* str) {
@@ -227,8 +235,26 @@ int CmdFetcher_Main(CmdFetcher* cf) {
 
     const auto& storage_manager = feminos_daq_storage::StorageManager::Instance();
 
+    // Install signal handler so that Ctrl+C breaks out of the script loop
+    // instead of terminating the process
+    if (!cf->use_stdin) {
+        signal(SIGINT, CmdFetcher_SigInt);
+    }
+
     // Command fetching loop
     while (!alldone) {
+        // If Ctrl+C was pressed while running a script loop, force the loop to
+        // end at the next NEXT statement and continue with subsequent commands
+        if (ctrl_c_pressed && !cf->use_stdin) {
+            ctrl_c_pressed = 0;
+            if (loop_max > 0) {
+                loop_ix = loop_max;
+                printf("CmdFetcher_Main: Ctrl+C received, breaking out of loop.\n");
+            } else {
+                printf("CmdFetcher_Main: Ctrl+C received (no active loop).\n");
+            }
+        }
+
         // Get the next command from the local command array
         if (!cf->use_stdin) {
             if (strncmp(&(cf->snd[cmd_ix][0]), "LOOP", 4) == 0) {
