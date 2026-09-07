@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
+import os
 import subprocess
 import sys
-import uproot
-import os
+
 import awkward as ak
+import uproot
 
 config_contents = """
 fem * #Apply first to both feminos
