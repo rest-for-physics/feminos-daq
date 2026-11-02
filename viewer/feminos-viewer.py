@@ -2,24 +2,23 @@
 
 from __future__ import annotations
 
-import tkinter as tk
-from tkinter import filedialog, messagebox
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import uproot
-import awkward as ak
-import requests
-import re
-import numpy as np
-import threading
-from collections import OrderedDict, defaultdict
-import time
-import mplhep as hep
-from tkinter import simpledialog
-from numba import njit
-from tkinter import font
-from matplotlib import colors as mcolors
 import argparse
+import re
+import threading
+import time
+import tkinter as tk
+from collections import OrderedDict, defaultdict
+from tkinter import filedialog, font, messagebox, simpledialog
+
+import awkward as ak
+import matplotlib.pyplot as plt
+import mplhep as hep
+import numpy as np
+import requests
+import uproot
+from matplotlib import colors as mcolors
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from numba import njit
 
 hep.style.use(hep.style.CMS)
 
@@ -1860,9 +1859,7 @@ class EventViewer:
 
         def rgb_to_hex(rgb):
             """Convert an RGB tuple to a hex color string."""
-            return "#{:02x}{:02x}{:02x}".format(
-                int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)
-            )
+            return f"#{int(rgb[0] * 255):02x}{int(rgb[1] * 255):02x}{int(rgb[2] * 255):02x}"
 
         def on_motion(event):
             if self.display_menu_selected.get() != self.display_menu_options[0]:
@@ -1940,7 +1937,7 @@ class EventViewer:
                         time.sleep(1)
                         continue
 
-                    for i in range(0, self.event_tree.num_entries):
+                    for i in range(self.event_tree.num_entries):
                         while not self.observables_compute.get():
                             time.sleep(0.1)
 
@@ -2283,7 +2280,7 @@ class EventViewer:
 
         self.clear_plots()
 
-        bins_time = np.array(range(0, 512))
+        bins_time = np.array(range(512))
         n_bins = 100
         bins_x = np.linspace(
             readouts[self.readout]["limits"]["x"][0],
@@ -2590,9 +2587,9 @@ class EventViewer:
                 self.plot_channel_acitivty()
 
         except ValueError as e:
-            messagebox.showerror("Error", f"Invalid entry: {str(e)}")
+            messagebox.showerror("Error", f"Invalid entry: {e!s}")
         except Exception as e:
-            messagebox.showerror("Error", f"An error occurred while plotting: {str(e)}")
+            messagebox.showerror("Error", f"An error occurred while plotting: {e!s}")
 
     def update_entry(self, entry: int):
         self.current_entry = entry
