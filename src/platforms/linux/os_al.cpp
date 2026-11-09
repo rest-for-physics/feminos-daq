@@ -491,7 +491,7 @@ int Thread_Create(ThreadStruct* thread) {
 
     if (pthread_create(&thread_id,
                        (pthread_attr_t*) (&thread_attr),
-                       (void* (*) (void*) ) thread->routine,
+                       (void* (*)(void*) ) thread->routine,
                        thread->param)) {
         perror("Thread_Create: pthread_create");
         goto error_exit;
